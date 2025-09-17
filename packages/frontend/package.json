@@ -1,6 +1,6 @@
 {
   "name": "@cage/frontend",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "test": "vitest",
@@ -35,5 +35,14 @@
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
     "vitest": "^3.2.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sengac/cage.git",
+    "directory": "packages/frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/sengac/cage/issues"
+  },
+  "homepage": "https://github.com/sengac/cage/tree/main/packages/frontend"
 }

@@ -2,6 +2,9 @@
 
 A controlled environment for AI that provides the right boundaries, context, and guidance to help it do its job effectively.
 
+🌐 **Website**: [https://cage.tools](https://cage.tools)
+📦 **Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)
+
 ## Documentation
 
 - [CLI Documentation](docs/CLI.md)

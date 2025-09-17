@@ -1,6 +1,6 @@
 {
   "name": "@cage/root",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "test": "npm run test --workspaces --if-present",
@@ -14,9 +14,9 @@
     "start:server": "npm run start --workspace @cage/backend"
   },
   "keywords": [],
-  "author": "",
+  "author": "Software Engineering & Consulting Pty Ltd",
   "license": "MIT",
-  "description": "",
+  "description": "A controlled environment for AI that provides the right boundaries, context, and guidance",
   "workspaces": [
     "packages/*"
   ],
@@ -32,5 +32,13 @@
     "prettier": "^3.6.2",
     "stylelint": "^16.24.0",
     "stylelint-config-standard": "^39.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sengac/cage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sengac/cage/issues"
+  },
+  "homepage": "https://cage.tools"
 }

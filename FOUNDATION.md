@@ -256,3 +256,6 @@ Based on Claude Code documentation:
 
 ### Project Name: Cage
 A cage for writing the right thing - a controlled environment that ensures AI produces code that matches living specifications through Specification by Example. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
+
+**Project Website**: [https://cage.tools](https://cage.tools)
+**GitHub Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)

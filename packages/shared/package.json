@@ -1,6 +1,6 @@
 {
   "name": "@cage/shared",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "scripts": {
     "test": "vitest",
@@ -20,5 +20,14 @@
   "devDependencies": {
     "@types/node": "^24.5.1",
     "typescript": "^5.9.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sengac/cage.git",
+    "directory": "packages/shared"
+  },
+  "bugs": {
+    "url": "https://github.com/sengac/cage/issues"
+  },
+  "homepage": "https://github.com/sengac/cage/tree/main/packages/shared"
 }
