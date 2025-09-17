@@ -1,0 +1,19 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "theme",
+          "layer",
+          "import"
+        ]
+      }
+    ],
+    "selector-class-pattern": null
+  },
+  "ignoreFiles": ["dist/**/*", "node_modules/**/*", "build/**/*"]
+}

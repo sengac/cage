@@ -1,0 +1,42 @@
+# Cage
+
+A controlled environment for AI that provides the right boundaries, context, and guidance to help it do its job effectively.
+
+## Documentation
+
+- [CLI Documentation](docs/CLI.md)
+- [Backend Documentation](docs/BACKEND.md)
+- [Frontend Documentation](docs/FRONTEND.md)
+- [Hooks Documentation](docs/HOOKS.md)
+- [Docker Setup](docs/DOCKER.md)
+- [Development Guide](docs/DEVELOPMENT.md)
+
+## Quick Start
+
+```bash
+# Install all workspace dependencies
+npm install
+
+# Build all packages
+npm run build
+
+# Run CLI
+npm run cage
+
+# Start backend server
+npm run start:server
+
+# Development mode (all packages)
+npm run dev
+
+# Run tests in all workspaces
+npm run test
+
+# Run specific workspace commands
+npm run dev --workspace @cage/frontend
+npm run build --workspace @cage/cli
+```
+
+## License
+
+MIT

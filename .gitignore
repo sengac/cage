@@ -1,9 +1,14 @@
 node_modules/
 dist/
+build/
+*.log
 .env
 .env.local
-*.log
-.DS_Store
 coverage/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
 .nyc_output/
 *.tsbuildinfo

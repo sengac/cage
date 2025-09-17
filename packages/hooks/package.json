@@ -1,0 +1,24 @@
+{
+  "name": "@cage/hooks",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "@cage/shared": "^1.0.0",
+    "chalk": "^5.6.2",
+    "zod": "^4.1.9"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

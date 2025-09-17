@@ -12,13 +12,13 @@ A hook connector and hook orchestrating web application for controlling Claude C
 - **Framework(s):**
   - **CLI:** Ink (React for CLI) with vite-node for bundling, ink-testing-library for testing
   - **Backend:** NestJS with auto-documenting OpenAPI/Swagger, pluggable architecture
-  - **Frontend:** Vite + React + Tailwind CSS (pure client-side SPA)
-  - **Testing:** Vitest (all layers), React Testing Library (frontend), Playwright (e2e), ink-testing-library (CLI)
+  - **Frontend:** Vite + React + Tailwind CSS v4 with @tailwindcss/vite (no PostCSS needed)
+  - **Testing:** Vitest (all layers), React Testing Library (frontend), @vitest/browser with Playwright (browser testing), ink-testing-library (CLI)
   - **Code Quality:** ESLint + Prettier (all components), eslint-plugin-react (frontend), Stylelint (frontend CSS/Tailwind only)
 - **Database/Storage:** File-based storage initially (append-only logs for full data capture, similar to Kafka's approach - enables later database migration if needed)
 - **External APIs/Services:**
   - Claude Code Hooks API
-  - Claude Code SDK (https://github.com/instantlyeasy/claude-code-sdk-ts)
+  - Claude Code SDK (@instantlyeasy/claude-code-sdk-ts - https://github.com/instantlyeasy/claude-code-sdk-ts)
   - LLM APIs (Claude or other providers)
   - Filesystem monitoring
 
@@ -44,8 +44,8 @@ A hook connector and hook orchestrating web application for controlling Claude C
 **Backend (NestJS):**
 - **@nestjs/swagger**: Auto-generate OpenAPI documentation and Swagger UI
 - **@nestjs/event-emitter**: Event-driven architecture for hook processing
-- **@nestjs/sse**: Server-Sent Events for real-time streaming
-- **claude-code-sdk-ts**: Official Claude Code SDK for LLM integration
+- **Server-Sent Events**: Built-in SSE support in NestJS (no separate package needed)
+- **@instantlyeasy/claude-code-sdk-ts**: Claude Code SDK for LLM integration
 - **zod**: Runtime type validation and schema definition
 - **class-validator/class-transformer**: DTO validation and transformation
 
@@ -67,7 +67,7 @@ A hook connector and hook orchestrating web application for controlling Claude C
   - No auto-restart on crashes
   - Hooks log connection failures when server is unreachable
 - **Maintainability:**
-  - Monorepo structure for all components (CLI, backend, frontend, hooks)
+  - Monorepo structure using npm workspaces (no Lerna/Nx needed)
   - JSDoc for all code documentation
   - Lightweight README with links to specific docs (CLI, hooks, backend, frontend, Docker guides)
   - Documentation directory structure: `/docs` with topic-specific guides
@@ -76,7 +76,7 @@ A hook connector and hook orchestrating web application for controlling Claude C
   - OS Support: MUST work on Windows, macOS, and Linux (special attention to Windows path/shell differences)
   - Browser Support: Modern browsers for frontend (Chrome, Firefox, Safari, Edge latest versions)
 - **Compliance:**
-  - MIT License for entire project
+  - MIT License (Copyright 2025 Software Engineering & Consulting Pty Ltd)
   - Privacy: All logged data stays local to developer's machine
 
 ---
