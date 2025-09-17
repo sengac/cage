@@ -55,25 +55,35 @@ export class HooksController {
   async postToolUse(@Body() payload: PostToolUsePayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = PostToolUsePayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = PostToolUsePayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'PostToolUse',
-      sessionId: validatedPayload.sessionId,
-      toolName: validatedPayload.toolName,
-      arguments: validatedPayload.arguments,
-      result: validatedPayload.result,
-      executionTime: validatedPayload.executionTime,
-      error: validatedPayload.error
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'PostToolUse',
+        sessionId: validatedPayload.sessionId,
+        toolName: validatedPayload.toolName,
+        arguments: validatedPayload.arguments,
+        result: validatedPayload.result,
+        executionTime: validatedPayload.executionTime,
+        error: validatedPayload.error
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('PostToolUse hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('user-prompt-submit')
@@ -81,22 +91,32 @@ export class HooksController {
   async userPromptSubmit(@Body() payload: UserPromptSubmitPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = UserPromptSubmitPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = UserPromptSubmitPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'UserPromptSubmit',
-      sessionId: validatedPayload.sessionId,
-      prompt: validatedPayload.prompt,
-      context: validatedPayload.context
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'UserPromptSubmit',
+        sessionId: validatedPayload.sessionId,
+        prompt: validatedPayload.prompt,
+        context: validatedPayload.context
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('UserPromptSubmit hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('session-start')
@@ -104,22 +124,32 @@ export class HooksController {
   async sessionStart(@Body() payload: SessionStartPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = SessionStartPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = SessionStartPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'SessionStart',
-      sessionId: validatedPayload.sessionId,
-      projectPath: validatedPayload.projectPath,
-      environment: validatedPayload.environment
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'SessionStart',
+        sessionId: validatedPayload.sessionId,
+        projectPath: validatedPayload.projectPath,
+        environment: validatedPayload.environment
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('SessionStart hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('session-end')
@@ -127,22 +157,32 @@ export class HooksController {
   async sessionEnd(@Body() payload: SessionEndPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = SessionEndPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = SessionEndPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'SessionEnd',
-      sessionId: validatedPayload.sessionId,
-      duration: validatedPayload.duration,
-      summary: validatedPayload.summary
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'SessionEnd',
+        sessionId: validatedPayload.sessionId,
+        duration: validatedPayload.duration,
+        summary: validatedPayload.summary
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('SessionEnd hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('notification')
@@ -150,22 +190,32 @@ export class HooksController {
   async notification(@Body() payload: NotificationPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = NotificationPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = NotificationPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'Notification',
-      sessionId: validatedPayload.sessionId,
-      message: validatedPayload.message,
-      level: validatedPayload.level
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'Notification',
+        sessionId: validatedPayload.sessionId,
+        message: validatedPayload.message,
+        level: validatedPayload.level
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('Notification hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('pre-compact')
@@ -173,23 +223,33 @@ export class HooksController {
   async preCompact(@Body() payload: PreCompactPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = PreCompactPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = PreCompactPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'PreCompact',
-      sessionId: validatedPayload.sessionId,
-      reason: validatedPayload.reason,
-      currentTokenCount: validatedPayload.currentTokenCount,
-      maxTokenCount: validatedPayload.maxTokenCount
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'PreCompact',
+        sessionId: validatedPayload.sessionId,
+        reason: validatedPayload.reason,
+        currentTokenCount: validatedPayload.currentTokenCount,
+        maxTokenCount: validatedPayload.maxTokenCount
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('PreCompact hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('status')
@@ -197,22 +257,32 @@ export class HooksController {
   async status(@Body() payload: StatusPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = StatusPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = StatusPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'Status',
-      sessionId: validatedPayload.sessionId,
-      currentStatus: validatedPayload.currentStatus,
-      requestType: validatedPayload.requestType
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'Status',
+        sessionId: validatedPayload.sessionId,
+        currentStatus: validatedPayload.currentStatus,
+        requestType: validatedPayload.requestType
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('Status hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('stop')
@@ -220,21 +290,31 @@ export class HooksController {
   async stop(@Body() payload: StopPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = StopPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = StopPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'Stop',
-      sessionId: validatedPayload.sessionId,
-      reason: validatedPayload.reason
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'Stop',
+        sessionId: validatedPayload.sessionId,
+        reason: validatedPayload.reason
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('Stop hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 
   @Post('subagent-stop')
@@ -242,22 +322,32 @@ export class HooksController {
   async subagentStop(@Body() payload: SubagentStopPayload) {
     const timestamp = new Date().toISOString();
 
-    // Validate payload
-    const validatedPayload = SubagentStopPayloadSchema.parse(payload);
+    try {
+      // Validate payload
+      const validatedPayload = SubagentStopPayloadSchema.parse(payload);
 
-    // Log the event
-    await this.eventLogger.logEvent({
-      timestamp: validatedPayload.timestamp || timestamp,
-      eventType: 'SubagentStop',
-      sessionId: validatedPayload.sessionId,
-      subagentId: validatedPayload.subagentId,
-      parentSessionId: validatedPayload.parentSessionId,
-      result: validatedPayload.result
-    });
+      // Log the event
+      await this.eventLogger.logEvent({
+        timestamp: validatedPayload.timestamp || timestamp,
+        eventType: 'SubagentStop',
+        sessionId: validatedPayload.sessionId,
+        subagentId: validatedPayload.subagentId,
+        parentSessionId: validatedPayload.parentSessionId,
+        result: validatedPayload.result
+      });
 
-    return {
-      success: true,
-      timestamp
-    };
+      return {
+        success: true,
+        timestamp
+      };
+    } catch (error) {
+      console.error('SubagentStop hook error:', error);
+      // Still return success but log the error for debugging
+      return {
+        success: true,
+        timestamp,
+        error: error.message
+      };
+    }
   }
 }

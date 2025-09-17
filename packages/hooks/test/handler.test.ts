@@ -17,7 +17,7 @@ interface MockResponse {
   error?: boolean;
 }
 
-describe('Hook Handler Integration', () => {
+describe('Hook Handler Integration', { concurrent: false }, () => {
   let testDir: string;
   let originalCwd: string;
   let testServer: Server;

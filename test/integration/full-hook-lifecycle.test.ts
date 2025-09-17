@@ -15,7 +15,7 @@ import { join } from 'path';
  * "100% of Claude Code hook events are captured"
  */
 
-describe('Integration: Full Hook Lifecycle', () => {
+describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
   let testDir: string;
   let originalCwd: string;
   let backendProcess: ChildProcess;
@@ -128,7 +128,12 @@ describe('Integration: Full Hook Lifecycle', () => {
           join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
           hookType
         ], {
-          cwd: testDir // Set working directory to test directory so it finds cage.config.json
+          cwd: testDir, // Set working directory to test directory so it finds cage.config.json
+          env: {
+            ...process.env,
+            TEST_BASE_DIR: testDir,
+            CLAUDE_PROJECT_DIR: testDir
+          }
         });
 
         // Send payload to hook handler
@@ -167,7 +172,7 @@ describe('Integration: Full Hook Lifecycle', () => {
         });
 
         // Assert: Event should be queryable via API
-        const response = await fetch(`http://localhost:${backendPort}/events/tail?count=1`);
+        const response = await fetch(`http://localhost:${backendPort}/api/events/tail?count=1`);
         expect(response.ok).toBe(true);
 
         const { events } = await response.json();
@@ -194,7 +199,14 @@ describe('Integration: Full Hook Lifecycle', () => {
         const hookHandler = spawn('node', [
           join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
           hookType
-        ]);
+        ], {
+          cwd: testDir,
+          env: {
+            ...process.env,
+            TEST_BASE_DIR: testDir,
+            CLAUDE_PROJECT_DIR: testDir
+          }
+        });
 
         hookHandler.stdin.write(JSON.stringify(payload));
         hookHandler.stdin.end();
@@ -214,7 +226,7 @@ describe('Integration: Full Hook Lifecycle', () => {
       await new Promise(resolve => setTimeout(resolve, 200));
 
       // Query events and verify order
-      const response = await fetch(`http://localhost:${backendPort}/events/list?sessionId=${sessionId}`);
+      const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}`);
       expect(response.ok).toBe(true);
 
       const { events } = await response.json();
@@ -238,7 +250,14 @@ describe('Integration: Full Hook Lifecycle', () => {
       const hookHandler = spawn('node', [
         join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
         'pre-tool-use'
-      ]);
+      ], {
+        cwd: testDir,
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       hookHandler.stdin.write(JSON.stringify(payload));
       hookHandler.stdin.end();
@@ -265,17 +284,38 @@ describe('Integration: Full Hook Lifecycle', () => {
 interface TestPayload {
   timestamp: string;
   sessionId: string;
+  // Pre/Post Tool Use
   toolName?: string;
   arguments?: Record<string, unknown>;
-  results?: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  executionTime?: number;
+  error?: string;
+  // User Prompt Submit
   prompt?: string;
-  context?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
+  context?: {
+    previousMessages?: Array<{ role: string; content: string; }>;
+    currentFile?: string;
+  };
+  // Session Start/End
+  projectPath?: string;
+  environment?: Record<string, unknown>;
+  duration?: number;
+  summary?: Record<string, unknown>;
+  // Notification
+  level?: string;
   message?: string;
-  type?: string;
+  // Pre-Compact
   reason?: string;
-  status?: string;
-  summary?: string;
+  currentTokenCount?: number;
+  maxTokenCount?: number;
+  // Status
+  currentStatus?: string;
+  requestType?: string;
+  // Stop
+  finalState?: Record<string, unknown>;
+  // Subagent Stop
+  subagentId?: string;
+  parentSessionId?: string;
 }
 
 function createTestPayload(hookType: string): TestPayload {
@@ -286,53 +326,96 @@ function createTestPayload(hookType: string): TestPayload {
 
   switch (hookType) {
     case 'pre-tool-use':
+      return {
+        ...basePayload,
+        toolName: 'Read',
+        arguments: { file_path: '/test.txt' }
+      };
+
     case 'post-tool-use':
       return {
         ...basePayload,
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
-        results: hookType === 'post-tool-use' ? { success: true } : undefined
+        result: { content: 'test file content' },
+        executionTime: 150
       };
 
     case 'user-prompt-submit':
       return {
         ...basePayload,
         prompt: 'Help me write a function',
-        context: { files: ['/test.js'] }
+        context: {
+          previousMessages: [
+            { role: 'user', content: 'Hello' },
+            { role: 'assistant', content: 'Hi there!' }
+          ],
+          currentFile: '/test.js'
+        }
       };
 
     case 'session-start':
+      return {
+        ...basePayload,
+        projectPath: process.cwd(),
+        environment: {
+          nodeVersion: process.version,
+          platform: process.platform,
+          cwd: process.cwd()
+        }
+      };
+
     case 'session-end':
       return {
         ...basePayload,
-        metadata: { version: '1.0.0' }
+        duration: 30000,
+        summary: {
+          toolsUsed: ['Read', 'Write'],
+          filesModified: ['/test.js'],
+          errors: 0,
+          warnings: 2
+        }
       };
 
     case 'notification':
       return {
         ...basePayload,
-        message: 'Test notification',
-        type: 'info'
+        level: 'info',
+        message: 'Test notification'
       };
 
     case 'pre-compact':
       return {
         ...basePayload,
-        reason: 'conversation_length'
+        reason: 'conversation_length',
+        currentTokenCount: 5000,
+        maxTokenCount: 10000
       };
 
     case 'status':
       return {
         ...basePayload,
-        status: 'active'
+        currentStatus: 'active',
+        requestType: 'update'
       };
 
     case 'stop':
-    case 'subagent-stop':
       return {
         ...basePayload,
         reason: 'completed',
-        summary: 'Task completed successfully'
+        finalState: { tasksCompleted: 5 }
+      };
+
+    case 'subagent-stop':
+      return {
+        ...basePayload,
+        subagentId: 'subagent-123',
+        parentSessionId: 'parent-session-456',
+        result: {
+          success: true,
+          output: 'Task completed successfully',
+          metrics: { duration: 1500 }
+        }
       };
 
     default:

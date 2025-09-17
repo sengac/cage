@@ -29,7 +29,7 @@ export class EventsController {
   async getTailEvents(@Query('count') count?: string) {
     const countNum = count ? parseInt(count, 10) : 10;
     const events = await this.eventLogger.getTailEvents(countNum);
-    return events;
+    return { events };
   }
 
   @Get('list')

@@ -365,13 +365,13 @@ class QualityChecker {
   }
 
   detectFileType(filePath) {
-    if (/\.(test|spec)\.(ts|js)$/.test(filePath)) {
+    if (/\.(test|spec)\.(ts|tsx|js|jsx)$/.test(filePath)) {
       return 'test';
     }
-    if (/\.ts$/.test(filePath)) {
+    if (/\.(ts|tsx)$/.test(filePath)) {
       return 'typescript';
     }
-    if (/\.js$/.test(filePath)) {
+    if (/\.(js|jsx)$/.test(filePath)) {
       return 'javascript';
     }
     return 'unknown';
@@ -983,7 +983,7 @@ async function fileExists(filePath) {
  * Check if file is a source file
  */
 function isSourceFile(filePath) {
-  return /\.(ts|js)$/.test(filePath);
+  return /\.(ts|tsx|js|jsx)$/.test(filePath);
 }
 
 /**

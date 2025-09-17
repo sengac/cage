@@ -13,7 +13,7 @@ import { join } from 'path';
  * "Automatic recovery after system restarts"
  */
 
-describe('Integration: Server Restart', () => {
+describe('Integration: Server Restart', { concurrent: false }, () => {
   let testDir: string;
   let originalCwd: string;
   let backendPort: number;

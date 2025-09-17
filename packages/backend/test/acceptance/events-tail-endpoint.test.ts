@@ -81,11 +81,12 @@ describe('Feature: Events Tail API Endpoint', () => {
         .expect(200);
 
       // Then
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      expect(response.body).toHaveProperty('events');
+      expect(Array.isArray(response.body.events)).toBe(true);
+      expect(response.body.events.length).toBeGreaterThan(0);
 
       // Verify event structure
-      const event = response.body[0];
+      const event = response.body.events[0];
       expect(event).toHaveProperty('timestamp');
       expect(event).toHaveProperty('eventType');
       expect(event).toHaveProperty('sessionId');
@@ -100,8 +101,9 @@ describe('Feature: Events Tail API Endpoint', () => {
         .expect(200);
 
       // Then
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(2);
+      expect(response.body).toHaveProperty('events');
+      expect(Array.isArray(response.body.events)).toBe(true);
+      expect(response.body.events.length).toBe(2);
     });
   });
 });

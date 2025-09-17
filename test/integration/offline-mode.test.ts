@@ -16,7 +16,7 @@ import { join } from 'path';
  * - "Graceful degradation when backend is unavailable"
  */
 
-describe('Integration: Offline Mode', () => {
+describe('Integration: Offline Mode', { concurrent: false }, () => {
   let testDir: string;
   let originalCwd: string;
   let backendPort: number;

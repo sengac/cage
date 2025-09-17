@@ -15,7 +15,7 @@ import { join } from 'path';
  * - "All events should be captured without loss"
  */
 
-describe('Integration: High Load', () => {
+describe('Integration: High Load', { concurrent: false }, () => {
   let testDir: string;
   let originalCwd: string;
   let backendProcess: ChildProcess;
