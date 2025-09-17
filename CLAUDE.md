@@ -172,7 +172,6 @@ cage/
 ### 1. Before Making Changes
 - Read the existing code to understand patterns and conventions
 - Check `FOUNDATION.md` for project requirements
-- Check `STRUCTURE.md` for technical setup details
 
 ### 2. When Writing Code
 - Follow existing patterns in the codebase
@@ -255,9 +254,8 @@ npm run build --workspace @cage/cli
 
 1. Check existing patterns in the codebase
 2. Refer to `FOUNDATION.md` for project goals
-3. Refer to `STRUCTURE.md` for technical details
-4. Run tests to verify changes
-5. Let quality check hooks guide you
+3. Run tests to verify changes
+4. Let quality check hooks guide you
 
 ## Contributing
 
