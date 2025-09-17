@@ -45,8 +45,10 @@ As defined in [FOUNDATION.md](FOUNDATION.md#success-criteria):
 
 #### Import Violations:
 
+- ❌ **NEVER** use dynamic imports unless absolutely necessary (e.g., `await import('./module')`)
 - ❌ **NEVER** write: `import { Type } from './types'` when only using as type
-- ✅ **ALWAYS** write: `import type { Type } from './types'`
+- ✅ **ALWAYS** use static imports: `import { something } from './module'`
+- ✅ **ALWAYS** write: `import type { Type } from './types'` for type-only imports
 
 #### Interface Violations:
 
@@ -139,11 +141,23 @@ console.log('Operation completed');
 
 ### Testing Requirements
 - **Use Vitest exclusively** - NEVER use Jest
+- **Write ALL tests in TypeScript** - NEVER create standalone JavaScript test files
+- **NEVER write external JavaScript files for testing** - All tests must be TypeScript files running through Vitest
+- **NEVER create .mjs or .js test files** - Only .ts test files within the project structure
+- **NEVER test module imports using Node.js directly** - Always test through Vitest
 - Write meaningful tests that verify actual functionality
 - No trivial tests like `expect(true).toBe(true)`
 - **Test Coverage:** All new code must have corresponding unit tests
 - **Mock Patterns:** Use Vitest mocks, avoid actual file system in unit tests
 - **Type Safety:** No `any` types allowed in tests - use proper type assertions
+
+#### Test File Requirements:
+- ❌ **NEVER** create `test.mjs`, `test.js`, or any external JavaScript test files
+- ❌ **NEVER** run tests with `node test.js` or `node test.mjs`
+- ✅ **ALWAYS** create `.test.ts`, `.spec.ts`, `.test.tsx`, or `.spec.tsx` files
+- ✅ **ALWAYS** run tests through `npm test` using Vitest
+- ✅ **ALWAYS** import and test TypeScript modules directly in TypeScript test files
+- ✅ **Use `.test.tsx` or `.spec.tsx` for React/JSX component tests
 
 ## Technology Stack
 

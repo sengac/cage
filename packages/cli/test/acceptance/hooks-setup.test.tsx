@@ -1,0 +1,240 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render } from 'ink-testing-library';
+import { act } from '@testing-library/react';
+import { mkdtemp, rm, writeFile, readFile, mkdir } from 'fs/promises';
+import { tmpdir, homedir } from 'os';
+import { join } from 'path';
+import { existsSync } from 'fs';
+import React from 'react';
+
+// Mock the modules at the top level
+vi.mock('../../src/utils/config.js');
+vi.mock('../../src/utils/hooks-installer.js');
+
+import { HooksSetupCommand } from '../../src/commands/hooks/setup.js';
+import { HooksStatusCommand } from '../../src/commands/hooks/status.js';
+import * as configUtils from '../../src/utils/config.js';
+import * as hooksInstaller from '../../src/utils/hooks-installer.js';
+
+describe('Feature: Claude Code Hook Configuration', () => {
+  let testDir: string;
+  let originalCwd: string;
+  let originalHome: string;
+  let testHome: string;
+
+  beforeEach(async () => {
+    originalCwd = process.cwd();
+    originalHome = process.env.HOME || '';
+
+    testDir = await mkdtemp(join(tmpdir(), 'cage-test-'));
+    testHome = await mkdtemp(join(tmpdir(), 'cage-home-'));
+
+    process.chdir(testDir);
+    process.env.HOME = testHome;
+
+    // Create cage config
+    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
+      port: 3790,
+      host: 'localhost',
+      enabled: true,
+      logLevel: 'info',
+      eventsDir: '.cage/events',
+      maxEventSize: 1048576,
+      enableMetrics: false,
+      enableOfflineMode: true,
+      offlineLogPath: '.cage/hooks-offline.log'
+    }));
+
+    // Create .cage directory
+    await mkdir(join(testDir, '.cage'), { recursive: true });
+
+    // Mock the Claude settings path to use our test directory
+    const testClaudeDir = join(testHome, '.claude');
+    await mkdir(testClaudeDir, { recursive: true });
+    const testSettingsPath = join(testClaudeDir, 'settings.json');
+
+    // Mock the functions properly with logging
+    vi.mocked(configUtils.loadCageConfig).mockImplementation(async () => {
+      console.log('🔍 Mock loadCageConfig called');
+      return {
+        port: 3790,
+        host: 'localhost',
+        enabled: true,
+        logLevel: 'info',
+        eventsDir: '.cage/events',
+        maxEventSize: 1048576,
+        enableMetrics: false,
+        enableOfflineMode: true,
+        offlineLogPath: '.cage/hooks-offline.log'
+      };
+    });
+
+    vi.mocked(configUtils.isCageInitialized).mockReturnValue(true);
+
+    // Mock process.exit to prevent actual exit during tests
+    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    vi.mocked(hooksInstaller.installHooks).mockImplementation(async (port) => {
+      console.log('🔍 Mock installHooks called with port:', port);
+
+      // Simulate what the real installHooks does - call saveClaudeSettings
+      const settings = {
+        hooks: {
+          'pre-tool-use': `cage-hook PreToolUse --port ${port}`,
+          'post-tool-use': `cage-hook PostToolUse --port ${port}`,
+          'user-prompt-submit': `cage-hook UserPromptSubmit --port ${port}`,
+          'notification': `cage-hook Notification --port ${port}`,
+          'stop': `cage-hook Stop --port ${port}`,
+          'subagent-stop': `cage-hook SubagentStop --port ${port}`,
+          'session-start': `cage-hook SessionStart --port ${port}`,
+          'session-end': `cage-hook SessionEnd --port ${port}`,
+          'pre-compact': `cage-hook PreCompact --port ${port}`,
+          'status': `cage-hook Status --port ${port}`
+        }
+      };
+
+      await vi.mocked(hooksInstaller.saveClaudeSettings)(settings);
+      return;
+    });
+
+    vi.mocked(hooksInstaller.getClaudeSettingsPath).mockReturnValue(join(testHome, '.claude', 'settings.json'));
+
+    // Mock the hooks installer functions
+    vi.mocked(hooksInstaller.loadClaudeSettings).mockResolvedValue({});
+    vi.mocked(hooksInstaller.saveClaudeSettings).mockImplementation(async (settings) => {
+      console.log('🔍 Mock saveClaudeSettings called with:', settings);
+      const settingsPath = join(testHome, '.claude', 'settings.json');
+      await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+      console.log('🔍 Settings file written to:', settingsPath);
+    });
+  });
+
+  afterEach(async () => {
+    process.chdir(originalCwd);
+    process.env.HOME = originalHome;
+    await rm(testDir, { recursive: true, force: true });
+    await rm(testHome, { recursive: true, force: true });
+    vi.restoreAllMocks();
+  });
+
+  describe('Scenario: Configure Claude Code hooks', () => {
+    it('Given I have Cage initialized When I run cage hooks setup Then Claude Code settings.json should be updated', async () => {
+      // Given - Cage is initialized (in beforeEach)
+
+      // Mock process.exit to prevent it from actually exiting the test
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+      // When
+      let component: ReturnType<typeof render>;
+
+      await act(async () => {
+        component = render(<HooksSetupCommand />);
+      });
+
+      // Wait for all async operations to complete
+      await act(async () => {
+        // Wait for promises to resolve
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
+
+      // Check final state
+      const finalFrame = component.lastFrame();
+      console.log('📺 Final frame:', finalFrame);
+
+      // Then
+      expect(component.lastFrame()).toContain('Hooks configured successfully');
+
+      // Verify the settings file was updated
+      const settingsPath = join(testHome, '.claude', 'settings.json');
+      expect(existsSync(settingsPath)).toBe(true);
+
+      exitSpy.mockRestore();
+    });
+  });
+
+  describe('Scenario: Verify hook configuration', () => {
+    it('Given I have configured Cage hooks When I run cage hooks status Then I should see status of each hook', async () => {
+      // Given - hooks are configured
+      const settingsPath = join(testHome, '.claude', 'settings.json');
+      await writeFile(settingsPath, JSON.stringify({
+        hooks: {
+          'pre-tool-use': 'cage-hook PreToolUse --port 3790',
+          'post-tool-use': 'cage-hook PostToolUse --port 3790',
+          'user-prompt-submit': 'cage-hook UserPromptSubmit --port 3790',
+          'notification': 'cage-hook Notification --port 3790',
+          'stop': 'cage-hook Stop --port 3790',
+          'subagent-stop': 'cage-hook SubagentStop --port 3790',
+          'session-start': 'cage-hook SessionStart --port 3790',
+          'session-end': 'cage-hook SessionEnd --port 3790',
+          'pre-compact': 'cage-hook PreCompact --port 3790',
+          'status': 'cage-hook Status --port 3790'
+        }
+      }));
+
+      // Set up mocks for this specific test
+      vi.mocked(configUtils.isCageInitialized).mockReturnValue(true);
+      vi.mocked(configUtils.loadCageConfig).mockImplementation(async () => {
+        console.log('🔍 Status test: Mock loadCageConfig called');
+        return {
+          port: 3790,
+          host: 'localhost',
+          enabled: true,
+          logLevel: 'info',
+          eventsDir: '.cage/events',
+          maxEventSize: 1048576,
+          enableMetrics: false,
+          enableOfflineMode: true,
+          offlineLogPath: '.cage/hooks-offline.log'
+        };
+      });
+
+      vi.mocked(hooksInstaller.loadClaudeSettings).mockResolvedValue({
+        hooks: {
+          'pre-tool-use': 'cage-hook PreToolUse --port 3790',
+          'post-tool-use': 'cage-hook PostToolUse --port 3790',
+          'user-prompt-submit': 'cage-hook UserPromptSubmit --port 3790',
+          'notification': 'cage-hook Notification --port 3790',
+          'stop': 'cage-hook Stop --port 3790',
+          'subagent-stop': 'cage-hook SubagentStop --port 3790',
+          'session-start': 'cage-hook SessionStart --port 3790',
+          'session-end': 'cage-hook SessionEnd --port 3790',
+          'pre-compact': 'cage-hook PreCompact --port 3790',
+          'status': 'cage-hook Status --port 3790'
+        }
+      });
+
+      vi.mocked(hooksInstaller.getInstalledHooks).mockResolvedValue({
+        'pre-tool-use': 'cage-hook PreToolUse --port 3790',
+        'post-tool-use': 'cage-hook PostToolUse --port 3790',
+        'user-prompt-submit': 'cage-hook UserPromptSubmit --port 3790',
+        'notification': 'cage-hook Notification --port 3790',
+        'stop': 'cage-hook Stop --port 3790',
+        'subagent-stop': 'cage-hook SubagentStop --port 3790',
+        'session-start': 'cage-hook SessionStart --port 3790',
+        'session-end': 'cage-hook SessionEnd --port 3790',
+        'pre-compact': 'cage-hook PreCompact --port 3790',
+        'status': 'cage-hook Status --port 3790'
+      });
+
+      // When
+      let component: ReturnType<typeof render>;
+
+      await act(async () => {
+        component = render(<HooksStatusCommand />);
+      });
+
+      // Wait for all async operations to complete
+      await act(async () => {
+        // Wait for promises to resolve
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
+
+      // Check final state
+      const finalFrame = component.lastFrame();
+      console.log('📺 Status final frame:', finalFrame);
+
+      // Then
+      expect(component.lastFrame()).toContain('Hook Configuration Status');
+    });
+  });
+});

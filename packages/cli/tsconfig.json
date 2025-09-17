@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"],
+    "lib": ["ES2022"],
+    "paths": {
+      "@cage/shared": ["../shared/src"],
+      "@cage/shared/*": ["../shared/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts", "**/*.test.tsx"],
+  "references": [
+    { "path": "../shared" }
+  ]
+}
