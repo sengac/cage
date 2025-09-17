@@ -14,7 +14,7 @@
   "description": "",
   "type": "module",
   "dependencies": {
-    "@cage/shared": "^1.0.0",
+    "@cage/shared": "0.0.1",
     "@instantlyeasy/claude-code-sdk-ts": "^0.3.3",
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",

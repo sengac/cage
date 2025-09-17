@@ -16,7 +16,7 @@
     "cage": "./dist/index.js"
   },
   "dependencies": {
-    "@cage/shared": "^1.0.0",
+    "@cage/shared": "0.0.1",
     "chalk": "^5.6.2",
     "commander": "^14.0.1",
     "ink": "^6.3.0",

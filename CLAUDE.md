@@ -167,13 +167,31 @@ cage/
 - **API Client**: Fetch API (no Axios)
 - **Validation**: Zod across all layers
 
+## Development Methodology: Acceptance Criteria Driven Development (ACDD)
+
+This project uses **Acceptance Criteria Driven Development** where:
+1. **Specifications come first** - We define acceptance criteria in Given-When-Then format (see PHASE1.md)
+2. **Tests come second** - We write tests that directly map to acceptance criteria BEFORE any code
+3. **Code comes last** - We implement just enough code to make the tests pass
+
+### CRITICAL RULES:
+- **NEVER write production code without a failing test first**
+- **Each acceptance criteria must have corresponding tests**
+- **Tests must use the exact Given-When-Then language from specifications**
+- **Follow the implementation instructions in PHASE1-IMPLEMENTATION.md exactly**
+
 ## Development Workflow
 
 ### 1. Before Making Changes
-- Read the existing code to understand patterns and conventions
+- Read the acceptance criteria in the relevant phase document (PHASE1.md, etc.)
 - Check `FOUNDATION.md` for project requirements
+- Review `PHASE1-IMPLEMENTATION.md` for implementation instructions
 
 ### 2. When Writing Code
+- **WRITE TESTS FIRST** - No exceptions to this rule
+- Run tests and ensure they fail for the right reasons
+- Implement minimal code to make tests pass
+- Refactor while keeping tests green
 - Follow existing patterns in the codebase
 - Use ESLint and Prettier configurations
 - Ensure Windows, macOS, and Linux compatibility

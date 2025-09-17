@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# Cage Test-First Development Enforcement Hook
+# This hook ensures tests are written before implementation
+
+echo "🔍 Checking test-first development compliance..."
+
+# Get all staged TypeScript files (excluding test files and configs)
+IMPL_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | grep -v -E '\.(test|spec|config)\.(ts|tsx)$' || true)
+
+if [ -z "$IMPL_FILES" ]; then
+  echo "✅ No implementation files to check"
+  exit 0
+fi
+
+# Check each implementation file has a corresponding test
+MISSING_TESTS=""
+for FILE in $IMPL_FILES; do
+  # Skip index files and type definition files
+  if echo "$FILE" | grep -qE '(index\.(ts|tsx)|\.d\.ts)$'; then
+    continue
+  fi
+
+  # Construct test file paths
+  TEST_FILE_1="${FILE%.ts}.test.ts"
+  TEST_FILE_2="${FILE%.tsx}.test.tsx"
+  TEST_FILE_3="${FILE%.ts}.spec.ts"
+  TEST_FILE_4="${FILE%.tsx}.spec.tsx"
+
+  # Check if test file exists
+  if [ ! -f "$TEST_FILE_1" ] && [ ! -f "$TEST_FILE_2" ] && [ ! -f "$TEST_FILE_3" ] && [ ! -f "$TEST_FILE_4" ]; then
+    # Check if test file is in test directory
+    DIR=$(dirname "$FILE")
+    BASENAME=$(basename "$FILE")
+    TEST_DIR_FILE_1="$DIR/test/$BASENAME"
+    TEST_DIR_FILE_2="$DIR/__tests__/$BASENAME"
+
+    TEST_DIR_FILE_1="${TEST_DIR_FILE_1%.ts}.test.ts"
+    TEST_DIR_FILE_2="${TEST_DIR_FILE_2%.ts}.test.ts"
+
+    if [ ! -f "$TEST_DIR_FILE_1" ] && [ ! -f "$TEST_DIR_FILE_2" ]; then
+      MISSING_TESTS="$MISSING_TESTS\n  ❌ $FILE"
+    fi
+  fi
+done
+
+if [ -n "$MISSING_TESTS" ]; then
+  echo "❌ Test-First Development Violation!"
+  echo ""
+  echo "The following implementation files are missing tests:"
+  echo "$MISSING_TESTS"
+  echo ""
+  echo "📚 Remember: In Cage, we follow Acceptance Criteria Driven Development (ACDD)"
+  echo "   1. Write acceptance tests FIRST"
+  echo "   2. Run tests and watch them fail"
+  echo "   3. Only then write implementation code"
+  echo ""
+  echo "Please create test files for the above implementations before committing."
+  exit 1
+fi
+
+echo "✅ All implementation files have corresponding tests"
+exit 0

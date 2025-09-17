@@ -179,21 +179,40 @@ Describe how things work today without this solution:
   - Doesn't prevent cascading errors
 - **Feasibility:** Simple but doesn't address the core trust issue
 
+### Development Methodology: Acceptance Criteria Driven Development (ACDD)
+
+Cage uses **Acceptance Criteria Driven Development** as its core methodology:
+
+1. **Specification First:** We define acceptance criteria in Given-When-Then format before any implementation
+2. **Test Second:** We write tests that directly implement these acceptance criteria
+3. **Code Last:** We write the minimum code necessary to make tests pass
+
+This approach ensures:
+- Every feature has clear, testable acceptance criteria
+- Tests serve as living documentation of system behavior
+- Code directly maps to specified requirements
+- No unnecessary code is written
+
+For detailed implementation instructions, see PHASE1-IMPLEMENTATION.md.
+
 ### Success Criteria
 Define what success looks like for this project:
 1. **Living Specification Achievement:** Complete specification with concrete examples for every possible combination, wrapped in user stories and journeys that:
    - Connect to the "why" (pain points and reasons for the software)
    - Define the "how" (journeys, stories, and examples of software usage)
    - Generate the "what" (code implementation that realizes each example)
+   - All specifications have corresponding acceptance tests that pass
 2. **Specification-Code Alignment:** Codebase directly reflects living specifications with runnable acceptance tests validating compliance
-3. **Reduced Manual Intervention:** 80%+ reduction in ESC key interruptions per coding session
-4. **Autonomous Task Completion:** Claude successfully completes assigned tasks without human intervention in 90%+ of cases
-5. **Code Quality Metrics:**
+3. **Test-Driven Implementation:** 100% of features implemented using ACDD methodology
+4. **Reduced Manual Intervention:** 80%+ reduction in ESC key interruptions per coding session
+5. **Autonomous Task Completion:** Claude successfully completes assigned tasks without human intervention in 90%+ of cases
+6. **Code Quality Metrics:**
    - Zero TypeScript 'any' or 'as unknown as' usage
    - All files under 300 lines
    - 100% linting pass rate
    - No code smells or anti-patterns
-6. **Developer Trust Restoration:** Developers report high satisfaction and trust levels, willing to let Claude work autonomously
+   - Minimum 80% test coverage
+7. **Developer Trust Restoration:** Developers report high satisfaction and trust levels, willing to let Claude work autonomously
 
 ### Constraints & Assumptions
 
@@ -248,11 +267,17 @@ Given the timeline constraint, the following features should be implemented in o
    - Developer dashboard for trust metrics
 
 ### Key Hook Integration Points
-Based on Claude Code documentation:
-- **PreToolUse:** Validate and inject context before actions
-- **PostToolUse:** Analyze results and trigger corrections
-- **UserPromptSubmit:** Enhance prompts with project context
-- **Stop/SubagentStop:** Final quality checks and specification updates
+Based on Claude Code documentation, all available hooks:
+- **PreToolUse:** Validate and inject context before tool execution (can block)
+- **PostToolUse:** Analyze results and trigger corrections after tool execution
+- **UserPromptSubmit:** Enhance prompts with project context (stdout adds to context)
+- **Notification:** Capture and log Claude's notifications to users
+- **Stop:** Final quality checks when Claude finishes responding
+- **SubagentStop:** Capture subagent results and execution summaries
+- **SessionStart:** Inject initial context at session start (stdout adds to context)
+- **SessionEnd:** Cleanup and session summary logging
+- **PreCompact:** Handle conversation compaction events
+- **Status:** Provide custom status line updates with session metadata
 
 ### Project Name: Cage
 A cage for writing the right thing - a controlled environment that ensures AI produces code that matches living specifications through Specification by Example. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
