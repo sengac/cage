@@ -36,12 +36,13 @@ export class EventsController {
   async getEventsList(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-    @Query('date') date?: string
+    @Query('date') date?: string,
+    @Query('sessionId') sessionId?: string
   ) {
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 50;
 
-    const result = await this.eventLogger.getEventsList(pageNum, limitNum, date);
+    const result = await this.eventLogger.getEventsList(pageNum, limitNum, date, sessionId);
     return result;
   }
 

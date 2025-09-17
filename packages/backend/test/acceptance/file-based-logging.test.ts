@@ -17,6 +17,12 @@ describe('Feature: File-Based Event Logging', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
+
     await app.init();
     httpServer = app.getHttpServer();
 
@@ -52,7 +58,7 @@ describe('Feature: File-Based Event Logging', () => {
       };
 
       await request(httpServer)
-        .post('/claude/hooks/pre-tool-use')
+        .post('/api/claude/hooks/pre-tool-use')
         .send(payload)
         .expect(200);
 

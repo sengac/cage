@@ -135,7 +135,9 @@ async function main(): Promise<void> {
     process.exit(0);
   } catch (error) {
     // Log offline when backend is unreachable
-    const cageDir = join(process.cwd(), '.cage');
+    // Use TEST_BASE_DIR or CLAUDE_PROJECT_DIR if available, otherwise use cwd
+    const baseDir = process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const cageDir = join(baseDir, '.cage');
 
     // Ensure .cage directory exists
     if (!existsSync(cageDir)) {

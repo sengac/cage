@@ -15,6 +15,11 @@ describe('Feature: Backend Event Processing - SessionEnd', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
     await app.init();
     httpServer = app.getHttpServer();
   });
@@ -24,7 +29,7 @@ describe('Feature: Backend Event Processing - SessionEnd', () => {
   });
 
   describe('Scenario: Receive SessionEnd hook event', () => {
-    it('Given the Cage backend server is running When a Claude Code session ends Then the backend should receive the event via HTTP POST to /claude/hooks/session-end And respond with 200 OK within 100ms', async () => {
+    it('Given the Cage backend server is running When a Claude Code session ends Then the backend should receive the event via HTTP POST to /api/claude/hooks/session-end And respond with 200 OK within 100ms', async () => {
       // Given - backend server is running (setup in beforeEach)
 
       // When
@@ -40,7 +45,7 @@ describe('Feature: Backend Event Processing - SessionEnd', () => {
 
       const startTime = Date.now();
       const response = await request(httpServer)
-        .post('/claude/hooks/session-end')
+        .post('/api/claude/hooks/session-end')
         .send(payload)
         .expect(200);
 

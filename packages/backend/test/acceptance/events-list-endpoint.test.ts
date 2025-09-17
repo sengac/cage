@@ -22,6 +22,11 @@ describe('Feature: Events List API Endpoint', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
     await app.init();
     httpServer = app.getHttpServer();
 
@@ -56,7 +61,7 @@ describe('Feature: Events List API Endpoint', () => {
     // Create events through the PreToolUse endpoint to generate logs
     for (const event of testEvents) {
       const response = await request(httpServer)
-        .post('/claude/hooks/pre-tool-use')
+        .post('/api/claude/hooks/pre-tool-use')
         .send(event)
         .expect(200);
 
@@ -83,12 +88,12 @@ describe('Feature: Events List API Endpoint', () => {
   });
 
   describe('Scenario: List all events with pagination', () => {
-    it('Given I have logged events When I request /events/list Then I should get all events with pagination info', async () => {
+    it('Given I have logged events When I request /api/events/list Then I should get all events with pagination info', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/list')
+        .get('/api/events/list')
         .expect(200);
 
       // Then
@@ -104,12 +109,12 @@ describe('Feature: Events List API Endpoint', () => {
       expect(pagination).toHaveProperty('total');
     });
 
-    it('Given I have logged events When I request /events/list?page=1&limit=2 Then I should get 2 events for page 1', async () => {
+    it('Given I have logged events When I request /api/events/list?page=1&limit=2 Then I should get 2 events for page 1', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/list?page=1&limit=2')
+        .get('/api/events/list?page=1&limit=2')
         .expect(200);
 
       // Then
@@ -118,12 +123,12 @@ describe('Feature: Events List API Endpoint', () => {
       expect(response.body.pagination.limit).toBe(2);
     });
 
-    it('Given I have logged events When I request /events/list?date=2025-01-15 Then I should get only events from that date', async () => {
+    it('Given I have logged events When I request /api/events/list?date=2025-01-15 Then I should get only events from that date', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/list?date=2025-01-15')
+        .get('/api/events/list?date=2025-01-15')
         .expect(200);
 
       // Then

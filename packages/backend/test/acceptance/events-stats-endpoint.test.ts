@@ -22,6 +22,12 @@ describe('Feature: Events Stats API Endpoint', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
+
     await app.init();
     httpServer = app.getHttpServer();
 
@@ -67,9 +73,13 @@ describe('Feature: Events Stats API Endpoint', () => {
 
     // Create events through the PreToolUse endpoint to generate logs
     for (const event of testEvents) {
-      await request(httpServer)
-        .post('/claude/hooks/pre-tool-use')
-        .send(event);
+      const response = await request(httpServer)
+        .post('/api/claude/hooks/pre-tool-use')
+        .send(event)
+        .expect(200);
+
+      // Verify the event was logged successfully
+      expect(response.body).toHaveProperty('success', true);
     }
   });
 
@@ -84,12 +94,12 @@ describe('Feature: Events Stats API Endpoint', () => {
   });
 
   describe('Scenario: Get event statistics', () => {
-    it('Given I have logged events When I request /events/stats Then I should get comprehensive event statistics', async () => {
+    it('Given I have logged events When I request /api/events/stats Then I should get comprehensive event statistics', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/stats')
+        .get('/api/events/stats')
         .expect(200);
 
       // Then
@@ -112,12 +122,12 @@ describe('Feature: Events Stats API Endpoint', () => {
       expect(response.body.byEventType).toHaveProperty('PreToolUse', 5);
     });
 
-    it('Given I have logged events When I request /events/stats?date=2025-01-15 Then I should get statistics for that specific date', async () => {
+    it('Given I have logged events When I request /api/events/stats?date=2025-01-15 Then I should get statistics for that specific date', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/stats?date=2025-01-15')
+        .get('/api/events/stats?date=2025-01-15')
         .expect(200);
 
       // Then

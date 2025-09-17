@@ -17,6 +17,11 @@ describe('Feature: Real-time Event Streaming', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
     await app.init();
     httpServer = app.getHttpServer();
 
@@ -38,7 +43,7 @@ describe('Feature: Real-time Event Streaming', () => {
   });
 
   describe('Scenario: Stream events in real-time', () => {
-    it('Given the backend server is running When I request the events stream Then the /events/stream endpoint should be available And return Server-Sent Events format', async () => {
+    it('Given the backend server is running When I request the events stream Then the /api/events/stream endpoint should be available And return Server-Sent Events format', async () => {
       // Given - backend server is running
 
       // When - make a quick request to verify endpoint exists
@@ -46,7 +51,7 @@ describe('Feature: Real-time Event Streaming', () => {
       let response;
       try {
         response = await request(httpServer)
-          .get('/events/stream')
+          .get('/api/events/stream')
           .set('Accept', 'text/event-stream')
           .timeout(50);
       } catch (error) {

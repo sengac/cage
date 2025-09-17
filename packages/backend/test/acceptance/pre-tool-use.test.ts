@@ -15,6 +15,11 @@ describe('Feature: Backend Event Processing - PreToolUse', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
     await app.init();
     httpServer = app.getHttpServer();
   });
@@ -24,7 +29,7 @@ describe('Feature: Backend Event Processing - PreToolUse', () => {
   });
 
   describe('Scenario: Receive PreToolUse hook event', () => {
-    it('Given the Cage backend server is running When Claude Code triggers a PreToolUse hook Then the backend should receive the event via HTTP POST to /claude/hooks/pre-tool-use And respond with 200 OK within 100ms', async () => {
+    it('Given the Cage backend server is running When Claude Code triggers a PreToolUse hook Then the backend should receive the event via HTTP POST to /api/claude/hooks/pre-tool-use And respond with 200 OK within 100ms', async () => {
       // Given - backend server is running (setup in beforeEach)
 
       // When
@@ -39,7 +44,7 @@ describe('Feature: Backend Event Processing - PreToolUse', () => {
 
       const startTime = Date.now();
       const response = await request(httpServer)
-        .post('/claude/hooks/pre-tool-use')
+        .post('/api/claude/hooks/pre-tool-use')
         .send(payload)
         .expect(200);
 

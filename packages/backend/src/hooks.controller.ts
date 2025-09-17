@@ -32,7 +32,7 @@ export class HooksController {
         eventType: 'PreToolUse',
         sessionId: validatedPayload.sessionId,
         toolName: validatedPayload.toolName,
-        arguments: validatedPayload.arguments
+        arguments: validatedPayload.arguments,
       });
 
       return {
@@ -68,7 +68,7 @@ export class HooksController {
         arguments: validatedPayload.arguments,
         result: validatedPayload.result,
         executionTime: validatedPayload.executionTime,
-        error: validatedPayload.error
+        error: validatedPayload.error,
       });
 
       return {
@@ -101,7 +101,7 @@ export class HooksController {
         eventType: 'UserPromptSubmit',
         sessionId: validatedPayload.sessionId,
         prompt: validatedPayload.prompt,
-        context: validatedPayload.context
+        context: validatedPayload.context,
       });
 
       return {
@@ -134,7 +134,7 @@ export class HooksController {
         eventType: 'SessionStart',
         sessionId: validatedPayload.sessionId,
         projectPath: validatedPayload.projectPath,
-        environment: validatedPayload.environment
+        environment: validatedPayload.environment,
       });
 
       return {
@@ -167,7 +167,7 @@ export class HooksController {
         eventType: 'SessionEnd',
         sessionId: validatedPayload.sessionId,
         duration: validatedPayload.duration,
-        summary: validatedPayload.summary
+        summary: validatedPayload.summary,
       });
 
       return {
@@ -200,7 +200,7 @@ export class HooksController {
         eventType: 'Notification',
         sessionId: validatedPayload.sessionId,
         message: validatedPayload.message,
-        level: validatedPayload.level
+        level: validatedPayload.level,
       });
 
       return {
@@ -234,7 +234,7 @@ export class HooksController {
         sessionId: validatedPayload.sessionId,
         reason: validatedPayload.reason,
         currentTokenCount: validatedPayload.currentTokenCount,
-        maxTokenCount: validatedPayload.maxTokenCount
+        maxTokenCount: validatedPayload.maxTokenCount,
       });
 
       return {
@@ -267,7 +267,7 @@ export class HooksController {
         eventType: 'Status',
         sessionId: validatedPayload.sessionId,
         currentStatus: validatedPayload.currentStatus,
-        requestType: validatedPayload.requestType
+        requestType: validatedPayload.requestType,
       });
 
       return {
@@ -299,7 +299,7 @@ export class HooksController {
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'Stop',
         sessionId: validatedPayload.sessionId,
-        reason: validatedPayload.reason
+        reason: validatedPayload.reason,
       });
 
       return {
@@ -333,7 +333,7 @@ export class HooksController {
         sessionId: validatedPayload.sessionId,
         subagentId: validatedPayload.subagentId,
         parentSessionId: validatedPayload.parentSessionId,
-        result: validatedPayload.result
+        result: validatedPayload.result,
       });
 
       return {

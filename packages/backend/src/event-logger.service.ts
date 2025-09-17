@@ -32,8 +32,9 @@ export class EventLoggerService {
     await writeFile(logPath, logEntry, { flag: 'a' });
   }
 
-  async getEventsList(page: number, limit: number, date?: string): Promise<{
+  async getEventsList(page: number, limit: number, date?: string, sessionId?: string): Promise<{
     events: unknown[];
+    total: number;
     pagination: {
       page: number;
       limit: number;
@@ -45,6 +46,7 @@ export class EventLoggerService {
     if (!existsSync(eventsDir)) {
       return {
         events: [],
+        total: 0,
         pagination: { page, limit, total: 0 }
       };
     }
@@ -57,7 +59,9 @@ export class EventLoggerService {
         dateDirs = [date];
       } else {
         // Get all date directories
-        dateDirs = await readdir(eventsDir);
+        const allDirs = await readdir(eventsDir);
+        // Filter to only valid date directories (YYYY-MM-DD format)
+        dateDirs = allDirs.filter(dir => /^\d{4}-\d{2}-\d{2}$/.test(dir));
       }
 
       const allEvents: unknown[] = [];
@@ -73,9 +77,12 @@ export class EventLoggerService {
           for (const line of lines) {
             try {
               const event = JSON.parse(line);
-              allEvents.push(event);
-            } catch {
-              // Skip malformed lines
+              // Filter by sessionId if provided
+              if (!sessionId || event.sessionId === sessionId) {
+                allEvents.push(event);
+              }
+            } catch (parseError) {
+              console.error('Failed to parse event line:', parseError);
             }
           }
         }
@@ -97,15 +104,18 @@ export class EventLoggerService {
 
       return {
         events: paginatedEvents,
+        total: allEvents.length,
         pagination: {
           page,
           limit,
           total: allEvents.length
         }
       };
-    } catch {
+    } catch (error) {
+      console.error('Error in getEventsList:', error);
       return {
         events: [],
+        total: 0,
         pagination: { page, limit, total: 0 }
       };
     }
@@ -155,9 +165,10 @@ export class EventLoggerService {
           for (const line of lines) {
             try {
               const event = JSON.parse(line);
+              // Add all events (no filtering in stats)
               allEvents.push(event);
-            } catch {
-              // Skip malformed lines
+            } catch (parseError) {
+              console.error('Failed to parse event line:', parseError);
             }
           }
         }
@@ -251,9 +262,10 @@ export class EventLoggerService {
           for (const line of lines) {
             try {
               const event = JSON.parse(line);
+              // Add all events (no filtering in tail)
               allEvents.push(event);
-            } catch {
-              // Skip malformed lines
+            } catch (parseError) {
+              console.error('Failed to parse event line:', parseError);
             }
           }
         }

@@ -8,7 +8,7 @@ import { createServer } from 'http';
 import type { Server } from 'http';
 import type { IncomingMessage, ServerResponse } from 'http';
 
-const HOOK_HANDLER_PATH = join(process.cwd(), 'src', 'cage-hook-handler.ts');
+const HOOK_HANDLER_PATH = join(process.cwd(), 'packages/hooks/dist/cage-hook-handler.js');
 
 // Mock server response interface
 interface MockResponse {
@@ -78,7 +78,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   describe('Hook Data Reception', () => {
     it('should receive JSON from stdin and forward to backend', async () => {
       // Set up mock response for successful case
-      mockResponses.set('/claude/hooks/pre-tool-use', {
+      mockResponses.set('/api/claude/hooks/pre-tool-use', {
         body: { success: true }
       });
 
@@ -88,7 +88,13 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
         sessionId: 'test-session'
       };
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'pre-tool-use']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       // Send data to stdin
       handler.stdin.write(JSON.stringify(hookData));
@@ -109,7 +115,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   describe('Offline Logging', () => {
     it('should log to file when backend is unreachable', async () => {
       // Set up mock to simulate network error
-      mockResponses.set('/claude/hooks/post-tool-use', {
+      mockResponses.set('/api/claude/hooks/post-tool-use', {
         error: true
       });
 
@@ -122,7 +128,13 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
       // Create .cage directory
       await mkdir(join(testDir, '.cage'), { recursive: true });
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'post-tool-use']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'post-tool-use'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       handler.stdin.write(JSON.stringify(hookData));
       handler.stdin.end();
@@ -147,7 +159,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   describe('Blocking Operations', () => {
     it('should block Claude when backend returns block=true', async () => {
       // Set up mock response for blocking case
-      mockResponses.set('/claude/hooks/pre-tool-use', {
+      mockResponses.set('/api/claude/hooks/pre-tool-use', {
         body: {
           success: false,
           block: true,
@@ -155,7 +167,13 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
         }
       });
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'pre-tool-use']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       handler.stdin.write(JSON.stringify({ toolName: 'Delete' }));
       handler.stdin.end();
@@ -178,14 +196,20 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   describe('Context Injection', () => {
     it('should output context to stdout for injection', async () => {
       // Set up mock response for context injection case
-      mockResponses.set('/claude/hooks/user-prompt-submit', {
+      mockResponses.set('/api/claude/hooks/user-prompt-submit', {
         body: {
           success: true,
           output: 'Additional context: Project uses TypeScript'
         }
       });
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'user-prompt-submit']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'user-prompt-submit'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       handler.stdin.write(JSON.stringify({ prompt: 'Help me write code' }));
       handler.stdin.end();
@@ -207,11 +231,17 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   describe('Error Handling', () => {
     it('should handle malformed JSON input gracefully', async () => {
       // Set up mock response for successful case
-      mockResponses.set('/claude/hooks/pre-tool-use', {
+      mockResponses.set('/api/claude/hooks/pre-tool-use', {
         body: { success: true }
       });
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'pre-tool-use']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       // Send malformed JSON
       handler.stdin.write('this is not valid json');
@@ -227,11 +257,17 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
 
     it('should handle empty input gracefully', async () => {
       // Set up mock response for successful case
-      mockResponses.set('/claude/hooks/pre-tool-use', {
+      mockResponses.set('/api/claude/hooks/pre-tool-use', {
         body: { success: true }
       });
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'pre-tool-use']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       // Send empty input
       handler.stdin.end();
@@ -246,12 +282,18 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
 
     it('should handle backend 400 responses gracefully', async () => {
       // Set up mock response for 400 error case
-      mockResponses.set('/claude/hooks/pre-tool-use', {
+      mockResponses.set('/api/claude/hooks/pre-tool-use', {
         status: 400,
         body: { error: 'Bad Request' }
       });
 
-      const handler = spawn('npx', ['vite-node', HOOK_HANDLER_PATH, 'pre-tool-use']);
+      const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir
+        }
+      });
 
       handler.stdin.write(JSON.stringify({ toolName: 'Read' }));
       handler.stdin.end();

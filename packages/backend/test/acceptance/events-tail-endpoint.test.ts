@@ -22,6 +22,12 @@ describe('Feature: Events Tail API Endpoint', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // Set global prefix like in main.ts
+    app.setGlobalPrefix('api', {
+      exclude: ['/health']
+    });
+
     await app.init();
     httpServer = app.getHttpServer();
 
@@ -56,7 +62,7 @@ describe('Feature: Events Tail API Endpoint', () => {
     // Create events through the PreToolUse endpoint to generate logs
     for (const event of testEvents) {
       await request(httpServer)
-        .post('/claude/hooks/pre-tool-use')
+        .post('/api/claude/hooks/pre-tool-use')
         .send(event);
     }
   });
@@ -72,12 +78,12 @@ describe('Feature: Events Tail API Endpoint', () => {
   });
 
   describe('Scenario: Get recent events via API', () => {
-    it('Given I have logged events When I request /events/tail Then I should get the recent events in JSON format', async () => {
+    it('Given I have logged events When I request /api/events/tail Then I should get the recent events in JSON format', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/tail')
+        .get('/api/events/tail')
         .expect(200);
 
       // Then
@@ -92,12 +98,12 @@ describe('Feature: Events Tail API Endpoint', () => {
       expect(event).toHaveProperty('sessionId');
     });
 
-    it('Given I have logged events When I request /events/tail?count=2 Then I should get only 2 recent events', async () => {
+    it('Given I have logged events When I request /api/events/tail?count=2 Then I should get only 2 recent events', async () => {
       // Given - events are already created in beforeEach
 
       // When
       const response = await request(httpServer)
-        .get('/events/tail?count=2')
+        .get('/api/events/tail?count=2')
         .expect(200);
 
       // Then
