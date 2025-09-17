@@ -1,24 +1,26 @@
 {
   "name": "@cage/hooks",
   "version": "0.0.1",
-  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "cage-hook-handler": "./dist/cage-hook-handler.js"
+  },
   "scripts": {
     "test": "vitest",
-    "build": "tsc"
+    "build": "vite build",
+    "dev": "vite-node src/cage-hook-handler.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "description": "",
-  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
-    "@cage/shared": "0.0.1",
-    "chalk": "^5.6.2",
-    "zod": "^4.1.9"
+    "@cage/shared": "0.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.5.1",
     "typescript": "^5.9.2",
+    "vite": "^6.1.4",
+    "vite-node": "^3.2.4",
     "vitest": "^3.2.4"
   },
   "repository": {

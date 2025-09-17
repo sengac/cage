@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { HooksModule } from './hooks/hooks.module.js';
-import { EventsModule } from './events/events.module.js';
+import { HooksController } from './hooks.controller';
+import { EventsController } from './events.controller';
+import { HealthController } from './health.controller';
+import { EventLoggerService } from './event-logger.service';
 
 @Module({
-  imports: [
-    EventEmitterModule.forRoot(),
-    HooksModule,
-    EventsModule,
-  ],
+  imports: [],
+  controllers: [HooksController, EventsController, HealthController],
+  providers: [EventLoggerService],
 })
 export class AppModule {}

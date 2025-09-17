@@ -1,46 +1,59 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module.js';
-import { Logger } from '@cage/shared';
+import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-const logger = new Logger();
-
-async function bootstrap() {
+/**
+ * Bootstrap the Cage backend server
+ *
+ * This is the main entry point that:
+ * - Starts the NestJS application
+ * - Configures Swagger documentation
+ * - Sets up CORS for local development
+ * - Listens on the configured port
+ */
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  // Enable global validation
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-  }));
-
-  // Enable CORS for frontend
+  // Enable CORS for local development
   app.enableCors({
-    origin: true,
+    origin: ['http://localhost:3000', 'http://localhost:5173'],
     credentials: true,
+  });
+
+  // Set global prefix for API routes
+  app.setGlobalPrefix('api', {
+    exclude: ['/health']
   });
 
   // Setup Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Cage API')
-    .setDescription('Controlled AI Environment - Hook infrastructure for Claude Code')
-    .setVersion('1.0')
-    .addTag('hooks')
-    .addTag('events')
+    .setDescription('Controlled AI Environment - Hook Infrastructure API')
+    .setVersion('0.0.1')
+    .addTag('hooks', 'Claude Code hook endpoints')
+    .addTag('events', 'Event management and querying')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api-docs', app, document);
 
+  // Get port from environment or default to 3790
   const port = process.env.PORT || 3790;
+
   await app.listen(port);
 
-  logger.info(`Cage backend server listening on port ${port}`);
-  logger.info(`API documentation available at http://localhost:${port}/api`);
+  console.log(`🚀 Cage backend server running on http://localhost:${port}`);
+  console.log(`📚 Swagger documentation available at http://localhost:${port}/api-docs`);
+  console.log(`💓 Health check available at http://localhost:${port}/health`);
+  console.log('🎣 Hook endpoints available at /claude/hooks/*');
+  console.log('📊 Event endpoints available at /api/events/*');
+
+  // Log successful startup for integration tests
+  console.log('Nest application successfully started');
 }
 
+// Start the server
 bootstrap().catch((error) => {
-  logger.error('Failed to start server', { error: error.message });
+  console.error('Failed to start Cage backend:', error);
   process.exit(1);
 });

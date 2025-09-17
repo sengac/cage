@@ -12,3 +12,7 @@ coverage/
 .DS_Store
 .nyc_output/
 *.tsbuildinfo
+
+# Cage runtime data directories
+.cage/
+tmp/
