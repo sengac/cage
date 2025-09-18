@@ -179,9 +179,23 @@ export async function getServerStatus(options: { format?: 'json' | 'text' } = {}
         // Check for quality check hook
         if (settings.hooks.PostToolUse) {
           const postToolUse = settings.hooks.PostToolUse;
-          if (typeof postToolUse === 'object') {
+          if (Array.isArray(postToolUse)) {
+            // Handle array format
+            for (const hook of postToolUse) {
+              if (hook.hooks && Array.isArray(hook.hooks)) {
+                for (const hookDef of hook.hooks) {
+                  if (hookDef.command && hookDef.command.includes('quality-check')) {
+                    status.hooks.hasQualityCheck = true;
+                    break;
+                  }
+                }
+              }
+              if (status.hooks.hasQualityCheck) break;
+            }
+          } else if (typeof postToolUse === 'object') {
+            // Handle object format
             for (const key of Object.keys(postToolUse)) {
-              if (postToolUse[key].includes('quality-check')) {
+              if (typeof postToolUse[key] === 'string' && postToolUse[key].includes('quality-check')) {
                 status.hooks.hasQualityCheck = true;
                 break;
               }

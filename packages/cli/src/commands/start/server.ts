@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, execSync } from 'child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
 
@@ -40,13 +40,29 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
     };
   }
 
+  // Check if port is already in use
+  try {
+    const lsofOutput = execSync(`lsof -ti :${port}`, { encoding: 'utf-8', stdio: 'pipe' }).trim();
+    if (lsofOutput) {
+      const pids = lsofOutput.split('\n').filter(pid => pid.trim());
+      if (pids.length > 0) {
+        return {
+          success: false,
+          message: `Port ${port} is already in use by process ${pids[0]}. Please stop the existing process or use a different port with --port flag.`
+        };
+      }
+    }
+  } catch {
+    // Port is free (lsof exits with error when no processes found)
+  }
+
   // Ensure .cage directory exists
   if (!existsSync(cageDir)) {
     mkdirSync(cageDir, { recursive: true });
   }
 
   return new Promise((resolve) => {
-    // Start the backend server as a detached process
+    // Start the backend server with captured stderr initially to catch startup errors
     const serverProcess: ChildProcess = spawn('node', [backendPath], {
       env: {
         ...process.env,
@@ -54,8 +70,22 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
         NODE_ENV: 'production'
       },
       detached: true,
-      stdio: ['ignore', 'ignore', 'ignore']  // Fully detached
+      stdio: ['ignore', 'pipe', 'pipe']  // Capture stdout/stderr initially
     });
+
+    let startupError = '';
+
+    // Capture stderr for startup errors
+    if (serverProcess.stderr) {
+      serverProcess.stderr.on('data', (data) => {
+        const errorText = data.toString();
+        if (errorText.includes('EADDRINUSE')) {
+          startupError = `Port ${port} is already in use. Please stop the existing process or use a different port.`;
+        } else if (errorText.includes('Error:')) {
+          startupError = errorText.trim();
+        }
+      });
+    }
 
     // Handle spawn errors
     serverProcess.on('error', (error) => {
@@ -74,11 +104,29 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
         // Unref to allow parent to exit
         serverProcess.unref();
 
-        // Give it a moment to ensure it doesn't crash immediately
+        // Give it a moment to ensure it doesn't crash immediately and check for errors
         setTimeout(() => {
+          // Check for startup errors first
+          if (startupError) {
+            // Clean up PID file if there was an error
+            if (existsSync(pidFile)) {
+              unlinkSync(pidFile);
+            }
+            resolve({
+              success: false,
+              message: startupError
+            });
+            return;
+          }
+
           // Check if process is still running
           try {
             process.kill(serverProcess.pid!, 0);
+
+            // Detach stdio now that startup is successful
+            if (serverProcess.stdout) serverProcess.stdout.destroy();
+            if (serverProcess.stderr) serverProcess.stderr.destroy();
+
             resolve({
               success: true,
               message: `Server started on port ${port}`,
@@ -86,13 +134,16 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
             });
           } catch {
             // Process died immediately
-            unlinkSync(pidFile);
+            if (existsSync(pidFile)) {
+              unlinkSync(pidFile);
+            }
+            const errorMsg = startupError || 'Server failed to start (process exited immediately)';
             resolve({
               success: false,
-              message: 'Server failed to start (process exited immediately)'
+              message: errorMsg
             });
           }
-        }, 1000); // Wait 1 second to ensure it's stable
+        }, 2000); // Wait 2 seconds to ensure it's stable and capture any errors
       } else {
         resolve({
           success: false,
