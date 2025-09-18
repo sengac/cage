@@ -5,7 +5,7 @@ import { Spinner } from '../../components/Spinner.js';
 import { ErrorMessage } from '../../components/ErrorMessage.js';
 import { SuccessMessage } from '../../components/SuccessMessage.js';
 import { loadCageConfig } from '../../utils/config.js';
-import { installHooks, getClaudeSettingsPath } from '../../utils/hooks-installer.js';
+import { installHooksLocally, getLocalClaudeSettingsPath } from '../../utils/hooks-installer.js';
 
 interface SetupState {
   status: 'checking' | 'installing' | 'done' | 'error';
@@ -37,11 +37,11 @@ export function HooksSetupCommand(): JSX.Element {
 
         setState({
           status: 'installing',
-          message: 'Installing Claude Code hooks...'
+          message: 'Installing Claude Code hooks in local .claude directory...'
         });
 
-        // Install all hooks
-        await installHooks(config.port);
+        // Install all hooks locally
+        await installHooksLocally(config.port);
 
         // Get list of installed hooks
         const hookTypes = Object.values(HookType);
@@ -79,7 +79,7 @@ export function HooksSetupCommand(): JSX.Element {
       <SuccessMessage
         message={state.message}
         details={[
-          `Settings location: ${getClaudeSettingsPath()}`,
+          `Settings location: ${getLocalClaudeSettingsPath()}`,
           '',
           'Installed hooks:',
           ...(state.hooks?.map(hook => `  - ${hook}`) || [])

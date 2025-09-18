@@ -4,8 +4,9 @@
     "jsx": "react",
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": ["node"],
+    "types": ["node", "react"],
     "lib": ["ES2022"],
+    "moduleResolution": "bundler",
     "paths": {
       "@cage/shared": ["../shared/src"],
       "@cage/shared/*": ["../shared/src/*"]

@@ -4,7 +4,7 @@ import { HookType } from '@cage/shared';
 import { Spinner } from '../../components/Spinner.js';
 import { ErrorMessage } from '../../components/ErrorMessage.js';
 import { loadCageConfig, isCageInitialized } from '../../utils/config.js';
-import { getInstalledHooks, getClaudeSettingsPath } from '../../utils/hooks-installer.js';
+import { getInstalledHooksLocally, getLocalClaudeSettingsPath } from '../../utils/hooks-installer.js';
 
 interface StatusState {
   status: 'checking' | 'done' | 'error';
@@ -38,7 +38,7 @@ export function HooksStatusCommand(): JSX.Element {
         }
 
         const config = await loadCageConfig();
-        const installedHooks = await getInstalledHooks();
+        const installedHooks = await getInstalledHooksLocally();
 
         setState({
           status: 'done',
@@ -80,7 +80,7 @@ export function HooksStatusCommand(): JSX.Element {
     <Box flexDirection="column">
       <Text bold color="cyan">{state.message}</Text>
       <Box marginTop={1} flexDirection="column">
-        <Text>Settings file: {getClaudeSettingsPath()}</Text>
+        <Text>Settings file: {getLocalClaudeSettingsPath()}</Text>
         <Text>Backend port: {state.config?.port || 'Not configured'}</Text>
         <Text>Backend enabled: {state.config?.enabled ? 'Yes' : 'No'}</Text>
       </Box>

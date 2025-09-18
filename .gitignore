@@ -16,3 +16,4 @@ coverage/
 # Cage runtime data directories
 .cage/
 tmp/
+cage.config.json

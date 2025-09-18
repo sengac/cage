@@ -4,16 +4,29 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "build": "vite build",
-    "dev": "vite-node src/index.tsx"
+    "build": "vite build && chmod +x dist/index.js",
+    "dev": "vite-node src/index.tsx",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["cage", "ai", "claude", "code", "hooks", "development", "tooling"],
+  "author": "Software Engineering & Consulting Pty Ltd",
   "license": "MIT",
-  "description": "",
+  "description": "CLI tool for Cage - A controlled environment for AI development",
   "type": "module",
   "bin": {
     "cage": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@cage/shared": "0.0.1",

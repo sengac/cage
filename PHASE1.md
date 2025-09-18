@@ -37,18 +37,38 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** a `cage.config.json` file should be created with default settings
 **And** the console should display "Cage initialized successfully"
 
-#### Scenario: Configure Claude Code hooks
+#### Scenario: Configure Claude Code hooks in local project
 **Given** I have Cage initialized in my project
+**And** I am in a project directory with a .claude folder
 **When** I run `cage hooks setup`
-**Then** the system should detect my Claude Code installation
-**And** update Claude Code settings.json with hook configuration
-**And** display "Hooks configured successfully for: PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact, Status"
+**Then** the system should use the local .claude directory in the current working directory
+**And** create or update .claude/settings.json with hook configuration
+**And** NOT modify any global Claude configuration files
+**And** create hook scripts in .claude/hooks/ directory
+**And** display "Hooks configured in .claude/ for: PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact, Status"
+
+#### Scenario: Handle missing .claude directory
+**Given** I am in a project directory without a .claude folder
+**When** I run `cage hooks setup`
+**Then** the system should create a .claude directory in the current working directory
+**And** create .claude/settings.json with hook configuration
+**And** create .claude/hooks/ directory structure
+**And** display "Created .claude/ directory and configured hooks"
+
+#### Scenario: Detect and use existing .claude directory
+**Given** I have an existing .claude directory with settings.json
+**When** I run `cage hooks setup`
+**Then** the system should preserve existing settings in .claude/settings.json
+**And** merge Cage hook configurations without overwriting other settings
+**And** backup the original settings.json as settings.json.backup
+**And** display "Updated existing .claude/settings.json (backup saved)"
 
 #### Scenario: Verify hook configuration
 **Given** I have configured Cage hooks
 **When** I run `cage hooks status`
-**Then** I should see the status of each hook (enabled/disabled)
-**And** the path where each hook script is installed
+**Then** I should see the status of each hook from .claude/settings.json
+**And** the path to the local .claude/hooks/ directory
+**And** verification that hook scripts exist in .claude/hooks/
 **And** whether the backend server is running
 
 ### Feature: Backend Event Processing
