@@ -85,7 +85,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
             matcher: '*',
             hooks: [{
               type: 'command',
-              command: `\${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs`,
+              command: `\$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs`,
               timeout: 180
             }]
           }],
@@ -93,7 +93,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
             matcher: '*',
             hooks: [{
               type: 'command',
-              command: `\${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/posttooluse.mjs`,
+              command: `\$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs`,
               timeout: 180
             }]
           }]
@@ -173,7 +173,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
             matcher: '*',
             hooks: [{
               type: 'command',
-              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs',
+              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
               timeout: 180
             }]
           }],
@@ -181,7 +181,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
             matcher: '*',
             hooks: [{
               type: 'command',
-              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/posttooluse.mjs',
+              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
               timeout: 180
             }]
           }]
@@ -211,7 +211,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
             matcher: '*',
             hooks: [{
               type: 'command',
-              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs',
+              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
               timeout: 180
             }]
           }],
@@ -219,7 +219,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
             matcher: '*',
             hooks: [{
               type: 'command',
-              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/posttooluse.mjs',
+              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
               timeout: 180
             }]
           }]
@@ -227,16 +227,16 @@ describe('Feature: Claude Code Hook Configuration', () => {
       });
 
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({
-        PreToolUse: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs',
-        PostToolUse: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/posttooluse.mjs',
-        UserPromptSubmit: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/userpromptsubmit.mjs',
-        Notification: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/notification.mjs',
-        Stop: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/stop.mjs',
-        SubagentStop: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/subagentstop.mjs',
-        SessionStart: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/sessionstart.mjs',
-        SessionEnd: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/sessionend.mjs',
-        PreCompact: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/precompact.mjs',
-        Status: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/status.mjs'
+        PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
+        PostToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
+        UserPromptSubmit: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/userpromptsubmit.mjs',
+        Notification: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/notification.mjs',
+        Stop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/stop.mjs',
+        SubagentStop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/subagentstop.mjs',
+        SessionStart: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/sessionstart.mjs',
+        SessionEnd: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/sessionend.mjs',
+        PreCompact: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/precompact.mjs',
+        Status: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/status.mjs'
       });
 
       // When

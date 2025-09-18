@@ -175,7 +175,7 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
             matcher: 'custom',
             hooks: [{
               type: 'command',
-              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/hook.js',
+              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/hook.js',
               timeout: 60
             }]
           }
@@ -186,7 +186,7 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
             matcher: 'custom',
             hooks: [{
               type: 'command',
-              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/hook.js',
+              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/hook.js',
               timeout: 60
             }]
           }

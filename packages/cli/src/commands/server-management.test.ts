@@ -144,10 +144,10 @@ describe('Server Management Commands', () => {
         // Given hooks are installed
         const mockSettings = {
           hooks: {
-            PreToolUse: { '*': '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs' },
+            PreToolUse: { '*': '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs' },
             PostToolUse: {
-              'Edit|MultiEdit|Write': '${CLAUDE_PROJECT_DIR}/.claude/hooks/cli-app/quality-check.js',
-              '*': '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/posttooluse.mjs'
+              'Edit|MultiEdit|Write': '$CLAUDE_PROJECT_DIR/.claude/hooks/cli-app/quality-check.js',
+              '*': '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs'
             }
           }
         };

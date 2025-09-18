@@ -294,8 +294,8 @@ export async function installHooksLocally(port: number): Promise<void> {
     // Create the wrapper script for this hook type
     await createHookScript(hookType, port);
 
-    // Add hook to settings - SIMPLE MERGE LOGIC
-    const hookPath = `\${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/${hookType.toLowerCase()}.mjs`;
+    // Add hook to settings - Use Claude Code environment variable CLAUDE_PROJECT_DIR
+    const hookPath = `$CLAUDE_PROJECT_DIR/.claude/hooks/cage/${hookType.toLowerCase()}.mjs`;
     const existingHook = settings.hooks[hookType];
 
     if (!existingHook) {
@@ -313,9 +313,17 @@ export async function installHooksLocally(port: number): Promise<void> {
       // Object format - JUST ADD OUR HOOK IF NOT ALREADY THERE
       const objHook = existingHook as Record<string, string>;
 
-      // Only add if we don't already have a Cage hook
+      // Only add if we don't already have a Cage hook - check for cage hooks with any path format
       if (!Object.values(objHook).some(cmd => typeof cmd === 'string' && cmd.includes('.claude/hooks/cage/'))) {
         objHook['*'] = hookPath;
+      } else {
+        // Replace existing Cage hook with updated absolute path
+        for (const [matcher, command] of Object.entries(objHook)) {
+          if (typeof command === 'string' && command.includes('.claude/hooks/cage/')) {
+            objHook[matcher] = hookPath;
+            break;
+          }
+        }
       }
 
       settings.hooks[hookType] = objHook;

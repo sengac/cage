@@ -85,7 +85,7 @@ describe('Local .claude Directory Hook Management', () => {
               hooks: [
                 {
                   type: 'command',
-                  command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/quality-check.js',
+                  command: '$CLAUDE_PROJECT_DIR/.claude/hooks/quality-check.js',
                   timeout: 180
                 }
               ]
@@ -225,7 +225,7 @@ describe('Local .claude Directory Hook Management', () => {
               hooks: [
                 {
                   type: 'command',
-                  command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/existing-hook.js',
+                  command: '$CLAUDE_PROJECT_DIR/.claude/hooks/existing-hook.js',
                   timeout: 180
                 }
               ]
@@ -259,7 +259,7 @@ describe('Local .claude Directory Hook Management', () => {
       const existingSettings = {
         hooks: {
           PostToolUse: {
-            "Edit|MultiEdit|Write": "${CLAUDE_PROJECT_DIR}/.claude/hooks/cli-app/quality-check.js"
+            "Edit|MultiEdit|Write": "$CLAUDE_PROJECT_DIR/.claude/hooks/cli-app/quality-check.js"
           }
         }
       };
@@ -311,7 +311,7 @@ describe('Local .claude Directory Hook Management', () => {
               matcher: '*',
               hooks: [{
                 type: 'command',
-                command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/pre-hook.js',
+                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/pre-hook.js',
                 timeout: 180
               }]
             }
@@ -359,14 +359,14 @@ describe('Local .claude Directory Hook Management', () => {
               matcher: 'Edit',
               hooks: [{
                 type: 'command',
-                command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/hook1.js'
+                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/hook1.js'
               }]
             },
             {
               matcher: '*',
               hooks: [{
                 type: 'command',
-                command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/hook2.js'
+                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/hook2.js'
               }]
             }
           ]
@@ -420,7 +420,7 @@ describe('Local .claude Directory Hook Management', () => {
               hooks: [
                 {
                   type: 'command',
-                  command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom-hook.js',
+                  command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom-hook.js',
                   timeout: 180
                 }
               ]

@@ -46,40 +46,49 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
           return;
         }
 
-        // TODO: Implement actual EventSource connection when backend is ready
-        // For now, simulate connection
-        setState({
-          status: 'connected',
-          message: filter ? `Streaming events (filtered: ${filter})...` : 'Streaming events...',
-          events: [],
-          filter
-        });
+        // Connect to real SSE endpoint
+        const eventSource = new EventSource(`http://localhost:${config.port}/api/events/stream`);
 
-        // Simulate receiving events
-        const mockEvents: StreamEvent[] = [
-          {
-            timestamp: new Date().toISOString(),
-            eventType: 'pre-tool-use',
-            toolName: 'Read',
-            sessionId: 'session-1'
-          },
-          {
-            timestamp: new Date().toISOString(),
-            eventType: 'post-tool-use',
-            toolName: 'Read',
-            sessionId: 'session-1'
+        eventSource.onopen = () => {
+          setState({
+            status: 'connected',
+            message: filter ? `Streaming events (filtered: ${filter})...` : 'Streaming events...',
+            events: [],
+            filter
+          });
+        };
+
+        eventSource.onmessage = (event) => {
+          try {
+            const eventData: StreamEvent = JSON.parse(event.data);
+
+            // Apply filter if specified
+            if (!filter || eventData.eventType.toLowerCase().includes(filter.toLowerCase())) {
+              setState(prev => ({
+                ...prev,
+                events: [...prev.events, eventData].slice(-50) // Keep last 50 events
+              }));
+            }
+          } catch (parseError) {
+            console.error('Failed to parse SSE event:', parseError);
           }
-        ];
+        };
 
-        // Add mock events after a delay
-        setTimeout(() => {
-          setState(prev => ({
-            ...prev,
-            events: mockEvents.filter(event =>
-              !filter || event.eventType.includes(filter.toLowerCase())
-            )
-          }));
-        }, 1000);
+        eventSource.onerror = (error) => {
+          console.error('SSE connection error:', error);
+          setState({
+            status: 'error',
+            message: 'Connection to event stream failed',
+            error: 'Failed to connect to backend SSE endpoint',
+            events: []
+          });
+          eventSource.close();
+        };
+
+        // Return cleanup function that closes the connection
+        return () => {
+          eventSource.close();
+        };
 
       } catch (err) {
         setState({
@@ -93,9 +102,9 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
 
     connectToStream();
 
-    // Cleanup function
+    // Cleanup function - this will be returned by the actual EventSource setup
     return () => {
-      // TODO: Close EventSource connection when implemented
+      // EventSource cleanup is handled in the connection setup above
     };
   }, [filter]);
 

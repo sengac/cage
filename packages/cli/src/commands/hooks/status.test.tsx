@@ -67,11 +67,11 @@ describe('HooksStatusCommand', () => {
     it('Given I have configured Cage hooks When I run cage hooks status Then I see status from .claude/settings.json', async () => {
       // Setup - mock installed hooks
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({
-        PreToolUse: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs',
-        PostToolUse: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/posttooluse.mjs',
-        UserPromptSubmit: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/userpromptsubmit.mjs',
-        Stop: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/stop.mjs',
-        SubagentStop: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/subagentstop.mjs'
+        PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
+        PostToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
+        UserPromptSubmit: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/userpromptsubmit.mjs',
+        Stop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/stop.mjs',
+        SubagentStop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/subagentstop.mjs'
       });
 
       // When
@@ -152,7 +152,7 @@ describe('HooksStatusCommand', () => {
     it('Given some hooks are missing When I run cage hooks status Then it suggests running setup', async () => {
       // Setup - partial hooks installed
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({
-        PreToolUse: '${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/pretooluse.mjs'
+        PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs'
       });
 
       // When

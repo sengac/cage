@@ -116,14 +116,14 @@ async function main(): Promise<void> {
   if (hookType === 'PreToolUse') {
     // Map from Claude Code's actual format (tool, arguments)
     mappedData = {
-      sessionId: typedHookData.session_id || undefined, // Claude Code doesn't provide this
+      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`, // Generate if not provided
       timestamp: new Date().toISOString(),
       toolName: typedHookData.tool || 'unknown', // Claude sends 'tool' not 'tool_name'
       arguments: typedHookData.arguments || {}
     };
   } else if (hookType === 'PostToolUse') {
     mappedData = {
-      sessionId: typedHookData.session_id || undefined,
+      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
       toolName: typedHookData.tool || 'unknown',
       arguments: typedHookData.arguments || {},
@@ -133,7 +133,7 @@ async function main(): Promise<void> {
     };
   } else if (hookType === 'UserPromptSubmit') {
     mappedData = {
-      sessionId: typedHookData.session_id || undefined,
+      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
       prompt: typedHookData.prompt || typedHookData.raw || '',
       context: {
@@ -144,15 +144,16 @@ async function main(): Promise<void> {
   } else {
     // For other hooks, pass through with minimal mapping
     mappedData = {
-      sessionId: typedHookData.session_id || undefined,
+      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
       ...hookData
     };
   }
 
-  // Add metadata
+  // Add metadata - ensure timestamp is always present for backend validation
   const enrichedData: EnrichedHookData = {
     ...mappedData,
+    timestamp: mappedData.timestamp || new Date().toISOString(), // Ensure timestamp exists
     hook_type: hookType,
     project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd()
   };
@@ -216,15 +217,11 @@ async function main(): Promise<void> {
     }
 
     const logPath = join(cageDir, 'hooks-offline.log');
-    const logEntry: LogEntry = {
-      timestamp: new Date().toISOString(),
-      hookType,
-      data: enrichedData,
-      error: error instanceof Error ? error.message : String(error)
-    };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const logEntry = `${new Date().toISOString()} [${hookType}] Failed to connect to Cage backend: ${errorMessage}\n`;
 
     try {
-      appendFileSync(logPath, JSON.stringify(logEntry) + '\n');
+      appendFileSync(logPath, logEntry);
     } catch {
       // Can't log, silent fail
     }
