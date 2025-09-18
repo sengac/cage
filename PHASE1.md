@@ -20,6 +20,47 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **I want to** access a complete log of all hook events
 **So that** I can understand past decisions and troubleshoot issues
 
+## Critical Implementation Note: Claude Code Hook Payloads
+
+**IMPORTANT**: Claude Code sends hook events with specific field names that MUST be used:
+
+### PreToolUse Payload Format:
+```json
+{
+  "session_id": "string",
+  "transcript_path": "string",
+  "cwd": "string",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Read",  // NOT "tool"
+  "tool_input": {       // NOT "arguments"
+    "file_path": "/path/to/file.txt"
+  }
+}
+```
+
+### PostToolUse Payload Format:
+```json
+{
+  "session_id": "string",
+  "transcript_path": "string",
+  "cwd": "string",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",  // NOT "tool"
+  "tool_input": {        // NOT "arguments"
+    "file_path": "/path/to/file.txt",
+    "content": "content"
+  },
+  "tool_response": {
+    // Tool-specific response
+  }
+}
+```
+
+### Common Tool Names:
+- `"Read"`, `"Write"`, `"Edit"`, `"MultiEdit"`, `"Bash"`, `"Grep"`, `"Glob"`, `"WebSearch"`, `"WebFetch"`
+
+**ALL IMPLEMENTATIONS MUST USE THESE EXACT FIELD NAMES**
+
 ## Acceptance Criteria
 
 ### Feature: CLI Installation and Setup
@@ -51,7 +92,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** NOT modify any global Claude configuration files
 **And** copy the cage-hook-handler.js to .claude/hooks/ directory
 **And** create individual .mjs wrapper scripts for each hook type in .claude/hooks/
-**And** display "Hooks configured in .claude/ for: PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact, Status"
+**And** display "Hooks configured in .claude/ for: PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact"
 **And** the hook handler should be executable and process stdin correctly
 
 #### Scenario: Handle missing .claude directory
@@ -199,13 +240,6 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** respond with 200 OK within 100ms
 **And** log the compaction event
 
-#### Scenario: Receive Status hook event
-**Given** the Cage backend server is running
-**When** Claude Code requests status line update
-**Then** the backend should receive the event via HTTP POST to /api/claude/hooks/status
-**And** respond with 200 OK within 100ms
-**And** optionally return custom status text
-**And** log the status request to the file system
 
 #### Scenario: Handle hook when server is down
 **Given** the Cage backend server is NOT running
@@ -325,7 +359,6 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
   - SessionEnd: ✓
   - Notification: ✓
   - PreCompact: ✓
-  - Status: ✓
   - Stop: ✓
   - SubagentStop: ✓
 ```
@@ -460,7 +493,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **Given** the backend receives a hook event
 **When** the event is processed
 **Then** an entry should be appended to .cage/events/{date}/events.jsonl
-**And** the entry should contain: timestamp, eventType, toolName, arguments, sessionId
+**And** the entry should contain: timestamp, eventType, toolName, toolInput, sessionId
 **And** include additional fields based on hook type (result, error, etc.)
 **And** the file should use append-only mode (no overwrites)
 **And** each line should be valid JSON (JSONL format)
@@ -615,7 +648,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **When** processing through the system
 **Then** all events should be validated against Zod schemas
 **And** invalid events should be rejected with clear errors
-**And** schema validation should cover all 10 hook types
+**And** schema validation should cover all 9 hook types
 
 #### Scenario: Test cross-platform compatibility
 **Given** the Cage system
@@ -664,7 +697,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** session boundaries should be clear in the logs
 
 #### Scenario: Enforce event size limits
-**Given** a hook event with large payload
+**Given** a hook event with large tool_input or tool_response
 **When** the event size exceeds 1MB (configurable limit)
 **Then** the event should be truncated to fit the limit
 **And** a warning should be logged about truncation
@@ -710,7 +743,7 @@ Phase 1 is complete when:
 4. Cross-platform compatibility is verified (Windows, macOS, Linux)
 5. Performance benchmarks meet requirements (<100ms hook response)
 6. Code passes all quality checks (no TypeScript `any`, proper error handling)
-7. Integration tests verify end-to-end hook flow for all 10 hook types
+7. Integration tests verify end-to-end hook flow for all 9 hook types
 8. Quality-check hook preservation works correctly
 9. Hook handler processes all Claude Code formats correctly
 10. Event logging, querying, and statistics work reliably
@@ -726,7 +759,7 @@ Phase 1 is complete when:
 4. **Offline Mode**: Verify hooks don't block when server is down
 
 ### Unit Tests
-1. **Event Parser**: Validate all hook payload formats
+1. **Event Parser**: Validate hook payloads with tool_name, tool_input, session_id fields
 2. **File Writer**: Test append-only behavior and rotation
 3. **CLI Commands**: Test each command with various arguments
 4. **API Endpoints**: Test each endpoint with valid/invalid data

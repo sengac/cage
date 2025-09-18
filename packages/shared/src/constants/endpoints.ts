@@ -48,8 +48,7 @@ export function getHookEndpoint(hookType: string): string | undefined {
     SubagentStop: API_ENDPOINTS.claude.subagentStop,
     SessionStart: API_ENDPOINTS.claude.sessionStart,
     SessionEnd: API_ENDPOINTS.claude.sessionEnd,
-    PreCompact: API_ENDPOINTS.claude.preCompact,
-    Status: API_ENDPOINTS.claude.status
+    PreCompact: API_ENDPOINTS.claude.preCompact
   };
 
   return hookToEndpoint[hookType];

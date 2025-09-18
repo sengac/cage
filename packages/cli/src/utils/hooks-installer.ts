@@ -286,34 +286,38 @@ export async function installHooksLocally(port: number): Promise<void> {
     'SessionStart' as HookType,
     'SessionEnd' as HookType,
     'Notification' as HookType,
-    'PreCompact' as HookType,
-    'Status' as HookType
+    'PreCompact' as HookType
   ];
 
   for (const hookType of hookTypes) {
     // Create the wrapper script for this hook type
     await createHookScript(hookType, port);
 
-    // Add hook to settings - Use Claude Code environment variable CLAUDE_PROJECT_DIR
-    const hookPath = `$CLAUDE_PROJECT_DIR/.claude/hooks/cage/${hookType.toLowerCase()}.mjs`;
+    // Add hook to settings - Use Claude Code environment variable CLAUDE_PROJECT_DIR with braces
+    const hookPath = `\${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/${hookType.toLowerCase()}.mjs`;
     const existingHook = settings.hooks[hookType];
 
     // Determine if this hook type needs a matcher
-    const needsMatcher = ['PreToolUse', 'PostToolUse', 'PreCompact', 'Status'].includes(hookType);
+    const needsMatcher = ['PreToolUse', 'PostToolUse', 'PreCompact'].includes(hookType);
 
     if (!existingHook) {
       // No existing hook - create array format
-      const hookEntry: HookEntry = {
-        hooks: [{
-          type: 'command',
-          command: hookPath,
-          timeout: hookType === 'PostToolUse' ? 180 : undefined
-        }]
-      };
-
-      if (needsMatcher) {
-        hookEntry.matcher = '*';
-      }
+      const hookEntry: HookEntry = needsMatcher
+        ? {
+            matcher: '*',
+            hooks: [{
+              type: 'command',
+              command: hookPath,
+              timeout: hookType === 'PostToolUse' ? 180 : undefined
+            }]
+          }
+        : {
+            hooks: [{
+              type: 'command',
+              command: hookPath,
+              timeout: hookType === 'PostToolUse' ? 180 : undefined
+            }]
+          };
 
       settings.hooks[hookType] = [hookEntry];
     } else if (Array.isArray(existingHook)) {
@@ -326,17 +330,22 @@ export async function installHooksLocally(port: number): Promise<void> {
       );
 
       // Add our new hook
-      const hookEntry: HookEntry = {
-        hooks: [{
-          type: 'command',
-          command: hookPath,
-          timeout: hookType === 'PostToolUse' ? 180 : undefined
-        }]
-      };
-
-      if (needsMatcher) {
-        hookEntry.matcher = '*';
-      }
+      const hookEntry: HookEntry = needsMatcher
+        ? {
+            matcher: '*',
+            hooks: [{
+              type: 'command',
+              command: hookPath,
+              timeout: hookType === 'PostToolUse' ? 180 : undefined
+            }]
+          }
+        : {
+            hooks: [{
+              type: 'command',
+              command: hookPath,
+              timeout: hookType === 'PostToolUse' ? 180 : undefined
+            }]
+          };
 
       filteredHooks.push(hookEntry);
       settings.hooks[hookType] = filteredHooks;
@@ -375,8 +384,7 @@ export async function uninstallHooksLocally(): Promise<void> {
       'SessionStart' as HookType,
       'SessionEnd' as HookType,
       'Notification' as HookType,
-      'PreCompact' as HookType,
-      'Status' as HookType
+      'PreCompact' as HookType
     ];
 
     for (const hookType of hookTypes) {
@@ -439,8 +447,7 @@ export async function getInstalledHooksLocally(): Promise<Record<string, string>
       'SessionStart' as HookType,
       'SessionEnd' as HookType,
       'Notification' as HookType,
-      'PreCompact' as HookType,
-      'Status' as HookType
+      'PreCompact' as HookType
     ];
 
     for (const hookType of hookTypes) {

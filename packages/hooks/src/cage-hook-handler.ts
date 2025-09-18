@@ -103,39 +103,47 @@ async function main(): Promise<void> {
   // Map Claude Code fields to our expected schema based on hook type
   interface ClaudeCodeHookData extends HookData {
     session_id?: string;
-    tool?: string;
-    arguments?: Record<string, unknown>;
-    result?: unknown;
-    error?: string;
-    prompt?: string;
+    transcript_path?: string;
+    cwd?: string;
+    hook_event_name?: string;
+    tool_name?: string;  // Claude Code uses tool_name
+    tool_input?: Record<string, unknown>;  // Claude Code uses tool_input
+    tool_response?: unknown;  // For PostToolUse
+    additionalContext?: string;  // For UserPromptSubmit
+    permission_mode?: string;
   }
 
   const typedHookData = hookData as ClaudeCodeHookData;
   let mappedData: Record<string, unknown> = {};
 
   if (hookType === 'PreToolUse') {
-    // Map from Claude Code's actual format (tool, arguments)
+    // Map from Claude Code's actual format
     mappedData = {
-      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`, // Generate if not provided
+      sessionId: typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      toolName: typedHookData.tool || 'unknown', // Claude sends 'tool' not 'tool_name'
-      arguments: typedHookData.arguments || {}
+      toolName: typedHookData.tool_name || 'unknown',
+      arguments: typedHookData.tool_input || {},  // Backend expects 'arguments'
+      transcriptPath: typedHookData.transcript_path,
+      cwd: typedHookData.cwd
     };
   } else if (hookType === 'PostToolUse') {
     mappedData = {
-      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`,
+      sessionId: typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      toolName: typedHookData.tool || 'unknown',
-      arguments: typedHookData.arguments || {},
-      result: typedHookData.result || null,
-      executionTime: 0, // Claude Code doesn't provide this
-      error: typedHookData.error
+      toolName: typedHookData.tool_name || 'unknown',
+      arguments: typedHookData.tool_input || {},  // Backend expects 'arguments'
+      result: typedHookData.tool_response || null,  // Backend expects 'result'
+      executionTime: 0,
+      transcriptPath: typedHookData.transcript_path,
+      cwd: typedHookData.cwd
     };
   } else if (hookType === 'UserPromptSubmit') {
     mappedData = {
-      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`,
+      sessionId: typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      prompt: typedHookData.prompt || typedHookData.raw || '',
+      prompt: typedHookData.additionalContext || '',
+      transcriptPath: typedHookData.transcript_path,
+      cwd: typedHookData.cwd,
       context: {
         previousMessages: [],
         currentFile: undefined
@@ -144,8 +152,10 @@ async function main(): Promise<void> {
   } else {
     // For other hooks, pass through with minimal mapping
     mappedData = {
-      sessionId: typedHookData.sessionId || typedHookData.session_id || `session-${Date.now()}`,
+      sessionId: typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
+      transcriptPath: typedHookData.transcript_path,
+      cwd: typedHookData.cwd,
       ...hookData
     };
   }
@@ -158,6 +168,9 @@ async function main(): Promise<void> {
     project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd()
   };
 
+  // Define baseDir before the try block for proper scoping
+  const baseDir = process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+
   // Forward to Cage backend
   try {
     // Convert hookType from PascalCase to kebab-case (PreToolUse -> pre-tool-use)
@@ -166,8 +179,22 @@ async function main(): Promise<void> {
       .toLowerCase()
       .replace(/^-/, '');
 
+    const backendUrl = `http://localhost:${config.port}/api/claude/hooks/${kebabHookType}`;
+
+    // Debug logging
+    const debugLogPath = join(baseDir, '.cage', 'debug-hook-connection.log');
+    try {
+      appendFileSync(debugLogPath, `\n===== ${hookType} at ${new Date().toISOString()} =====\n`);
+      appendFileSync(debugLogPath, `URL: ${backendUrl}\n`);
+      appendFileSync(debugLogPath, `Port: ${config.port}\n`);
+      appendFileSync(debugLogPath, `Config: ${JSON.stringify(config)}\n`);
+      appendFileSync(debugLogPath, `Payload size: ${JSON.stringify(enrichedData).length} bytes\n`);
+    } catch {
+      // Ignore debug log errors
+    }
+
     const response = await fetch(
-      `http://localhost:${config.port}/api/claude/hooks/${kebabHookType}`,
+      backendUrl,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -202,9 +229,19 @@ async function main(): Promise<void> {
     // Success
     process.exit(0);
   } catch (error) {
+    // Add more detailed error logging
+    const debugLogPath = join(baseDir, '.cage', 'debug-hook-connection.log');
+    try {
+      appendFileSync(debugLogPath, `ERROR: ${error}\n`);
+      appendFileSync(debugLogPath, `ERROR NAME: ${(error as Error).name}\n`);
+      appendFileSync(debugLogPath, `ERROR MESSAGE: ${(error as Error).message}\n`);
+      appendFileSync(debugLogPath, `ERROR STACK: ${(error as Error).stack}\n`);
+      appendFileSync(debugLogPath, `===== END ERROR =====\n`);
+    } catch {
+      // Ignore debug log errors
+    }
+
     // Log offline when backend is unreachable
-    // Use TEST_BASE_DIR or CLAUDE_PROJECT_DIR if available, otherwise use cwd
-    const baseDir = process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd();
     const cageDir = join(baseDir, '.cage');
 
     // Ensure .cage directory exists

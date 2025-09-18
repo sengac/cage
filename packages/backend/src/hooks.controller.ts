@@ -8,7 +8,6 @@ import {
   SessionEndPayload, SessionEndPayloadSchema,
   NotificationPayload, NotificationPayloadSchema,
   PreCompactPayload, PreCompactPayloadSchema,
-  StatusPayload, StatusPayloadSchema,
   StopPayload, StopPayloadSchema,
   SubagentStopPayload, SubagentStopPayloadSchema
 } from '@cage/shared';
@@ -26,13 +25,14 @@ export class HooksController {
       // Validate payload
       const validatedPayload = PreToolUsePayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'PreToolUse',
         sessionId: validatedPayload.sessionId,
         toolName: validatedPayload.toolName,
         arguments: validatedPayload.arguments,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -59,7 +59,7 @@ export class HooksController {
       // Validate payload
       const validatedPayload = PostToolUsePayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'PostToolUse',
@@ -69,6 +69,7 @@ export class HooksController {
         result: validatedPayload.result,
         executionTime: validatedPayload.executionTime,
         error: validatedPayload.error,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -95,13 +96,14 @@ export class HooksController {
       // Validate payload
       const validatedPayload = UserPromptSubmitPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'UserPromptSubmit',
         sessionId: validatedPayload.sessionId,
         prompt: validatedPayload.prompt,
         context: validatedPayload.context,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -128,13 +130,14 @@ export class HooksController {
       // Validate payload
       const validatedPayload = SessionStartPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'SessionStart',
         sessionId: validatedPayload.sessionId,
         projectPath: validatedPayload.projectPath,
         environment: validatedPayload.environment,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -161,13 +164,14 @@ export class HooksController {
       // Validate payload
       const validatedPayload = SessionEndPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'SessionEnd',
         sessionId: validatedPayload.sessionId,
         duration: validatedPayload.duration,
         summary: validatedPayload.summary,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -194,13 +198,14 @@ export class HooksController {
       // Validate payload
       const validatedPayload = NotificationPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'Notification',
         sessionId: validatedPayload.sessionId,
         message: validatedPayload.message,
         level: validatedPayload.level,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -227,7 +232,7 @@ export class HooksController {
       // Validate payload
       const validatedPayload = PreCompactPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'PreCompact',
@@ -235,6 +240,7 @@ export class HooksController {
         reason: validatedPayload.reason,
         currentTokenCount: validatedPayload.currentTokenCount,
         maxTokenCount: validatedPayload.maxTokenCount,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -243,39 +249,6 @@ export class HooksController {
       };
     } catch (error) {
       console.error('PreCompact hook error:', error);
-      // Still return success but log the error for debugging
-      return {
-        success: true,
-        timestamp,
-        error: error.message
-      };
-    }
-  }
-
-  @Post('status')
-  @HttpCode(HttpStatus.OK)
-  async status(@Body() payload: StatusPayload) {
-    const timestamp = new Date().toISOString();
-
-    try {
-      // Validate payload
-      const validatedPayload = StatusPayloadSchema.parse(payload);
-
-      // Log the event
-      await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
-        eventType: 'Status',
-        sessionId: validatedPayload.sessionId,
-        currentStatus: validatedPayload.currentStatus,
-        requestType: validatedPayload.requestType,
-      });
-
-      return {
-        success: true,
-        timestamp
-      };
-    } catch (error) {
-      console.error('Status hook error:', error);
       // Still return success but log the error for debugging
       return {
         success: true,
@@ -294,12 +267,13 @@ export class HooksController {
       // Validate payload
       const validatedPayload = StopPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'Stop',
         sessionId: validatedPayload.sessionId,
         reason: validatedPayload.reason,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {
@@ -326,7 +300,7 @@ export class HooksController {
       // Validate payload
       const validatedPayload = SubagentStopPayloadSchema.parse(payload);
 
-      // Log the event
+      // Log the event with raw payload
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'SubagentStop',
@@ -334,6 +308,7 @@ export class HooksController {
         subagentId: validatedPayload.subagentId,
         parentSessionId: validatedPayload.parentSessionId,
         result: validatedPayload.result,
+        rawPayload: payload // Store the complete raw payload
       });
 
       return {

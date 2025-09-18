@@ -10,7 +10,6 @@ import {
   SessionStartPayloadSchema,
   SessionEndPayloadSchema,
   PreCompactPayloadSchema,
-  StatusPayloadSchema,
   HookType,
 
   // Config
@@ -44,7 +43,6 @@ describe('Shared package exports', () => {
     expect(SessionStartPayloadSchema).toBeDefined();
     expect(SessionEndPayloadSchema).toBeDefined();
     expect(PreCompactPayloadSchema).toBeDefined();
-    expect(StatusPayloadSchema).toBeDefined();
   });
 
   it('should export HookType enum', () => {

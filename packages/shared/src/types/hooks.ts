@@ -1,5 +1,5 @@
 /**
- * Hook payload schemas for all 10 Claude Code hook types
+ * Hook payload schemas for all 9 Claude Code hook types
  * These schemas define the structure of data sent from Claude Code to Cage backend
  */
 
@@ -152,19 +152,6 @@ export const PreCompactPayloadSchema = z.object({
 export type PreCompactPayload = z.infer<typeof PreCompactPayloadSchema>;
 
 /**
- * Status hook payload
- * Triggered when Claude requests status line update
- */
-export const StatusPayloadSchema = z.object({
-  sessionId: z.string().optional(), // Not provided by Claude Code currently
-  timestamp: z.string(), // ISO 8601 timestamp
-  currentStatus: z.string().optional(),
-  requestType: z.enum(['update', 'query']).optional()
-});
-
-export type StatusPayload = z.infer<typeof StatusPayloadSchema>;
-
-/**
  * Union type for all hook payloads
  */
 export const HookPayloadSchema = z.discriminatedUnion('type', [
@@ -203,10 +190,6 @@ export const HookPayloadSchema = z.discriminatedUnion('type', [
   z.object({
     ...PreCompactPayloadSchema.shape,
     type: z.literal('PreCompact')
-  }),
-  z.object({
-    ...StatusPayloadSchema.shape,
-    type: z.literal('Status')
   })
 ]);
 
@@ -238,6 +221,5 @@ export enum HookType {
   SubagentStop = 'SubagentStop',
   SessionStart = 'SessionStart',
   SessionEnd = 'SessionEnd',
-  PreCompact = 'PreCompact',
-  Status = 'Status'
+  PreCompact = 'PreCompact'
 }

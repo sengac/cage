@@ -68,8 +68,7 @@ export const HookConfigSchema = z.object({
     'SubagentStop',
     'SessionStart',
     'SessionEnd',
-    'PreCompact',
-    'Status'
+    'PreCompact'
   ]),
   enabled: z.boolean().default(true),
   timeout: z.number().positive().optional(),

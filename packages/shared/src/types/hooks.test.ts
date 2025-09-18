@@ -11,11 +11,10 @@ import {
   SessionStartPayloadSchema,
   SessionEndPayloadSchema,
   PreCompactPayloadSchema,
-  StatusPayloadSchema,
   HookResponseSchema
 } from './hooks';
 
-describe('Hook Payload Schemas - Complete Coverage for All 10 Hook Types', () => {
+describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => {
   describe('PreToolUsePayloadSchema', () => {
     it('should validate a valid PreToolUse payload', () => {
       const payload = {
@@ -259,24 +258,6 @@ describe('Hook Payload Schemas - Complete Coverage for All 10 Hook Types', () =>
       if (result.success) {
         expect(result.data.reason).toBe('Context limit approaching');
         expect(result.data.currentTokenCount).toBe(95000);
-      }
-    });
-  });
-
-  describe('StatusPayloadSchema', () => {
-    it('should validate Status event request', () => {
-      const payload = {
-        sessionId: 'session-123',
-        currentStatus: 'Processing request...',
-        requestType: 'update',
-        timestamp: new Date().toISOString()
-      };
-
-      const result = StatusPayloadSchema.safeParse(payload);
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.currentStatus).toBe('Processing request...');
-        expect(result.data.requestType).toBe('update');
       }
     });
   });

@@ -171,7 +171,6 @@ describe('EventLoggerService', () => {
         'SessionEnd',
         'Notification',
         'PreCompact',
-        'Status',
         'Stop',
         'SubagentStop'
       ] as const;
