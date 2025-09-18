@@ -43,11 +43,8 @@ cd cage
 # Install dependencies
 npm install
 
-# Build all packages
-npm run build
-
-# Install cage command locally
-./scripts/install-local.sh
+# Install cage command locally (also builds)
+npm run install:local
 ```
 
 ### Basic Usage
