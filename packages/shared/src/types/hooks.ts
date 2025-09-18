@@ -8,12 +8,17 @@ import * as z from 'zod';
 /**
  * PreToolUse hook payload
  * Triggered before Claude executes a tool
+ *
+ * Note: Claude Code's actual output differs from documentation
+ * - Sends 'tool' instead of 'tool_name'
+ * - Sends 'arguments' instead of 'tool_input'
+ * - Does not include session_id, transcript_path, cwd, or hook_event_name
  */
 export const PreToolUsePayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
-  toolName: z.string(),
-  arguments: z.record(z.string(), z.unknown())
+  toolName: z.string(), // Mapped from 'tool' field
+  arguments: z.record(z.string(), z.unknown()) // Claude Code sends this correctly
 });
 
 export type PreToolUsePayload = z.infer<typeof PreToolUsePayloadSchema>;
@@ -23,7 +28,7 @@ export type PreToolUsePayload = z.infer<typeof PreToolUsePayloadSchema>;
  * Triggered after Claude executes a tool
  */
 export const PostToolUsePayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   toolName: z.string(),
   arguments: z.record(z.string(), z.unknown()),
@@ -39,7 +44,7 @@ export type PostToolUsePayload = z.infer<typeof PostToolUsePayloadSchema>;
  * Triggered when user submits a prompt
  */
 export const UserPromptSubmitPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   prompt: z.string(),
   context: z.object({
@@ -58,7 +63,7 @@ export type UserPromptSubmitPayload = z.infer<typeof UserPromptSubmitPayloadSche
  * Triggered when Claude sends a notification
  */
 export const NotificationPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   level: z.enum(['info', 'warning', 'error']),
   message: z.string()
@@ -71,7 +76,7 @@ export type NotificationPayload = z.infer<typeof NotificationPayloadSchema>;
  * Triggered when Claude completes a task or is interrupted
  */
 export const StopPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   reason: z.string(),
   finalState: z.record(z.string(), z.unknown()).optional()
@@ -84,7 +89,7 @@ export type StopPayload = z.infer<typeof StopPayloadSchema>;
  * Triggered when a subagent completes its task
  */
 export const SubagentStopPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   subagentId: z.string(),
   parentSessionId: z.string(),
@@ -102,7 +107,7 @@ export type SubagentStopPayload = z.infer<typeof SubagentStopPayloadSchema>;
  * Triggered when a new Claude Code session starts
  */
 export const SessionStartPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   projectPath: z.string(),
   environment: z.object({
@@ -119,7 +124,7 @@ export type SessionStartPayload = z.infer<typeof SessionStartPayloadSchema>;
  * Triggered when a Claude Code session ends
  */
 export const SessionEndPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   duration: z.number(), // milliseconds
   summary: z.object({
@@ -137,7 +142,7 @@ export type SessionEndPayload = z.infer<typeof SessionEndPayloadSchema>;
  * Triggered when Claude is about to compact the conversation
  */
 export const PreCompactPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   reason: z.string(),
   currentTokenCount: z.number().optional(),
@@ -151,7 +156,7 @@ export type PreCompactPayload = z.infer<typeof PreCompactPayloadSchema>;
  * Triggered when Claude requests status line update
  */
 export const StatusPayloadSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   currentStatus: z.string().optional(),
   requestType: z.enum(['update', 'query']).optional()

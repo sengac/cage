@@ -160,9 +160,12 @@ export async function saveLocalClaudeSettings(settings: ClaudeSettings): Promise
   // Ensure directory exists
   await mkdir(settingsDir, { recursive: true });
 
-  // Backup existing settings if they exist
+  // Backup existing settings with timestamp if they exist
   try {
     await access(settingsPath, constants.F_OK);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+    await copyFile(settingsPath, settingsPath + `.backup.${timestamp}`);
+    // Also keep a simple backup for compatibility
     await copyFile(settingsPath, settingsPath + '.backup');
   } catch {
     // No existing file to backup
@@ -291,33 +294,52 @@ export async function installHooksLocally(port: number): Promise<void> {
     // Create the wrapper script for this hook type
     await createHookScript(hookType, port);
 
-    // Add hook to settings
+    // Add hook to settings - SIMPLE MERGE LOGIC
     const hookPath = `\${CLAUDE_PROJECT_DIR}/.claude/hooks/cage/${hookType.toLowerCase()}.mjs`;
-    const hookEntry: HookEntry = {
-      matcher: '*',
-      hooks: [
-        {
+    const existingHook = settings.hooks[hookType];
+
+    if (!existingHook) {
+      // No existing hook - create simple object format
+      settings.hooks[hookType] = {
+        '*': hookPath
+      };
+    } else if (typeof existingHook === 'string') {
+      // Single string - convert to object and add our hook
+      settings.hooks[hookType] = {
+        'Edit|MultiEdit|Write': existingHook,  // Preserve existing
+        '*': hookPath  // Add Cage hook
+      };
+    } else if (typeof existingHook === 'object' && !Array.isArray(existingHook)) {
+      // Object format - JUST ADD OUR HOOK IF NOT ALREADY THERE
+      const objHook = existingHook as Record<string, string>;
+
+      // Only add if we don't already have a Cage hook
+      if (!Object.values(objHook).some(cmd => typeof cmd === 'string' && cmd.includes('.claude/hooks/cage/'))) {
+        objHook['*'] = hookPath;
+      }
+
+      settings.hooks[hookType] = objHook;
+    } else if (Array.isArray(existingHook)) {
+      // Array format - filter out old Cage hooks and add new one
+      const hookArray = existingHook as HookEntry[];
+
+      // Remove any existing Cage hooks
+      const filteredHooks = hookArray.filter(
+        (h: HookEntry) => !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
+      );
+
+      // Add our new hook
+      filteredHooks.push({
+        matcher: '*',
+        hooks: [{
           type: 'command',
           command: hookPath,
           timeout: 180
-        }
-      ]
-    };
+        }]
+      });
 
-    // Ensure array exists for this hook type
-    if (!Array.isArray(settings.hooks[hookType])) {
-      settings.hooks[hookType] = [];
+      settings.hooks[hookType] = filteredHooks;
     }
-
-    // Remove any existing Cage hooks for this type
-    const hookArray = settings.hooks[hookType] as HookEntry[];
-    const filteredHooks = hookArray.filter(
-      (h: HookEntry) => !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
-    );
-
-    // Add our new hook
-    filteredHooks.push(hookEntry);
-    settings.hooks[hookType] = filteredHooks;
   }
 
   await saveLocalClaudeSettings(settings);
@@ -342,15 +364,38 @@ export async function uninstallHooksLocally(): Promise<void> {
     ];
 
     for (const hookType of hookTypes) {
-      if (Array.isArray(settings.hooks[hookType])) {
-        const hookArray = settings.hooks[hookType] as HookEntry[];
-        settings.hooks[hookType] = hookArray.filter(
+      const hook = settings.hooks[hookType];
+
+      if (typeof hook === 'string') {
+        // Simple string format - check if it's a Cage hook
+        if (hook.includes('.claude/hooks/cage/')) {
+          delete settings.hooks[hookType];
+        }
+      } else if (typeof hook === 'object' && !Array.isArray(hook)) {
+        // Object format with matchers as keys
+        const objHook = hook as Record<string, string>;
+        for (const [matcher, command] of Object.entries(objHook)) {
+          if (command.includes('.claude/hooks/cage/')) {
+            delete objHook[matcher];
+          }
+        }
+        // Remove if empty
+        if (Object.keys(objHook).length === 0) {
+          delete settings.hooks[hookType];
+        } else {
+          settings.hooks[hookType] = objHook;
+        }
+      } else if (Array.isArray(hook)) {
+        // Array format
+        const hookArray = hook as HookEntry[];
+        const filtered = hookArray.filter(
           (h: HookEntry) => !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
         );
 
-        // Remove empty arrays
-        if ((settings.hooks[hookType] as HookEntry[]).length === 0) {
+        if (filtered.length === 0) {
           delete settings.hooks[hookType];
+        } else {
+          settings.hooks[hookType] = filtered;
         }
       }
     }
@@ -383,8 +428,25 @@ export async function getInstalledHooksLocally(): Promise<Record<string, string>
     ];
 
     for (const hookType of hookTypes) {
-      if (Array.isArray(settings.hooks[hookType])) {
-        const hookArray = settings.hooks[hookType] as HookEntry[];
+      const hook = settings.hooks[hookType];
+
+      if (typeof hook === 'string') {
+        // Simple string format
+        if (hook.includes('.claude/hooks/cage/')) {
+          installedHooks[hookType] = hook;
+        }
+      } else if (typeof hook === 'object' && !Array.isArray(hook)) {
+        // Object format with matchers as keys
+        const objHook = hook as Record<string, string>;
+        for (const [matcher, command] of Object.entries(objHook)) {
+          if (command.includes('.claude/hooks/cage/')) {
+            installedHooks[hookType] = command;
+            break; // Only report the first Cage hook found
+          }
+        }
+      } else if (Array.isArray(hook)) {
+        // Array format
+        const hookArray = hook as HookEntry[];
         const cageHook = hookArray.find(
           (h: HookEntry) => h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
         );

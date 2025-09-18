@@ -9,7 +9,8 @@ import { EventsStreamCommand } from './commands/events/stream.js';
 import { EventsTailCommand } from './commands/events/tail.js';
 import { EventsListCommand } from './commands/events/list.js';
 import { EventsStatsCommand } from './commands/events/stats.js';
-import { ServerStartCommand } from './commands/start/server.js';
+import { ServerStartCommand } from './commands/start/server.jsx';
+import { stopCommand, statusCommand } from './commands/server-management.js';
 
 const program = new Command();
 
@@ -82,13 +83,38 @@ events
     render(<EventsStatsCommand />);
   });
 
-// Start server command
+// Server commands
 program
   .command('start')
   .description('Start the Cage backend server')
   .option('-p, --port <port>', 'Port to run on', '3790')
   .action((options) => {
     render(<ServerStartCommand port={options.port} />);
+  });
+
+program
+  .command('stop')
+  .description('Stop the Cage backend server')
+  .option('-f, --force', 'Force kill the server')
+  .action(async (options) => {
+    await stopCommand(options);
+  });
+
+program
+  .command('status')
+  .description('Check Cage system status')
+  .option('-j, --json', 'Output as JSON')
+  .action(async (options) => {
+    await statusCommand(options);
+  });
+
+// Logs command
+const logs = program
+  .command('logs <type>')
+  .description('View various Cage logs')
+  .action(async (type) => {
+    // TODO: Implement logs command
+    console.log(`Logs command for ${type} not yet implemented`);
   });
 
 program.parse();

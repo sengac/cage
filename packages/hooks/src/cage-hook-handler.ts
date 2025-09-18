@@ -75,6 +75,18 @@ async function main(): Promise<void> {
     inputData += chunk;
   }
 
+  // Log raw input for debugging
+  const debugLogPath = join(process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd(), '.cage', 'raw-hooks.log');
+  try {
+    const cageDir = join(process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd(), '.cage');
+    if (!existsSync(cageDir)) {
+      mkdirSync(cageDir, { recursive: true });
+    }
+    appendFileSync(debugLogPath, `\n===== ${hookType} at ${new Date().toISOString()} =====\n`);
+    appendFileSync(debugLogPath, `RAW INPUT: ${inputData}\n`);
+    appendFileSync(debugLogPath, `===== END =====\n`);
+  } catch {}
+
   let hookData: HookData;
   try {
     // Handle empty input
@@ -88,18 +100,73 @@ async function main(): Promise<void> {
     hookData = { raw: inputData };
   }
 
+  // Map Claude Code fields to our expected schema based on hook type
+  interface ClaudeCodeHookData extends HookData {
+    session_id?: string;
+    tool?: string;
+    arguments?: Record<string, unknown>;
+    result?: unknown;
+    error?: string;
+    prompt?: string;
+  }
+
+  const typedHookData = hookData as ClaudeCodeHookData;
+  let mappedData: Record<string, unknown> = {};
+
+  if (hookType === 'PreToolUse') {
+    // Map from Claude Code's actual format (tool, arguments)
+    mappedData = {
+      sessionId: typedHookData.session_id || undefined, // Claude Code doesn't provide this
+      timestamp: new Date().toISOString(),
+      toolName: typedHookData.tool || 'unknown', // Claude sends 'tool' not 'tool_name'
+      arguments: typedHookData.arguments || {}
+    };
+  } else if (hookType === 'PostToolUse') {
+    mappedData = {
+      sessionId: typedHookData.session_id || undefined,
+      timestamp: new Date().toISOString(),
+      toolName: typedHookData.tool || 'unknown',
+      arguments: typedHookData.arguments || {},
+      result: typedHookData.result || null,
+      executionTime: 0, // Claude Code doesn't provide this
+      error: typedHookData.error
+    };
+  } else if (hookType === 'UserPromptSubmit') {
+    mappedData = {
+      sessionId: typedHookData.session_id || undefined,
+      timestamp: new Date().toISOString(),
+      prompt: typedHookData.prompt || typedHookData.raw || '',
+      context: {
+        previousMessages: [],
+        currentFile: undefined
+      }
+    };
+  } else {
+    // For other hooks, pass through with minimal mapping
+    mappedData = {
+      sessionId: typedHookData.session_id || undefined,
+      timestamp: new Date().toISOString(),
+      ...hookData
+    };
+  }
+
   // Add metadata
   const enrichedData: EnrichedHookData = {
-    ...hookData,
+    ...mappedData,
     hook_type: hookType,
-    timestamp: new Date().toISOString(),
     project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd()
   };
 
   // Forward to Cage backend
   try {
+    // Convert hookType from PascalCase to kebab-case (PreToolUse -> pre-tool-use)
+    const kebabHookType = hookType
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()
+      .replace(/^-/, '');
+
     const response = await fetch(
-      `http://localhost:${config.port}/api/claude/hooks/${hookType}`,
+      `http://localhost:${config.port}/api/claude/hooks/${kebabHookType}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

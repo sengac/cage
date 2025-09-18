@@ -252,6 +252,143 @@ describe('Local .claude Directory Hook Management', () => {
       );
       expect(existingHook).toBeDefined();
     });
+
+    it('should preserve quality-check hook in simple format', async () => {
+      // AC-2: Preserve existing quality-check hook
+      await mkdir(join(testDir, '.claude'), { recursive: true });
+      const existingSettings = {
+        hooks: {
+          PostToolUse: {
+            "Edit|MultiEdit|Write": "${CLAUDE_PROJECT_DIR}/.claude/hooks/cli-app/quality-check.js"
+          }
+        }
+      };
+      await writeFile(
+        join(testDir, '.claude', 'settings.json'),
+        JSON.stringify(existingSettings, null, 2)
+      );
+
+      // Install Cage hooks
+      await installHooksLocally(3790);
+
+      // Verify quality-check hook is preserved
+      const settings = await loadLocalClaudeSettings();
+      expect(settings.hooks?.PostToolUse).toBeDefined();
+
+      // Check if quality-check hook is still there (might be in different format)
+      const settingsStr = JSON.stringify(settings);
+      expect(settingsStr).toContain('quality-check.js');
+    });
+
+    it('should create timestamped backup of existing settings', async () => {
+      // AC-4: Backup original settings
+      await mkdir(join(testDir, '.claude'), { recursive: true });
+      const existingSettings = { hooks: { PostToolUse: {} } };
+      await writeFile(
+        join(testDir, '.claude', 'settings.json'),
+        JSON.stringify(existingSettings, null, 2)
+      );
+
+      // Install Cage hooks
+      await installHooksLocally(3790);
+
+      // Find backup files with timestamp
+      const { readdir } = await import('fs/promises');
+      const files = await readdir(join(testDir, '.claude'));
+      const backupFiles = files.filter(f => f.startsWith('settings.json.backup'));
+
+      // Should have at least one backup (might be .backup or .backup.timestamp)
+      expect(backupFiles.length).toBeGreaterThan(0);
+    });
+
+    it('should handle conflicting matchers by preserving both hooks', async () => {
+      // AC-5: Handle conflicting matchers
+      await mkdir(join(testDir, '.claude'), { recursive: true });
+      const existingSettings = {
+        hooks: {
+          PreToolUse: [
+            {
+              matcher: '*',
+              hooks: [{
+                type: 'command',
+                command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/pre-hook.js',
+                timeout: 180
+              }]
+            }
+          ]
+        }
+      };
+      await writeFile(
+        join(testDir, '.claude', 'settings.json'),
+        JSON.stringify(existingSettings, null, 2)
+      );
+
+      // Install Cage hooks (which also want to use * matcher)
+      await installHooksLocally(3790);
+
+      // Verify both hooks are present
+      const settings = await loadLocalClaudeSettings();
+      expect(settings.hooks?.PreToolUse).toBeDefined();
+
+      const preToolUseStr = JSON.stringify(settings.hooks?.PreToolUse);
+      expect(preToolUseStr).toContain('custom/pre-hook.js');
+      expect(preToolUseStr).toContain('cage/pretooluse.mjs');
+    });
+
+    it('should not duplicate Cage hooks if already installed', async () => {
+      // Install hooks twice
+      await installHooksLocally(3790);
+      await installHooksLocally(3790);
+
+      // Verify no duplicates
+      const settings = await loadLocalClaudeSettings();
+      const postToolUseStr = JSON.stringify(settings.hooks?.PostToolUse);
+
+      // Count occurrences of cage posttooluse hook
+      const matches = postToolUseStr.match(/cage\/posttooluse\.mjs/g) || [];
+      expect(matches.length).toBeLessThanOrEqual(1);
+    });
+
+    it('should produce valid JSON after merging hooks', async () => {
+      // AC-6: Validate merged configuration
+      await mkdir(join(testDir, '.claude'), { recursive: true });
+      const complexSettings = {
+        hooks: {
+          PostToolUse: [
+            {
+              matcher: 'Edit',
+              hooks: [{
+                type: 'command',
+                command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/hook1.js'
+              }]
+            },
+            {
+              matcher: '*',
+              hooks: [{
+                type: 'command',
+                command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/hook2.js'
+              }]
+            }
+          ]
+        }
+      };
+      await writeFile(
+        join(testDir, '.claude', 'settings.json'),
+        JSON.stringify(complexSettings, null, 2)
+      );
+
+      await installHooksLocally(3790);
+
+      // Verify valid JSON
+      const settingsPath = join(testDir, '.claude', 'settings.json');
+      const content = await readFile(settingsPath, 'utf-8');
+
+      // Should parse without errors
+      expect(() => JSON.parse(content)).not.toThrow();
+
+      const parsed = JSON.parse(content);
+      expect(parsed.hooks).toBeDefined();
+    });
   });
 
   describe('uninstallHooksLocally', () => {

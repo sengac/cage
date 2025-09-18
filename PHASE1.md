@@ -63,6 +63,48 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** backup the original settings.json as settings.json.backup
 **And** display "Updated existing .claude/settings.json (backup saved)"
 
+#### Scenario: Preserve existing hooks configuration (Critical Bug Fix)
+**Given** a `.claude/settings.json` with a quality-check hook for PostToolUse
+**And** the quality-check hook is configured for "Edit|MultiEdit|Write" matcher
+**When** I run `cage hooks setup`
+**Then** the quality-check hook should remain in the settings
+**And** the Cage PostToolUse hook should be added with a different matcher (e.g., "*")
+**And** the quality-check hook should execute before Cage hooks
+
+#### Scenario: Handle different hook configuration formats
+**Given** Claude Code supports different hook configuration formats
+**When** merging hooks
+**Then** the installer should preserve the existing format style
+**And** add Cage hooks using the same format
+
+#### Scenario: Backup original settings with timestamp
+**Given** any existing `.claude/settings.json` file
+**When** I run `cage hooks setup`
+**Then** a backup file should be created with timestamp (e.g., `.claude/settings.json.backup.20250918-105500`)
+**And** the user should be informed about the backup location
+
+#### Scenario: Handle conflicting matchers
+**Given** an existing hook with matcher "*" for a hook type
+**And** Cage wants to add a hook with matcher "*" for the same hook type
+**When** merging the configurations
+**Then** both hooks should be preserved
+**And** they should execute in order (existing hooks first, then Cage hooks)
+
+#### Scenario: Validate merged configuration
+**Given** the hooks have been merged
+**When** the merge is complete
+**Then** the resulting JSON should be validated for correctness
+**And** a test should verify the merged configuration is valid Claude Code format
+
+#### Scenario: Inform user of changes
+**Given** hooks have been merged
+**When** the setup completes
+**Then** the user should see a summary of:
+  - Which hooks were preserved
+  - Which hooks were added
+  - The backup file location
+  - Instructions to verify the hooks are working
+
 #### Scenario: Verify hook configuration
 **Given** I have configured Cage hooks
 **When** I run `cage hooks status`
@@ -75,9 +117,12 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 
 #### Scenario: Start the backend server
 **Given** I have Cage initialized
-**When** I run `cage start server`
-**Then** the NestJS backend should start on port 3790
+**When** I run `cage start`
+**Then** the NestJS backend should actually start on port 3790
 **And** display "Cage backend server running on http://localhost:3790"
+**And** the server process should run in the background
+**And** return to the shell prompt immediately
+**And** create a PID file at `.cage/server.pid`
 **And** the Swagger documentation should be available at http://localhost:3790/api-docs
 
 #### Scenario: Receive PreToolUse hook event
@@ -156,6 +201,161 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **Then** the hook script should log "Failed to connect to Cage backend" to .cage/hooks-offline.log
 **And** Claude Code should continue operating normally
 **And** not block or delay Claude's execution
+
+### Feature: Server Management
+
+#### Scenario: Stop the backend server
+**Given** the Cage backend server is running on port 3790
+**When** I run `cage stop`
+**Then** the server should be gracefully stopped
+**And** I should see a confirmation message "✓ Cage server stopped"
+**And** the process should be terminated
+**And** port 3790 should be freed
+**And** the PID file should be removed
+
+#### Scenario: Stop when server not running
+**Given** the Cage backend server is NOT running
+**When** I run `cage stop`
+**Then** I should see a message "ℹ No Cage server is running"
+**And** the command should exit with code 0 (not an error)
+
+#### Scenario: Force stop the server
+**Given** the server is not responding to graceful shutdown
+**When** I run `cage stop --force`
+**Then** the server process should be killed with SIGKILL
+**And** I should see "✓ Cage server forcefully stopped"
+
+#### Scenario: Check server status when running
+**Given** the Cage backend server is running on port 3790
+**When** I run `cage status`
+**Then** I should see:
+```
+🟢 Server Status: Running
+  Port: 3790
+  PID: [process_id]
+  Uptime: [duration]
+  Health: OK
+```
+
+#### Scenario: Check server status when not running
+**Given** the Cage backend server is NOT running
+**When** I run `cage status`
+**Then** I should see:
+```
+🔴 Server Status: Not Running
+  Port: 3790 (available)
+```
+
+#### Scenario: Status shows hooks information when installed
+**Given** I have run `cage hooks setup`
+**When** I run `cage status`
+**Then** I should see a hooks section showing:
+```
+📎 Hooks: Installed
+  Location: /path/to/.claude/settings.json
+  Hook Types: 10
+  - PreToolUse: ✓
+  - PostToolUse: ✓ (with quality-check.js)
+  - [... other hooks ...]
+```
+
+#### Scenario: Status shows no hooks installed
+**Given** I have NOT run `cage hooks setup`
+**When** I run `cage status`
+**Then** I should see:
+```
+📎 Hooks: Not Installed
+  Run 'cage hooks setup' to install
+```
+
+#### Scenario: Status shows events information
+**Given** events have been captured
+**When** I run `cage status`
+**Then** I should see:
+```
+📊 Events:
+  Total Captured: 42
+  Today: 15
+  Location: .cage/events/
+  Latest: 2025-09-18T11:23:34.626Z
+```
+
+#### Scenario: Status shows no events
+**Given** no events have been captured
+**When** I run `cage status`
+**Then** I should see:
+```
+📊 Events:
+  Total Captured: 0
+  No events recorded yet
+```
+
+#### Scenario: Status shows offline logs
+**Given** there are offline hook logs (connection failures)
+**When** I run `cage status`
+**Then** I should see:
+```
+⚠️ Offline Logs: 5 entries
+  Location: .cage/hooks-offline.log
+  Latest Error: fetch failed (2025-09-18T11:23:34)
+  Run 'cage logs offline' to view
+```
+
+#### Scenario: Full system status
+**Given** a complete Cage installation
+**When** I run `cage status`
+**Then** I should see ALL sections:
+- Server status (running/not running)
+- Hooks status (installed/not installed)
+- Events status (count and latest)
+- Offline logs (if any)
+- Config status (port, directories)
+
+#### Scenario: Status with JSON output
+**Given** any state of the system
+**When** I run `cage status --json`
+**Then** the output should be valid JSON containing:
+```json
+{
+  "server": {
+    "running": true,
+    "port": 3790,
+    "pid": 12345,
+    "uptime": "5m 23s"
+  },
+  "hooks": {
+    "installed": true,
+    "count": 10,
+    "location": "/path/to/.claude/settings.json"
+  },
+  "events": {
+    "total": 42,
+    "today": 15,
+    "latest": "2025-09-18T11:23:34.626Z"
+  },
+  "offline": {
+    "count": 5,
+    "latest": "2025-09-18T11:23:34"
+  }
+}
+```
+
+#### Scenario: View server logs
+**Given** various log files exist
+**When** I run `cage logs [type]`
+**Then** I should be able to view:
+- `cage logs server` - Server output logs
+- `cage logs offline` - Offline hook logs
+- `cage logs events` - Recent events (alias for `cage events tail`)
+
+#### Scenario: Port conflict detection
+**Given** port 3790 is already in use by another process
+**When** I run `cage status`
+**Then** I should see:
+```
+⚠️ Port 3790 is in use by another process (PID: [pid])
+  This may not be a Cage server
+```
 
 ### Feature: File-Based Event Logging
 
