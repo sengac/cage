@@ -150,8 +150,8 @@ Phase 2 enhances the Cage CLI with a full-screen interactive Terminal User Inter
 ```
 
 The logo should:
-- Use gradient colors (cyan → blue → purple) for the block letters
-- Make "Control • Analyze • Guide • Execute" in cyan
+- Use gradient colors (light aqua → aqua-blue → deep aqua: #7FDBFF → #01B4C6 → #007A8C) for the block letters
+- Make "Control • Analyze • Guide • Execute" in turquoise (#4ECDC4)
 - Display version dynamically from package.json
 - Fade in with a smooth animation over 500ms
 - Display for 1.5 seconds before transitioning to main menu
