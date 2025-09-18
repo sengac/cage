@@ -298,35 +298,24 @@ export async function installHooksLocally(port: number): Promise<void> {
     const hookPath = `$CLAUDE_PROJECT_DIR/.claude/hooks/cage/${hookType.toLowerCase()}.mjs`;
     const existingHook = settings.hooks[hookType];
 
-    if (!existingHook) {
-      // No existing hook - create simple object format
-      settings.hooks[hookType] = {
-        '*': hookPath
-      };
-    } else if (typeof existingHook === 'string') {
-      // Single string - convert to object and add our hook
-      settings.hooks[hookType] = {
-        'Edit|MultiEdit|Write': existingHook,  // Preserve existing
-        '*': hookPath  // Add Cage hook
-      };
-    } else if (typeof existingHook === 'object' && !Array.isArray(existingHook)) {
-      // Object format - JUST ADD OUR HOOK IF NOT ALREADY THERE
-      const objHook = existingHook as Record<string, string>;
+    // Determine if this hook type needs a matcher
+    const needsMatcher = ['PreToolUse', 'PostToolUse', 'PreCompact', 'Status'].includes(hookType);
 
-      // Only add if we don't already have a Cage hook - check for cage hooks with any path format
-      if (!Object.values(objHook).some(cmd => typeof cmd === 'string' && cmd.includes('.claude/hooks/cage/'))) {
-        objHook['*'] = hookPath;
-      } else {
-        // Replace existing Cage hook with updated absolute path
-        for (const [matcher, command] of Object.entries(objHook)) {
-          if (typeof command === 'string' && command.includes('.claude/hooks/cage/')) {
-            objHook[matcher] = hookPath;
-            break;
-          }
-        }
+    if (!existingHook) {
+      // No existing hook - create array format
+      const hookEntry: HookEntry = {
+        hooks: [{
+          type: 'command',
+          command: hookPath,
+          timeout: hookType === 'PostToolUse' ? 180 : undefined
+        }]
+      };
+
+      if (needsMatcher) {
+        hookEntry.matcher = '*';
       }
 
-      settings.hooks[hookType] = objHook;
+      settings.hooks[hookType] = [hookEntry];
     } else if (Array.isArray(existingHook)) {
       // Array format - filter out old Cage hooks and add new one
       const hookArray = existingHook as HookEntry[];
@@ -337,16 +326,35 @@ export async function installHooksLocally(port: number): Promise<void> {
       );
 
       // Add our new hook
-      filteredHooks.push({
-        matcher: '*',
+      const hookEntry: HookEntry = {
         hooks: [{
           type: 'command',
           command: hookPath,
-          timeout: 180
+          timeout: hookType === 'PostToolUse' ? 180 : undefined
         }]
-      });
+      };
 
+      if (needsMatcher) {
+        hookEntry.matcher = '*';
+      }
+
+      filteredHooks.push(hookEntry);
       settings.hooks[hookType] = filteredHooks;
+    } else {
+      // Convert other formats to array format
+      const hookEntry: HookEntry = {
+        hooks: [{
+          type: 'command',
+          command: hookPath,
+          timeout: hookType === 'PostToolUse' ? 180 : undefined
+        }]
+      };
+
+      if (needsMatcher) {
+        hookEntry.matcher = '*';
+      }
+
+      settings.hooks[hookType] = [hookEntry];
     }
   }
 
