@@ -1,6 +1,15 @@
-# Cage
+```
+ ██████╗ █████╗  ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝ ██╔════╝
+██║     ███████║██║  ███╗█████╗
+██║     ██╔══██║██║   ██║██╔══╝
+╚██████╗██║  ██║╚██████╔╝███████╗
+ ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
 
-A controlled environment for AI that provides the right boundaries, context, and guidance to help it do its job effectively.
+Control • Analyze • Guide • Execute
+```
+
+**A controlled environment for AI development**
 
 🌐 **Website**: [https://cage.tools](https://cage.tools)
 📦 **Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)

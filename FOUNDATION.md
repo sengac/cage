@@ -251,17 +251,26 @@ Given the timeline constraint, the following features should be implemented in o
    - Basic NestJS backend to receive hook data
    - File-based event logging system
 
-2. **Phase 2 - Quality Control:**
+2. **Phase 2 - Interactive CLI & Event Inspector:**
+   - Full-screen interactive TUI when running `cage` without arguments
+   - Arrow key navigation with Enter to select and Escape to go back/exit
+   - Comprehensive event viewer with full result data inspection
+   - Real-time event streaming in interactive mode
+   - Debug mode support with --debug flag
+   - Maintains all existing CLI commands (cage init, cage hooks, etc.)
+
+3. **Phase 3 - Quality Control & Rules Engine:**
    - PreToolUse hooks for TypeScript validation (no 'any', proper typing)
    - PostToolUse hooks for file size checks and refactoring triggers
    - Basic rule engine for common anti-patterns
+   - Integration with interactive CLI for rule management
 
-3. **Phase 3 - Knowledge Base:**
+4. **Phase 4 - Knowledge Base:**
    - Living specification storage and retrieval
    - Context injection for Claude based on current task
    - Self-referencing system for Claude to query past decisions
 
-4. **Phase 4 - Frontend & Monitoring:**
+5. **Phase 5 - Frontend & Monitoring:**
    - React frontend for viewing/managing specifications
    - SSE streaming for real-time hook monitoring
    - Developer dashboard for trust metrics
