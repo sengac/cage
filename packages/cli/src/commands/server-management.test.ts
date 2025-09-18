@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { stopServer, getServerStatus, ServerStatus } from './server-management.js';
@@ -26,9 +26,19 @@ describe('Server Management Commands', () => {
         // Given the server is running with PID 12345
         vi.mocked(existsSync).mockReturnValue(true);
         vi.mocked(readFileSync).mockReturnValue('12345');
-        vi.mocked(execSync).mockImplementation((cmd) => {
-          if (cmd === 'kill -0 12345') return ''; // Process exists
-          if (cmd === 'kill -TERM 12345') return ''; // Kill succeeds
+        let killCalled = false;
+        vi.mocked(execSync).mockImplementation((cmd, options) => {
+          if (cmd === 'kill -0 12345') {
+            if (killCalled) {
+              // After kill, process should be dead
+              throw new Error('Process not found');
+            }
+            return ''; // Process exists initially
+          }
+          if (cmd === 'kill -TERM 12345') {
+            killCalled = true;
+            return ''; // Kill succeeds
+          }
           return '';
         });
 
@@ -38,7 +48,7 @@ describe('Server Management Commands', () => {
         // Then
         expect(result.success).toBe(true);
         expect(result.message).toContain('Cage server stopped');
-        expect(execSync).toHaveBeenCalledWith('kill -TERM 12345');
+        expect(execSync).toHaveBeenCalledWith('kill -TERM 12345', { stdio: 'ignore' });
       });
     });
 
@@ -61,9 +71,19 @@ describe('Server Management Commands', () => {
         // Given the server is running
         vi.mocked(existsSync).mockReturnValue(true);
         vi.mocked(readFileSync).mockReturnValue('12345');
-        vi.mocked(execSync).mockImplementation((cmd) => {
-          if (cmd === 'kill -0 12345') return '';
-          if (cmd === 'kill -KILL 12345') return '';
+        let killCalled = false;
+        vi.mocked(execSync).mockImplementation((cmd, options) => {
+          if (cmd === 'kill -0 12345') {
+            if (killCalled) {
+              // After kill, process should be dead
+              throw new Error('Process not found');
+            }
+            return ''; // Process exists initially
+          }
+          if (cmd === 'kill -KILL 12345') {
+            killCalled = true;
+            return ''; // Kill succeeds
+          }
           return '';
         });
 
@@ -73,7 +93,7 @@ describe('Server Management Commands', () => {
         // Then
         expect(result.success).toBe(true);
         expect(result.message).toContain('forcefully stopped');
-        expect(execSync).toHaveBeenCalledWith('kill -KILL 12345');
+        expect(execSync).toHaveBeenCalledWith('kill -KILL 12345', { stdio: 'ignore' });
       });
     });
   });
@@ -174,9 +194,25 @@ describe('Server Management Commands', () => {
       it('should show event statistics', async () => {
         // Given events have been captured
         vi.mocked(existsSync).mockImplementation((path) => {
-          if (path.includes('events')) return true;
+          if (path.includes('.cage/events')) return true;
+          if (path.includes('2025-09-18/events.jsonl')) return true;
           return false;
         });
+
+        // Mock directory reading
+        vi.mocked(readdirSync).mockImplementation((path) => {
+          if (path.includes('.cage/events')) {
+            return ['2025-09-18'];
+          }
+          return [];
+        });
+
+        // Mock stat to identify directories
+        vi.mocked(statSync).mockImplementation((path) => ({
+          isDirectory: () => path.includes('2025-09-18')
+        }));
+
+        // Mock file reading
         vi.mocked(readFileSync).mockImplementation((path) => {
           if (path.includes('events.jsonl')) {
             return `{"timestamp":"2025-09-18T11:23:34.626Z","eventType":"PreToolUse"}
@@ -256,9 +292,9 @@ describe('Server Management Commands', () => {
       it('should detect port conflicts', async () => {
         // Given port is in use by non-Cage process
         vi.mocked(existsSync).mockReturnValue(false); // No PID file
-        vi.mocked(execSync).mockImplementation((cmd) => {
-          if (cmd.includes('lsof')) {
-            return 'other-app 99999'; // Different process
+        vi.mocked(execSync).mockImplementation((cmd, options) => {
+          if (cmd.includes('lsof -ti :3790')) {
+            return '99999\n'; // PID only
           }
           throw new Error('No process');
         });
@@ -276,8 +312,15 @@ describe('Server Management Commands', () => {
   describe('PID file management', () => {
     describe('AC-14: PID file creation and deletion', () => {
       it('should create PID file on start', async () => {
-        // Test will be in start command tests
-        expect(true).toBe(true);
+        // Given server is not running
+        vi.mocked(existsSync).mockReturnValue(false);
+
+        // When checking if PID file should be created (tested in start command)
+        // This test verifies the PID file path is correct
+        const expectedPidPath = join(process.cwd(), '.cage', 'server.pid');
+
+        // Then the PID file path should be correct
+        expect(mockPidPath).toBe(expectedPidPath);
       });
 
       it('should remove PID file on stop', async () => {

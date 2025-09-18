@@ -21,6 +21,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   let testDir: string;
   let originalCwd: string;
   let testServer: Server;
+  let testPort: number;
   let mockResponses: Map<string, MockResponse> = new Map();
 
   // Helper to create a clean mock server
@@ -52,15 +53,19 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     // Clear mock responses
     mockResponses.clear();
 
-    // Create and start test server
+    // Create and start test server on dynamic port
     testServer = createMockServer();
     await new Promise<void>((resolve) => {
-      testServer.listen(3790, resolve);
+      testServer.listen(0, () => {
+        const address = testServer.address();
+        testPort = typeof address === 'object' && address ? address.port : 3790;
+        resolve();
+      });
     });
 
-    // Create cage config
+    // Create cage config with dynamic port
     await writeFile('cage.config.json', JSON.stringify({
-      port: 3790
+      port: testPort
     }));
   });
 

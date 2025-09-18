@@ -166,17 +166,32 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       // Add custom hook manually
       const settings = await loadLocalClaudeSettings();
       settings.hooks = settings.hooks || {};
-      settings.hooks.PostToolUse = [
-        ...(settings.hooks.PostToolUse as unknown[] || []),
-        {
-          matcher: 'custom',
-          hooks: [{
-            type: 'command',
-            command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/hook.js',
-            timeout: 60
-          }]
-        }
-      ];
+      // Handle both array and object formats for hooks
+      const existingHooks = settings.hooks.PostToolUse;
+      if (Array.isArray(existingHooks)) {
+        settings.hooks.PostToolUse = [
+          ...existingHooks,
+          {
+            matcher: 'custom',
+            hooks: [{
+              type: 'command',
+              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/hook.js',
+              timeout: 60
+            }]
+          }
+        ];
+      } else {
+        settings.hooks.PostToolUse = [
+          {
+            matcher: 'custom',
+            hooks: [{
+              type: 'command',
+              command: '${CLAUDE_PROJECT_DIR}/.claude/hooks/custom/hook.js',
+              timeout: 60
+            }]
+          }
+        ];
+      }
       await saveLocalClaudeSettings(settings);
 
       // When - Uninstall Cage hooks
