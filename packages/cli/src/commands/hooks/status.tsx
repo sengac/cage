@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Text, Box } from 'ink';
 import { HookType } from '@cage/shared';
-import { Spinner } from '../../components/Spinner.js';
-import { ErrorMessage } from '../../components/ErrorMessage.js';
-import { loadCageConfig, isCageInitialized } from '../../utils/config.js';
-import { getInstalledHooksLocally, getLocalClaudeSettingsPath } from '../../utils/hooks-installer.js';
+import { Spinner } from '../../components/Spinner';
+import { ErrorMessage } from '../../components/ErrorMessage';
+import { loadCageConfig, isCageInitialized } from '../../utils/config';
+import { getInstalledHooksLocally, getLocalClaudeSettingsPath } from '../../utils/hooks-installer';
 
 interface StatusState {
   status: 'checking' | 'done' | 'error';

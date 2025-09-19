@@ -99,23 +99,36 @@ describe('Feature: CLI Event Monitoring', () => {
     });
 
     it('Given I am streaming events When I run cage events stream --filter PreToolUse Then I should only see PreToolUse events', async () => {
-      // Mock EventSource
+      // Mock EventSource with proper event handlers
+      let onOpenHandler: (() => void) | null = null;
       const mockEventSource = {
         addEventListener: vi.fn(),
         close: vi.fn(),
-        readyState: 1
+        readyState: 1,
+        set onopen(handler: () => void) {
+          onOpenHandler = handler;
+          // Simulate connection opening after a brief delay
+          setTimeout(() => {
+            if (onOpenHandler) onOpenHandler();
+          }, 10);
+        },
+        set onmessage(handler: (e: MessageEvent) => void) {
+          // no-op for this test
+        },
+        set onerror(handler: (e: Event) => void) {
+          // no-op for this test
+        }
       };
 
       // @ts-ignore - mocking global
       global.EventSource = vi.fn(() => mockEventSource);
 
       // When
-      const { lastFrame } = render(<EventsStreamCommand filter="PreToolUse" />);
+      const { lastFrame, rerender } = render(<EventsStreamCommand filter="PreToolUse" />);
 
-      // Wait for component to initialize and show filter
-      await vi.waitFor(() => {
-        expect(lastFrame()).toContain('Filtering: PreToolUse');
-      }, { timeout: 1000 });
+      // Wait a bit for the connection to "open"
+      await new Promise(resolve => setTimeout(resolve, 50));
+      rerender(<EventsStreamCommand filter="PreToolUse" />);
 
       // Then - verify filter is shown
       expect(lastFrame()).toContain('Filtering: PreToolUse');

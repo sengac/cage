@@ -13,7 +13,7 @@ import {
   getInstalledHooksLocally,
   createHookScript,
   installHookHandler
-} from './hooks-installer.js';
+} from './hooks-installer';
 import type { HookType } from '@cage/shared';
 
 // Type definitions for Claude settings

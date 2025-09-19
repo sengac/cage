@@ -350,7 +350,34 @@ export async function installHooksLocally(port: number): Promise<void> {
       filteredHooks.push(hookEntry);
       settings.hooks[hookType] = filteredHooks;
     } else {
-      // Convert other formats to array format
+      // Convert other formats to array format while preserving existing hooks
+      const existingEntries: HookEntry[] = [];
+
+      // If it's an object with matchers as keys (like {"Edit|MultiEdit|Write": "command"})
+      if (typeof existingHook === 'object' && !Array.isArray(existingHook)) {
+        for (const [matcher, command] of Object.entries(existingHook)) {
+          if (typeof command === 'string') {
+            existingEntries.push({
+              matcher: matcher,
+              hooks: [{
+                type: 'command',
+                command: command
+              }]
+            });
+          }
+        }
+      } else if (typeof existingHook === 'string') {
+        // Simple string format - convert to array format
+        existingEntries.push({
+          matcher: '*',
+          hooks: [{
+            type: 'command',
+            command: existingHook
+          }]
+        });
+      }
+
+      // Add our new Cage hook
       const hookEntry: HookEntry = {
         hooks: [{
           type: 'command',
@@ -363,7 +390,7 @@ export async function installHooksLocally(port: number): Promise<void> {
         hookEntry.matcher = '*';
       }
 
-      settings.hooks[hookType] = [hookEntry];
+      settings.hooks[hookType] = [...existingEntries, hookEntry];
     }
   }
 

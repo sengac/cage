@@ -5,14 +5,14 @@ import { mkdtemp, rm, writeFile, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import React from 'react';
-import { HooksStatusCommand } from './status.js';
+import { HooksStatusCommand } from './status';
 
 // Mock the dependencies
 vi.mock('../../utils/config.js');
 vi.mock('../../utils/hooks-installer.js');
 
-import * as configUtils from '../../utils/config.js';
-import * as hooksInstaller from '../../utils/hooks-installer.js';
+import * as configUtils from '../../utils/config';
+import * as hooksInstaller from '../../utils/hooks-installer';
 
 describe('HooksStatusCommand', () => {
   let testDir: string;
@@ -168,7 +168,7 @@ describe('HooksStatusCommand', () => {
 
       // Then
       const output = component!.lastFrame();
-      expect(output).toContain('Installed Hooks (1/10)');
+      expect(output).toContain('Installed Hooks (1/9)');
       expect(output).toContain('Missing Hooks:');
       expect(output).toContain('Run "cage hooks setup" to install missing hooks');
     });

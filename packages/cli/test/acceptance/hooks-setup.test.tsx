@@ -32,6 +32,9 @@ describe('Feature: Claude Code Hook Configuration', () => {
     process.chdir(testDir);
     process.env.HOME = testHome;
 
+    // Mock process.exit to prevent tests from actually exiting
+    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
     // Create cage config
     await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
       port: 3790,

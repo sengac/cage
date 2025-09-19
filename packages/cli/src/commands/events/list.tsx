@@ -3,9 +3,9 @@ import { Text, Box } from 'ink';
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { Spinner } from '../../components/Spinner.js';
-import { ErrorMessage } from '../../components/ErrorMessage.js';
-import { loadCageConfig } from '../../utils/config.js';
+import { Spinner } from '../../components/Spinner';
+import { ErrorMessage } from '../../components/ErrorMessage';
+import { loadCageConfig } from '../../utils/config';
 
 interface ListProps {
   from?: string;

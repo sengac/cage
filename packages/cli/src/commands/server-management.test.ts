@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { stopServer, getServerStatus, ServerStatus } from './server-management.js';
+import { stopServer, getServerStatus, ServerStatus } from './server-management';
 
 // Mock fs and child_process
 vi.mock('fs');

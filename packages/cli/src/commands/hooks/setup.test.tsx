@@ -6,14 +6,14 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import React from 'react';
-import { HooksSetupCommand } from './setup.js';
+import { HooksSetupCommand } from './setup';
 
 // Mock the dependencies
 vi.mock('../../utils/config.js');
 vi.mock('../../utils/hooks-installer.js');
 
-import * as configUtils from '../../utils/config.js';
-import * as hooksInstaller from '../../utils/hooks-installer.js';
+import * as configUtils from '../../utils/config';
+import * as hooksInstaller from '../../utils/hooks-installer';
 
 describe('HooksSetupCommand', () => {
   let testDir: string;

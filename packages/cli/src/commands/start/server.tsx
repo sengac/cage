@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Text, Box } from 'ink';
-import { Spinner } from '../../components/Spinner.js';
-import { ErrorMessage } from '../../components/ErrorMessage.js';
-import { SuccessMessage } from '../../components/SuccessMessage.js';
-import { loadCageConfig } from '../../utils/config.js';
-import { startServer as startBackendServer, isServerRunning } from './server.js';
+import { Spinner } from '../../components/Spinner';
+import { ErrorMessage } from '../../components/ErrorMessage';
+import { SuccessMessage } from '../../components/SuccessMessage';
+import { loadCageConfig } from '../../utils/config';
+import { startServer as startBackendServer, isServerRunning } from './server';
 
 interface ServerProps {
   port?: string;

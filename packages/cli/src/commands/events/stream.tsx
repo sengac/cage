@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Text, Box } from 'ink';
-import { Spinner } from '../../components/Spinner.js';
-import { ErrorMessage } from '../../components/ErrorMessage.js';
-import { loadCageConfig } from '../../utils/config.js';
+import { Spinner } from '../../components/Spinner';
+import { ErrorMessage } from '../../components/ErrorMessage';
+import { loadCageConfig } from '../../utils/config';
 
 interface StreamProps {
   filter?: string;

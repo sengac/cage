@@ -2,15 +2,17 @@
 import React from 'react';
 import { render } from 'ink';
 import { Command } from 'commander';
-import { InitCommand } from './commands/init.js';
-import { HooksSetupCommand } from './commands/hooks/setup.js';
-import { HooksStatusCommand } from './commands/hooks/status.js';
-import { EventsStreamCommand } from './commands/events/stream.js';
-import { EventsTailCommand } from './commands/events/tail.js';
-import { EventsListCommand } from './commands/events/list.js';
-import { EventsStatsCommand } from './commands/events/stats.js';
-import { ServerStartCommand } from './commands/start/server.jsx';
-import { stopCommand, statusCommand } from './commands/server-management.js';
+import { App } from './components/App';
+import { InitCommand } from './commands/init';
+import { HooksSetupCommand } from './commands/hooks/setup';
+import { HooksStatusCommand } from './commands/hooks/status';
+import { EventsStreamCommand } from './commands/events/stream';
+import { EventsTailCommand } from './commands/events/tail';
+import { EventsListCommand } from './commands/events/list';
+import { EventsStatsCommand } from './commands/events/stats';
+import { ServerStartCommand } from './commands/start/server';
+import { stopCommand, statusCommand } from './commands/server-management';
+import { DebugMode, parseDebugFlag } from './commands/debug';
 
 const program = new Command();
 
@@ -117,4 +119,29 @@ const logs = program
     console.log(`Logs command for ${type} not yet implemented`);
   });
 
-program.parse();
+// Parse debug flag first
+const { debugMode, logFile, remainingArgs } = parseDebugFlag(process.argv);
+
+// Check if no arguments were provided (just 'cage' command) or only debug flag
+if (process.argv.length === 2 || (debugMode && remainingArgs.length === 0)) {
+  // Launch interactive TUI with debug mode if enabled
+  const { waitUntilExit } = render(
+    <DebugMode
+      debugMode={debugMode}
+      logFile={logFile}
+      remainingArgs={[]}
+    />
+  );
+  waitUntilExit().then(() => {
+    process.exit(0);
+  });
+} else {
+  // If debug mode is enabled with commands, wrap the command execution
+  if (debugMode) {
+    // Reconstruct argv with remaining args for commander
+    process.argv = [process.argv[0], process.argv[1], ...remainingArgs];
+  }
+
+  // Parse normal commands
+  program.parse();
+}
