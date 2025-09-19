@@ -161,8 +161,8 @@ describe('EventLoggerService', () => {
       expect(loggedEvent.eventType).toBe('SessionStart');
     });
 
-    it('should handle all 10 event types correctly', async () => {
-      // Arrange: Create events for all 10 hook types
+    it('should handle all 9 event types correctly', async () => {
+      // Arrange: Create events for all 9 hook types
       const eventTypes = [
         'PreToolUse',
         'PostToolUse',
@@ -196,7 +196,7 @@ describe('EventLoggerService', () => {
 
       const content = await readFile(eventsFile, 'utf-8');
       const lines = content.trim().split('\n');
-      expect(lines).toHaveLength(10);
+      expect(lines).toHaveLength(9);
 
       const loggedEventTypes = lines.map(line => JSON.parse(line).eventType);
       expect(loggedEventTypes).toEqual(eventTypes);

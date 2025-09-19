@@ -546,11 +546,11 @@ export const HooksSetupCommand: React.FC = () => {
           }
         }
 
-        // Generate Cage hook configuration for ALL 10 hooks
+        // Generate Cage hook configuration for ALL 9 hooks
         const hookTypes = [
           'PreToolUse', 'PostToolUse', 'UserPromptSubmit', 'Notification',
           'Stop', 'SubagentStop', 'SessionStart', 'SessionEnd',
-          'PreCompact', 'Status'
+          'PreCompact'
         ];
 
         const cageHooks: Record<string, any[]> = {};

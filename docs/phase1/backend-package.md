@@ -1,12 +1,12 @@
 # Phase 1: Backend Package Implementation
 
 ## Overview
-The backend package provides the NestJS server that receives and processes all 10 Claude Code hook events, implements file-based event logging, and provides event query endpoints.
+The backend package provides the NestJS server that receives and processes all 9 Claude Code hook events, implements file-based event logging, and provides event query endpoints.
 
 ## Acceptance Criteria Coverage
 
 This implementation covers:
-- **Backend Event Processing**: All 10 hook types (PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact, Status)
+- **Backend Event Processing**: All 9 hook types (PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact)
 - **File-Based Event Logging**: Append-only logs, daily rotation, high-frequency handling
 - **Error Handling and Recovery**: Malformed data, disk space issues, concurrent triggers
 
@@ -16,7 +16,7 @@ packages/backend/
 ├── src/
 │   ├── hooks/
 │   │   ├── hooks.module.ts
-│   │   ├── hooks.controller.ts     # All 10 hook endpoints
+│   │   ├── hooks.controller.ts     # All 9 hook endpoints
 │   │   ├── hooks.service.ts        # Hook processing logic
 │   │   └── hooks.controller.spec.ts
 │   ├── storage/
@@ -33,7 +33,7 @@ packages/backend/
 ├── test/
 │   ├── acceptance/                  # Acceptance tests for each scenario
 │   │   ├── server-startup.test.ts
-│   │   ├── hook-endpoints.test.ts  # Tests for all 10 hooks
+│   │   ├── hook-endpoints.test.ts  # Tests for all 9 hooks
 │   │   ├── event-logging.test.ts
 │   │   ├── event-queries.test.ts
 │   │   ├── error-handling.test.ts
@@ -379,37 +379,6 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
     });
   });
 
-  describe('Scenario: Receive Status hook event', () => {
-    it.skip('Given the backend server is running When status line updates Then backend receives via /claude/hooks/status', async () => {
-      const payload = {
-        hookEventName: 'Status',
-        sessionId: 'test-session',
-        cwd: '/Users/test/project',
-        model: {
-          id: 'claude-3-opus',
-          displayName: 'Claude 3 Opus'
-        },
-        workspace: {
-          currentDir: '/Users/test/project',
-          projectDir: '/Users/test/project'
-        },
-        version: '1.0.0'
-      };
-
-      // Uncomment when server exists
-      // const response = await request(app.getHttpServer())
-      //   .post('/claude/hooks/status')
-      //   .send(payload);
-      //
-      // expect(response.status).toBe(200);
-      // expect(response.body).toHaveProperty('success', true);
-      // // Can optionally return custom status line
-      // if (response.body.output) {
-      //   expect(typeof response.body.output).toBe('string');
-      // }
-    });
-  });
-
   describe('Scenario: Handle hook when server is down', () => {
     it('should be tested in hook handler integration test', () => {
       // This scenario is tested in hooks-integration.md
@@ -652,7 +621,6 @@ import {
   SessionStartPayloadSchema,
   SessionEndPayloadSchema,
   PreCompactPayloadSchema,
-  StatusPayloadSchema,
   HookResponse
 } from '@cage/shared/types';
 
@@ -765,17 +733,6 @@ export class HooksController {
       return { success: false, message: 'Invalid payload' };
     }
     return this.hooksService.processPreCompact(validated.data);
-  }
-
-  @Post('status')
-  @HttpCode(200)
-  @ApiOperation({ summary: 'Handle Status hook' })
-  async handleStatus(@Body() payload: unknown): Promise<HookResponse> {
-    const validated = StatusPayloadSchema.safeParse(payload);
-    if (!validated.success) {
-      return { success: false, message: 'Invalid payload' };
-    }
-    return this.hooksService.processStatus(validated.data);
   }
 }
 ```

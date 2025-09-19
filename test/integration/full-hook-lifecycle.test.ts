@@ -29,7 +29,6 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
     'session-end',
     'notification',
     'pre-compact',
-    'status',
     'stop',
     'subagent-stop'
   ] as const;
@@ -368,13 +367,6 @@ function createTestPayload(hookType: string): TestPayload {
         reason: 'conversation_length',
         currentTokenCount: 5000,
         maxTokenCount: 10000
-      };
-
-    case 'status':
-      return {
-        ...basePayload,
-        currentStatus: 'active',
-        requestType: 'update'
       };
 
     case 'stop':
