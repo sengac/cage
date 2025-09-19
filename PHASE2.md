@@ -34,22 +34,22 @@ Phase 2 enhances the Cage CLI with a full-screen interactive Terminal User Inter
 
 ### Main Menu Structure
 ```
-┌─────────────────────────────────────────────────┐
-│                CAGE CONTROL CENTER               │
-├─────────────────────────────────────────────────┤
-│                                                  │
-│  > Events Inspector      Browse & analyze events │
-│    Server Management     Start/stop/status       │
-│    Hooks Configuration   Setup & verify hooks    │
-│    Real-time Monitor     Stream live events      │
-│    Statistics Dashboard  View metrics & charts   │
-│    Settings              Configure Cage          │
-│    Debug Console         View debug output       │
-│    Exit                  Return to terminal      │
-│                                                  │
-├─────────────────────────────────────────────────┤
-│ ↑↓ Navigate  ↵ Select  ESC Back  Q Quit  ? Help │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│ CAGE | Control • Analyze • Guide • Execute   AI Dev Assistant   │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  > Events Inspector      Browse & analyze events                │
+│    Server Management     Start/stop/status                      │
+│    Hooks Configuration   Setup & verify hooks                   │
+│    Real-time Monitor     Stream live events                     │
+│    Statistics Dashboard  View metrics & charts                  │
+│    Settings              Configure Cage                         │
+│    Debug Console         View debug output                      │
+│    Exit                  Return to terminal                     │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│ ↑↓ Navigate  ↵ Select  ESC Back  Q Quit  ? Help                │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Events Inspector View

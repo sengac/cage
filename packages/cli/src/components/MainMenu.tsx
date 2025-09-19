@@ -8,7 +8,6 @@ interface MenuItem {
   label: string;
   value: ViewType;
   description: string;
-  icon: string;
 }
 
 const menuItems: MenuItem[] = [
@@ -16,43 +15,36 @@ const menuItems: MenuItem[] = [
     label: 'Events Inspector',
     value: 'events',
     description: 'Browse & analyze events',
-    icon: '📊',
   },
   {
     label: 'Real-time Monitor',
     value: 'stream',
     description: 'Stream live events',
-    icon: '📡',
   },
   {
     label: 'Server Management',
     value: 'server',
     description: 'Start/stop/status',
-    icon: '🖥️',
   },
   {
     label: 'Hooks Configuration',
     value: 'hooks',
     description: 'Setup & verify hooks',
-    icon: '🔧',
   },
   {
     label: 'Statistics Dashboard',
     value: 'statistics',
     description: 'View metrics & charts',
-    icon: '📈',
   },
   {
     label: 'Settings',
     value: 'settings',
     description: 'Configure Cage',
-    icon: '⚙️',
   },
   {
     label: 'Debug Console',
     value: 'debug',
     description: 'View debug output',
-    icon: '🐛',
   },
 ];
 
@@ -89,7 +81,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
       <Box key={item.value} flexDirection="column" marginBottom={1}>
         <Box>
           <Text color={textColor}>
-            {indicator} {item.icon} {item.label}
+            {indicator} {item.label}
           </Text>
         </Box>
         <Box marginLeft={4}>
@@ -136,10 +128,14 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
         paddingY={1}
         borderStyle="round"
         borderColor={theme.ui.borderSubtle}
-        justifyContent="center"
+        justifyContent="space-between"
+        width="100%"
       >
         <Text color={theme.secondary.blue} bold>
-          CAGE CONTROL CENTER
+          CAGE | Control • Analyze • Guide • Execute
+        </Text>
+        <Text color={theme.ui.textMuted} dimColor>
+          AI Development Assistant
         </Text>
       </Box>
 

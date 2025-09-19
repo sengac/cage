@@ -27,10 +27,11 @@ describe('MainMenu', () => {
 
   describe('Given the MainMenu is displayed', () => {
     describe('When rendered', () => {
-      it('Then should show the title', () => {
+      it('Then should show the title and description', () => {
         const { lastFrame } = render(<MainMenu onExit={onExit} />);
 
-        expect(lastFrame()).toContain('CAGE CONTROL CENTER');
+        expect(lastFrame()).toContain('CAGE | Control • Analyze • Guide • Execute');
+        expect(lastFrame()).toContain('AI Development Assistant');
       });
 
       it('Then should show all menu items', () => {
@@ -80,7 +81,7 @@ describe('MainMenu', () => {
         const { lastFrame } = render(<MainMenu onExit={onExit} />);
 
         // The selected item should have a pointer
-        expect(lastFrame()).toMatch(/❯\s*📊\s*Events Inspector/);
+        expect(lastFrame()).toMatch(/❯\s*Events Inspector/);
       });
     });
 
@@ -95,7 +96,7 @@ describe('MainMenu', () => {
         rerender(<MainMenu onExit={onExit} />);
 
         // Should highlight second item
-        expect(lastFrame()).toMatch(/❯\s*📡\s*Real-time Monitor/);
+        expect(lastFrame()).toMatch(/❯\s*Real-time Monitor/);
       });
 
       it('Then up arrow should move selection up', () => {
@@ -109,7 +110,7 @@ describe('MainMenu', () => {
         rerender(<MainMenu onExit={onExit} />);
 
         // Should be on second item
-        expect(lastFrame()).toMatch(/❯\s*📡\s*Real-time Monitor/);
+        expect(lastFrame()).toMatch(/❯\s*Real-time Monitor/);
       });
 
       it('Then j/k keys should navigate', () => {
@@ -118,12 +119,12 @@ describe('MainMenu', () => {
         // j moves down
         stdin.write('j');
         rerender(<MainMenu onExit={onExit} />);
-        expect(lastFrame()).toMatch(/❯\s*📡\s*Real-time Monitor/);
+        expect(lastFrame()).toMatch(/❯\s*Real-time Monitor/);
 
         // k moves up
         stdin.write('k');
         rerender(<MainMenu onExit={onExit} />);
-        expect(lastFrame()).toMatch(/❯\s*📊\s*Events Inspector/);
+        expect(lastFrame()).toMatch(/❯\s*Events Inspector/);
       });
 
       it('Then should wrap around at boundaries', () => {
@@ -132,12 +133,12 @@ describe('MainMenu', () => {
         // Go up from first item should wrap to last
         stdin.write('\u001B[A');
         rerender(<MainMenu onExit={onExit} />);
-        expect(lastFrame()).toMatch(/❯\s*🐛\s*Debug Console/);
+        expect(lastFrame()).toMatch(/❯\s*Debug Console/);
 
         // Go down from last should wrap to first
         stdin.write('\u001B[B');
         rerender(<MainMenu onExit={onExit} />);
-        expect(lastFrame()).toMatch(/❯\s*📊\s*Events Inspector/);
+        expect(lastFrame()).toMatch(/❯\s*Events Inspector/);
       });
     });
 
@@ -167,7 +168,8 @@ describe('MainMenu', () => {
       it('Then Escape should call onExit', () => {
         const { stdin } = render(<MainMenu onExit={onExit} />);
 
-        stdin.write('\u001B');
+        // Send ESC key (ASCII 27)
+        stdin.write('\x1B');
 
         expect(onExit).toHaveBeenCalledTimes(1);
       });

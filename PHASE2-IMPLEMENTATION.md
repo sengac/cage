@@ -1944,9 +1944,12 @@ export const MainMenu: React.FC = () => {
   return (
     <Box flexDirection="column" padding={1}>
       {/* Header with subtle border */}
-      <Box marginBottom={1} borderStyle="round" borderColor="#1A3A52">
+      <Box marginBottom={1} borderStyle="round" borderColor="#1A3A52" justifyContent="space-between">
         <Text color="#4ECDC4" bold>
-          CAGE CONTROL CENTER
+          CAGE | Control • Analyze • Guide • Execute
+        </Text>
+        <Text dimColor>
+          AI Development Assistant
         </Text>
       </Box>
 

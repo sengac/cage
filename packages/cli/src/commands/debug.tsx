@@ -149,6 +149,7 @@ export function DebugMode({
     <App
       showDebugPanel={debugMode}
       args={remainingArgs}
+      onExit={() => process.exit(0)}
     />
   );
 }
