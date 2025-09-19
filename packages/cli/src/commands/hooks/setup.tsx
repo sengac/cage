@@ -21,6 +21,8 @@ export function HooksSetupCommand(): JSX.Element {
   });
 
   useEffect(() => {
+    let exitTimeout: NodeJS.Timeout | undefined;
+
     const setup = async () => {
       try {
         // Check if Cage is initialized
@@ -31,7 +33,10 @@ export function HooksSetupCommand(): JSX.Element {
             message: 'Cage is not initialized',
             error: 'Please run "cage init" first'
           });
-          setTimeout(() => process.exit(1), 100);
+          // Only exit in non-test environments
+          if (process.env.NODE_ENV !== 'test') {
+            exitTimeout = setTimeout(() => process.exit(1), 100);
+          }
           return;
         }
 
@@ -52,18 +57,31 @@ export function HooksSetupCommand(): JSX.Element {
           hooks: hookTypes
         });
 
-        setTimeout(() => process.exit(0), 100);
+        // Only exit in non-test environments
+        if (process.env.NODE_ENV !== 'test') {
+          exitTimeout = setTimeout(() => process.exit(0), 100);
+        }
       } catch (err) {
         setState({
           status: 'error',
           message: 'Failed to configure hooks',
           error: err instanceof Error ? err.message : 'Unknown error'
         });
-        setTimeout(() => process.exit(1), 100);
+        // Only exit in non-test environments
+        if (process.env.NODE_ENV !== 'test') {
+          exitTimeout = setTimeout(() => process.exit(1), 100);
+        }
       }
     };
 
     setup();
+
+    // Cleanup function to clear timeout on unmount
+    return () => {
+      if (exitTimeout) {
+        clearTimeout(exitTimeout);
+      }
+    };
   }, []);
 
   if (state.status === 'checking' || state.status === 'installing') {

@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { defaultConfig } from '@cage/shared';
-import Spinner from 'ink-spinner';
+import { Spinner } from '../components/Spinner';
 
 interface InitStatus {
   status: 'checking' | 'creating' | 'done' | 'error' | 'already-initialized';
@@ -74,14 +74,7 @@ export function InitCommand(): JSX.Element {
   }, []);
 
   if (state.status === 'checking' || state.status === 'creating') {
-    return (
-      <Box>
-        <Text color="cyan">
-          <Spinner type="dots" />
-        </Text>
-        <Text> {state.message}</Text>
-      </Box>
-    );
+    return <Spinner message={state.message} />;
   }
 
   if (state.status === 'already-initialized') {

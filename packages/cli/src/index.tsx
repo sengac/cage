@@ -10,7 +10,7 @@ import { EventsStreamCommand } from './commands/events/stream';
 import { EventsTailCommand } from './commands/events/tail';
 import { EventsListCommand } from './commands/events/list';
 import { EventsStatsCommand } from './commands/events/stats';
-import { ServerStartCommand } from './commands/start/server';
+import { ServerStartCommand } from './commands/start';
 import { stopCommand, statusCommand } from './commands/server-management';
 import { DebugMode, parseDebugFlag } from './commands/debug';
 

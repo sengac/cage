@@ -8,7 +8,15 @@
     "dev": "vite-node src/index.tsx",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["cage", "ai", "claude", "code", "hooks", "development", "tooling"],
+  "keywords": [
+    "cage",
+    "ai",
+    "claude",
+    "code",
+    "hooks",
+    "development",
+    "tooling"
+  ],
   "author": "Software Engineering & Consulting Pty Ltd",
   "license": "MIT",
   "description": "CLI tool for Cage - A controlled environment for AI development",
@@ -40,6 +48,7 @@
     "immer": "latest",
     "ink": "^6.3.0",
     "ink-big-text": "latest",
+    "ink-spinner": "^5.0.0",
     "ink-table": "latest",
     "ink-use-stdout-dimensions": "latest",
     "marked": "latest",
