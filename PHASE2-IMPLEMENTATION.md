@@ -1946,11 +1946,12 @@ export const MainMenu: React.FC = () => {
       {/* Header with subtle border */}
       <Box marginBottom={1} borderStyle="round" borderColor="#1A3A52" justifyContent="space-between">
         <Text color="#4ECDC4" bold>
-          CAGE | Control • Analyze • Guide • Execute
+          CAGE | AI Drift Prevention System
         </Text>
-        <Text dimColor>
-          AI Development Assistant
-        </Text>
+        <Box>
+          <Text dimColor>Server: </Text>
+          <Text color="#28A745">● running</Text>
+        </Box>
       </Box>
 
       {/* Menu items - no background, just text colors */}

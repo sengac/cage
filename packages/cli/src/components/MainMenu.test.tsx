@@ -27,11 +27,12 @@ describe('MainMenu', () => {
 
   describe('Given the MainMenu is displayed', () => {
     describe('When rendered', () => {
-      it('Then should show the title and description', () => {
+      it('Then should show the title and server status in header', () => {
         const { lastFrame } = render(<MainMenu onExit={onExit} />);
 
-        expect(lastFrame()).toContain('CAGE | Control • Analyze • Guide • Execute');
-        expect(lastFrame()).toContain('AI Development Assistant');
+        expect(lastFrame()).toContain('CAGE | AI Drift Prevention System');
+        expect(lastFrame()).toContain('Server:');
+        expect(lastFrame()).toContain('stopped');
       });
 
       it('Then should show all menu items', () => {

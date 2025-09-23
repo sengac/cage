@@ -131,19 +131,14 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
         justifyContent="space-between"
       >
         <Text color={theme.secondary.blue} bold>
-          CAGE | Control • Analyze • Guide • Execute
+          CAGE | AI Drift Prevention System
         </Text>
-        <Text color={theme.ui.textMuted} dimColor>
-          AI Development Assistant
-        </Text>
-      </Box>
-
-      {/* Server Status */}
-      <Box paddingX={2} marginY={1}>
-        <Text color={theme.ui.textMuted}>Server: </Text>
-        <Text color={getStatusColor()}>
-          {getStatusIcon()} {serverStatus}
-        </Text>
+        <Box>
+          <Text color={theme.ui.textMuted}>Server: </Text>
+          <Text color={getStatusColor()}>
+            {getStatusIcon()} {serverStatus}
+          </Text>
+        </Box>
       </Box>
 
       {/* Menu Items Container with flex grow to fill available space */}

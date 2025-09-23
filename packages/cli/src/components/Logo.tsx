@@ -79,12 +79,12 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     // Animate letters appearing one by one
     const animateLetters = async () => {
       for (let i = 0; i <= 4; i++) {
-        await new Promise(resolve => setTimeout(resolve, i === 0 ? 0 : 300));
+        await new Promise(resolve => setTimeout(resolve, i === 0 ? 0 : 150));
         setDisplayedChars(i);
       }
 
       // Show tagline after all letters
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 150));
       setShowTagline(true);
 
       // Add shimmer animation after letters are displayed
