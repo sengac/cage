@@ -15,6 +15,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
   const [scrambledText, setScrambledText] = useState('Control • Analyze • Guide • Execute');
   const [isScrambling, setIsScrambling] = useState(false);
   const [hideAll, setHideAll] = useState(false);
+  const [shimmerPosition, setShimmerPosition] = useState(-1);
 
   // The ASCII art for each letter
   const letterC = [
@@ -86,10 +87,21 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       await new Promise(resolve => setTimeout(resolve, 300));
       setShowTagline(true);
 
-      // Wait 3 seconds with full logo visible
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Add shimmer animation after letters are displayed
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small pause before shimmer
 
-      // Start slide out animation
+      // Animate shimmer from left to right
+      const shimmerDuration = 600; // Total shimmer animation duration
+      const shimmerSteps = 50; // Number of animation steps (extended to go fully off screen)
+      const stepDuration = shimmerDuration / shimmerSteps;
+
+      for (let i = 0; i <= shimmerSteps; i++) {
+        setShimmerPosition(i / shimmerSteps * 1.3); // Extend to 1.3 to ensure it goes fully off screen
+        await new Promise(resolve => setTimeout(resolve, stepDuration));
+      }
+
+      // Start slide out animation immediately after shimmer passes off screen
+      // Don't reset shimmer - keep it off screen
       setSlideOut(true);
 
       // Animate lines sliding out sequentially
@@ -154,6 +166,9 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
   // Aqua gradient colors
   const aquaGradient = gradient(['#7FDBFF', '#01B4C6', '#007A8C']);
 
+  // Shimmer gradient for the animation
+  const shimmerGradient = gradient(['#FFFFFF', '#E0F7FF', '#FFFFFF']);
+
   // Build the complete ASCII art based on displayed characters
   const buildAsciiLines = () => {
     const lines: string[] = ['', '', '', '', '', ''];
@@ -170,6 +185,41 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
   };
 
   const asciiLines = buildAsciiLines();
+
+  // Apply shimmer effect to a line
+  const applyShimmer = (line: string, lineIndex: number): string => {
+    if (shimmerPosition < 0 || shimmerPosition > 1) {
+      return aquaGradient(line);
+    }
+
+    // Calculate the shimmer window (affects ~30% of the total width)
+    const lineLength = line.length;
+    const shimmerWidth = Math.floor(lineLength * 0.3);
+    const shimmerCenter = Math.floor(shimmerPosition * (lineLength + shimmerWidth)) - Math.floor(shimmerWidth / 2);
+
+    // Split the line into characters and apply shimmer gradient to the appropriate section
+    const chars = line.split('');
+    let result = '';
+
+    for (let i = 0; i < chars.length; i++) {
+      const distance = Math.abs(i - shimmerCenter);
+      const intensity = Math.max(0, 1 - (distance / (shimmerWidth / 2)));
+
+      if (intensity > 0 && chars[i] !== ' ') {
+        // Apply shimmer effect based on intensity
+        if (intensity > 0.7) {
+          result += shimmerGradient(chars[i]);
+        } else {
+          // Blend between normal and shimmer color
+          result += aquaGradient(chars[i]);
+        }
+      } else {
+        result += aquaGradient(chars[i]);
+      }
+    }
+
+    return result;
+  };
 
   return (
     <Box
@@ -190,7 +240,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
           <Box key={`line-${index}`} width="100%" justifyContent="center">
             <Text>
               {slidePosition > 0 ? ' '.repeat(slidePosition) : ''}
-              {aquaGradient(line)}
+              {applyShimmer(line, index)}
               {slidePosition < 0 ? ' '.repeat(Math.abs(slidePosition)) : ''}
             </Text>
           </Box>
