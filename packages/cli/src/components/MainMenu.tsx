@@ -131,7 +131,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
         justifyContent="space-between"
       >
         <Text color={theme.secondary.blue} bold>
-          CAGE | AI Drift Prevention System
+          CAGE | Code Alignment Guard Engine
         </Text>
         <Box>
           <Text color={theme.ui.textMuted}>Server: </Text>

@@ -12,7 +12,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
   const [showTagline, setShowTagline] = useState(false);
   const [slideOut, setSlideOut] = useState(false);
   const [slidPositions, setSlidPositions] = useState<number[]>(new Array(8).fill(0));
-  const [scrambledText, setScrambledText] = useState('Control • Analyze • Guide • Execute');
+  const [scrambledText, setScrambledText] = useState('Code Alignment Guard Engine');
   const [isScrambling, setIsScrambling] = useState(false);
   const [hideAll, setHideAll] = useState(false);
   const [shimmerPosition, setShimmerPosition] = useState(-1);
@@ -140,7 +140,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       // Start scrambling the tagline before it slides out completely
       setIsScrambling(true);
       const scrambleInterval = setInterval(() => {
-        setScrambledText(scrambleText('Control • Analyze • Guide • Execute'));
+        setScrambledText(scrambleText('Code Alignment Guard Engine'));
       }, 50);
 
       // Run slide animation and scrambling simultaneously
@@ -254,7 +254,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       {showTagline && (
         <Box key="tagline" width="100%" justifyContent="center">
           <Text color={isScrambling ? "#FF0000" : "#4ECDC4"}>
-            {isScrambling ? scrambledText : 'Control • Analyze • Guide • Execute'}
+            {isScrambling ? scrambledText : 'Code Alignment Guard Engine'}
           </Text>
         </Box>
       )}

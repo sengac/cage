@@ -1946,7 +1946,7 @@ export const MainMenu: React.FC = () => {
       {/* Header with subtle border */}
       <Box marginBottom={1} borderStyle="round" borderColor="#1A3A52" justifyContent="space-between">
         <Text color="#4ECDC4" bold>
-          CAGE | AI Drift Prevention System
+          CAGE | Code Alignment Guard Engine
         </Text>
         <Box>
           <Text dimColor>Server: </Text>

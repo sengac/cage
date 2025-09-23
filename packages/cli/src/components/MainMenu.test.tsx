@@ -30,7 +30,7 @@ describe('MainMenu', () => {
       it('Then should show the title and server status in header', () => {
         const { lastFrame } = render(<MainMenu onExit={onExit} />);
 
-        expect(lastFrame()).toContain('CAGE | AI Drift Prevention System');
+        expect(lastFrame()).toContain('CAGE | Code Alignment Guard Engine');
         expect(lastFrame()).toContain('Server:');
         expect(lastFrame()).toContain('stopped');
       });
