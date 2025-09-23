@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
-import { Box, useStdout } from 'ink';
+import { Box } from 'ink';
+import { useTerminalSize } from '../hooks/useResponsiveLayout';
 
 interface FullScreenWrapperProps {
   children: ReactNode;
@@ -11,20 +12,19 @@ interface FullScreenWrapperProps {
  * - Full terminal width and height
  * - Proper screen clearing on mount
  * - Consistent centering for all content
+ * - Responsive to terminal resize events
  */
 export const FullScreenWrapper: React.FC<FullScreenWrapperProps> = ({ children }) => {
-  const { stdout } = useStdout();
+  // Use the responsive hook that handles resize events
+  const dimensions = useTerminalSize();
 
   // Note: Screen clearing is done BEFORE Ink renders in index.tsx
   // to ensure we start from position (0,0)
 
-  const terminalHeight = stdout?.rows || 24;
-  const terminalWidth = stdout?.columns || 80;
-
   return (
     <Box
-      width={terminalWidth}
-      height={terminalHeight - 1}
+      width={dimensions.width}
+      height={dimensions.height - 1}
       flexDirection="column"
     >
       {children}
