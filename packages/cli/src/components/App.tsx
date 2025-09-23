@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { Logo } from './Logo';
 import { MainMenu } from './MainMenu';
+import { FullScreenWrapper } from './FullScreenWrapper';
 import { EventInspector } from './EventInspector';
 import { EventDetail } from './EventDetail';
 import { StreamView } from './StreamView';
@@ -39,12 +40,21 @@ export const App: React.FC<AppProps> = ({ showLogo = true, onExit, showDebugPane
     onExit?.();
   };
 
-  // Show logo first if requested
-  if (!logoComplete) {
-    return <Logo onComplete={handleLogoComplete} />;
-  }
+  return (
+    <FullScreenWrapper>
+      {/* Show logo first if requested */}
+      {!logoComplete ? (
+        <Logo onComplete={handleLogoComplete} />
+      ) : (
+        // Route to the appropriate view based on currentView
+        <AppContent currentView={currentView} handleExit={handleExit} />
+      )}
+    </FullScreenWrapper>
+  );
+};
 
-  // Route to the appropriate view based on currentView
+// Separate component for the main app content after logo
+const AppContent: React.FC<{ currentView: string; handleExit: () => void }> = ({ currentView, handleExit }) => {
   switch (currentView) {
     case 'menu':
       return <MainMenu onExit={handleExit} />;

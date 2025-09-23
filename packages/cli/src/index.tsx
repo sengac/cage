@@ -124,6 +124,10 @@ const { debugMode, logFile, remainingArgs } = parseDebugFlag(process.argv);
 
 // Check if no arguments were provided (just 'cage' command) or only debug flag
 if (process.argv.length === 2 || (debugMode && remainingArgs.length === 0)) {
+  // Clear screen and reset cursor to top BEFORE Ink starts rendering
+  // This ensures Ink starts from a clean slate at position (0,0)
+  process.stdout.write('\x1B[2J\x1B[3J\x1B[H');
+
   // Launch interactive TUI with debug mode if enabled
   const { waitUntilExit } = render(
     <DebugMode

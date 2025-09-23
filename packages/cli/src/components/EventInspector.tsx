@@ -5,6 +5,7 @@ import figures from 'figures';
 import type { Event } from '../stores/appStore';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
+import { FullScreenLayout } from './FullScreenLayout';
 
 interface EventInspectorProps {
   onSelectEvent: (event: Event) => void;
@@ -99,7 +100,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     } else if (key.return && processedEvents.length > 0) {
       onSelectEvent(processedEvents[selectedIndex]);
     } else if (key.escape || input === 'q') {
-      onBack();
+      // Handled by FullScreenLayout
     } else if (input === '/') {
       setSearchMode(true);
       setSearchQuery('');
@@ -157,44 +158,35 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
 
   if (events.length === 0) {
     return (
-      <Box flexDirection="column" padding={1}>
-        <Box marginBottom={1} justifyContent="center">
-          <Text color={theme.primary.aqua} bold>
-            EVENT INSPECTOR
-          </Text>
-        </Box>
-        <Box justifyContent="center">
+      <FullScreenLayout
+        title="Events Inspector"
+        subtitle="Browse & analyze events"
+        onBack={onBack}
+      >
+        <Box justifyContent="center" alignItems="center" flexGrow={1}>
           <Text color={theme.ui.textMuted}>
             No events found
           </Text>
         </Box>
-        <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
-          <Text color={theme.ui.textDim}>
-            ESC Back
-          </Text>
-        </Box>
-      </Box>
+      </FullScreenLayout>
     );
   }
 
   return (
-    <Box flexDirection="column" padding={1}>
-      {/* Header */}
-      <Box marginBottom={1} justifyContent="center">
-        <Text color={theme.primary.aqua} bold>
-          EVENT INSPECTOR
+    <FullScreenLayout
+      title="Events Inspector"
+      subtitle={appliedSearch
+        ? `${processedEvents.length} events (filtered from ${events.length})`
+        : `${processedEvents.length} events`
+      }
+      onBack={onBack}
+      footer={
+        <Text color={theme.ui.textDim}>
+          ↵ View  / Search  t,y,o,s Sort  r Reverse  c Clear  {figures.arrowLeft} Back (ESC)
         </Text>
-      </Box>
-
-      {/* Event count */}
-      <Box marginBottom={1}>
-        <Text color={theme.ui.text}>
-          {appliedSearch
-            ? `${processedEvents.length} events (filtered from ${events.length})`
-            : `${processedEvents.length} events`
-          }
-        </Text>
-      </Box>
+      }
+    >
+      <Box flexDirection="column" flexGrow={1}>
 
       {/* Search bar */}
       {searchMode && (
@@ -266,12 +258,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         })}
       </Box>
 
-      {/* Footer with shortcuts */}
-      <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
-        <Text color={theme.ui.textDim}>
-          ↵ View  / Search  f Filter  r Reverse  ESC Back
-        </Text>
       </Box>
-    </Box>
+    </FullScreenLayout>
   );
 };

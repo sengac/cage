@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Text, useInput } from 'ink';
+import React, { useState, useEffect } from 'react';
+import { Box, Text, useInput, useStdout } from 'ink';
 import { useAppStore, type ViewType } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import figures from 'figures';
@@ -57,6 +57,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
   const navigate = useAppStore((state) => state.navigate);
   const serverStatus = useAppStore((state) => state.serverStatus);
   const theme = useTheme();
+  const { stdout } = useStdout();
 
   useInput((input, key) => {
     if (key.upArrow || input === 'k') {
@@ -120,16 +121,14 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
   };
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header */}
       <Box
-        marginBottom={1}
         paddingX={2}
         paddingY={1}
         borderStyle="round"
         borderColor={theme.ui.borderSubtle}
         justifyContent="space-between"
-        width="100%"
       >
         <Text color={theme.secondary.blue} bold>
           CAGE | Control • Analyze • Guide • Execute
@@ -140,21 +139,20 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
       </Box>
 
       {/* Server Status */}
-      <Box marginBottom={1} paddingX={1}>
+      <Box paddingX={2} marginY={1}>
         <Text color={theme.ui.textMuted}>Server: </Text>
         <Text color={getStatusColor()}>
           {getStatusIcon()} {serverStatus}
         </Text>
       </Box>
 
-      {/* Menu Items */}
-      <Box flexDirection="column" paddingX={1}>
+      {/* Menu Items Container with flex grow to fill available space */}
+      <Box flexDirection="column" paddingX={2} flexGrow={1}>
         {menuItems.map((item, index) => renderItem(item, index))}
       </Box>
 
-      {/* Footer */}
+      {/* Footer - positioned at bottom */}
       <Box
-        marginTop={1}
         paddingX={2}
         paddingY={1}
         borderStyle="single"

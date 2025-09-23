@@ -175,7 +175,8 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     <Box
       flexDirection="column"
       alignItems="center"
-      marginTop={2}
+      justifyContent="center"
+      flexGrow={1}
     >
       {asciiLines.map((line, index) => {
         if (!line) return null;
