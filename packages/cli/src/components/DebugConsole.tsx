@@ -230,9 +230,8 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
       setSearchTerm('');
     } else if (input === '?') {
       setViewMode('help');
-    } else if (key.escape || input === 'q') {
-      onBack();
     }
+    // ESC/q handled by FullScreenLayout, not here
   });
 
   const renderHelp = () => (
@@ -298,22 +297,6 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
 
     return (
       <Box flexDirection="column" flexGrow={1}>
-        {/* Header */}
-        <Box
-          paddingX={2}
-          borderStyle="round"
-          borderColor={theme.ui.borderSubtle}
-          justifyContent="space-between"
-          minHeight={3}
-        >
-          <Text color={theme.secondary.blue} bold>
-            CAGE | Debug Console
-          </Text>
-          <Text color={theme.ui.textMuted} dimColor>
-            {debugEvents.length} events
-          </Text>
-        </Box>
-
         {/* Main Content */}
         <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
@@ -354,17 +337,6 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
           })}
         </Box>
 
-        </Box>
-
-        {/* Footer with shortcuts */}
-        <Box
-          paddingX={2}
-          borderStyle="single"
-          borderColor={theme.ui.borderSubtle}
-        >
-          <Text color={theme.ui.textDim}>
-            ↑↓/jk Navigate | f Filter | / Search | ? Help | ESC/q Back
-          </Text>
         </Box>
       </Box>
     );

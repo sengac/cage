@@ -91,8 +91,6 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
       setConfigPort(serverInfo?.port?.toString() || '3000');
     } else if (input === 'l') {
       setShowLogs(!showLogs);
-    } else if (key.escape || input === 'q') {
-      onBack();
     }
   });
 
@@ -270,47 +268,15 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   if (configMode) {
     return (
       <Box flexDirection="column" flexGrow={1}>
-        {/* Header */}
-        <Box
-          paddingX={2}
-          borderStyle="round"
-          borderColor={theme.ui.borderSubtle}
-          justifyContent="space-between"
-          minHeight={3}
-        >
-          <Text color={theme.secondary.blue} bold>
-            CAGE | Server Management
-          </Text>
-          <Text color={theme.ui.textMuted} dimColor>
-            Configuration Mode
-          </Text>
-        </Box>
         <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
         {renderConfiguration()}
         </Box>
-        {renderControls()}
       </Box>
     );
   }
 
   return (
     <Box flexDirection="column" flexGrow={1}>
-      {/* Header */}
-      <Box
-        paddingX={2}
-        borderStyle="round"
-        borderColor={theme.ui.borderSubtle}
-        justifyContent="space-between"
-        minHeight={3}
-      >
-        <Text color={theme.secondary.blue} bold>
-          CAGE | Server Management
-        </Text>
-        <Text color={theme.ui.textMuted} dimColor>
-          {getStatusText()}
-        </Text>
-      </Box>
-
       {/* Main Content */}
       <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
@@ -362,9 +328,6 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
       {/* Logs */}
       {renderLogs()}
       </Box>
-
-      {/* Footer */}
-      {renderControls()}
     </Box>
   );
 };

@@ -54,8 +54,6 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
       // In a real implementation, this would copy to clipboard
     } else if (input === 'e') {
       setShowExportOptions(!showExportOptions);
-    } else if (key.escape || input === 'q') {
-      onBack();
     }
   });
 
@@ -106,55 +104,16 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
 
   if (!selectedEvent) {
     return (
-      <Box flexDirection="column" flexGrow={1}>
-        {/* Header */}
-        <Box
-          paddingX={2}
-          borderStyle="round"
-          borderColor={theme.ui.borderSubtle}
-          justifyContent="space-between"
-          minHeight={3}
-        >
-          <Text color={theme.secondary.blue} bold>
-            CAGE | Event Detail
-          </Text>
-        </Box>
-        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1} justifyContent="center" alignItems="center">
-          <Text color={theme.ui.textMuted}>
-            No event selected
-          </Text>
-        </Box>
-        <Box
-          paddingX={2}
-          borderStyle="single"
-          borderColor={theme.ui.borderSubtle}
-        >
-          <Text color={theme.ui.textDim}>
-            ESC Back
-          </Text>
-        </Box>
+      <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
+        <Text color={theme.ui.textMuted}>
+          No event selected
+        </Text>
       </Box>
     );
   }
 
   return (
     <Box flexDirection="column" flexGrow={1}>
-      {/* Header with event info */}
-      <Box
-        paddingX={2}
-        borderStyle="round"
-        borderColor={theme.ui.borderSubtle}
-        justifyContent="space-between"
-        minHeight={3}
-      >
-        <Text color={theme.secondary.blue} bold>
-          CAGE | Event Detail
-        </Text>
-        <Text color={theme.ui.textMuted} dimColor>
-          {selectedEvent.eventType}
-        </Text>
-      </Box>
-
       {/* Main Content */}
       <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
@@ -240,17 +199,6 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
           </Text>
         </Box>
       )}
-      </Box>
-
-      {/* Footer with shortcuts */}
-      <Box
-        paddingX={2}
-        borderStyle="single"
-        borderColor={theme.ui.borderSubtle}
-      >
-        <Text color={theme.ui.textDim}>
-          ← → Switch tabs  c Copy  e Export  ESC Back
-        </Text>
       </Box>
     </Box>
   );

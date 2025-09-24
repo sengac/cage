@@ -52,7 +52,7 @@ const menuItems: MenuItem[] = [
  * Main menu view component - content only, no layout
  * Layout is handled by ViewManager and FullScreenLayout
  */
-export const MainMenuView: React.FC<ViewProps> = ({ onNavigate }) => {
+export const MainMenuView: React.FC<ViewProps> = ({ onNavigate, onBack }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const theme = useTheme();
 
@@ -66,6 +66,7 @@ export const MainMenuView: React.FC<ViewProps> = ({ onNavigate }) => {
     } else if (input === '?') {
       onNavigate('help');
     }
+    // ESC/q handled by FullScreenLayout, not here
   });
 
   const renderItem = (item: MenuItem, index: number) => {
@@ -73,8 +74,9 @@ export const MainMenuView: React.FC<ViewProps> = ({ onNavigate }) => {
     const textColor = isSelected ? theme.ui.hover : theme.ui.text;
     const indicator = isSelected ? figures.pointer : ' ';
 
+    // Add unique index to key to ensure no duplicates
     return (
-      <Box key={item.value} flexDirection="column" marginBottom={1}>
+      <Box key={`${item.value}-${index}`} flexDirection="column" marginBottom={1}>
         <Box>
           <Text color={textColor}>
             {indicator} {item.label}

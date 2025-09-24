@@ -1,16 +1,11 @@
 import React from 'react';
-import { Box, Text } from 'ink';
 import type { ViewProps } from '../../types/viewSystem';
+import { HelpSystem } from '../HelpSystem';
 
 /**
- * HelpSystemView - placeholder implementation
- * TODO: Integrate existing component
+ * HelpSystemView - wraps the existing HelpSystem component
+ * Integrates with the new ViewManager system
  */
 export const HelpSystemView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
-  return (
-    <Box flexDirection="column">
-      <Text>Help System - Coming Soon</Text>
-      <Text dimColor>This view is being refactored to use the new shared component system</Text>
-    </Box>
-  );
+  return <HelpSystem onBack={onBack} />;
 };

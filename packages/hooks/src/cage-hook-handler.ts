@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
 import { readFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join } from 'path';
 import { homedir } from 'os';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 interface CageConfig {
   port: number;
@@ -31,12 +27,6 @@ interface BackendResponse {
   warning?: string;
 }
 
-interface LogEntry {
-  timestamp: string;
-  hookType: string;
-  data: EnrichedHookData;
-  error: string;
-}
 
 // Find cage config - check current dir, parent dirs, and home
 function findCageConfig(): CageConfig {
@@ -163,7 +153,7 @@ async function main(): Promise<void> {
   // Add metadata - ensure timestamp is always present for backend validation
   const enrichedData: EnrichedHookData = {
     ...mappedData,
-    timestamp: mappedData.timestamp || new Date().toISOString(), // Ensure timestamp exists
+    timestamp: (mappedData.timestamp as string) || new Date().toISOString(), // Ensure timestamp exists
     hook_type: hookType,
     project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd()
   };
@@ -269,7 +259,7 @@ async function main(): Promise<void> {
 }
 
 // Run the handler
-main().catch(err => {
+main().catch(() => {
   // Silent fail to not block Claude Code
   process.exit(0);
 });

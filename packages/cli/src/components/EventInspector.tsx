@@ -5,7 +5,6 @@ import figures from 'figures';
 import type { Event } from '../stores/appStore';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
-import { FullScreenLayout } from './FullScreenLayout';
 
 interface EventInspectorProps {
   onSelectEvent: (event: Event) => void;
@@ -99,8 +98,6 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       setSelectedIndex((prev) => (prev === processedEvents.length - 1 ? 0 : prev + 1));
     } else if (key.return && processedEvents.length > 0) {
       onSelectEvent(processedEvents[selectedIndex]);
-    } else if (key.escape || input === 'q') {
-      // Handled by FullScreenLayout
     } else if (input === '/') {
       setSearchMode(true);
       setSearchQuery('');
@@ -158,34 +155,15 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
 
   if (events.length === 0) {
     return (
-      <FullScreenLayout
-        title="Events Inspector"
-        subtitle="Browse & analyze events"
-        onBack={onBack}
-      >
-        <Box justifyContent="center" alignItems="center" flexGrow={1}>
-          <Text color={theme.ui.textMuted}>
-            No events found
-          </Text>
-        </Box>
-      </FullScreenLayout>
+      <Box justifyContent="center" alignItems="center" flexGrow={1}>
+        <Text color={theme.ui.textMuted}>
+          No events found
+        </Text>
+      </Box>
     );
   }
 
   return (
-    <FullScreenLayout
-      title="Events Inspector"
-      subtitle={appliedSearch
-        ? `${processedEvents.length} events (filtered from ${events.length})`
-        : `${processedEvents.length} events`
-      }
-      onBack={onBack}
-      footer={
-        <Text color={theme.ui.textDim}>
-          ↵ View  / Search  t,y,o,s Sort  r Reverse  c Clear  {figures.arrowLeft} Back (ESC)
-        </Text>
-      }
-    >
       <Box flexDirection="column" flexGrow={1}>
 
       {/* Search bar */}
@@ -259,6 +237,5 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       </Box>
 
       </Box>
-    </FullScreenLayout>
   );
 };

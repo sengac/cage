@@ -166,8 +166,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
     } else if (input === 'c' && !searchMode) {
       setFilterEnabled(false);
       setSearchTerm('');
-    } else if ((key.escape || input === 'q') && !searchMode) {
-      onBack();
+    // ESC/q handled by FullScreenLayout when not in search mode
     }
   });
 
@@ -297,22 +296,6 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
 
   return (
     <Box flexDirection="column" flexGrow={1}>
-      {/* Header */}
-      <Box
-        paddingX={2}
-        borderStyle="round"
-        borderColor={theme.ui.borderSubtle}
-        justifyContent="space-between"
-        minHeight={3}
-      >
-        <Text color={theme.secondary.blue} bold>
-          CAGE | Hooks Configuration
-        </Text>
-        <Text color={theme.ui.textMuted} dimColor>
-          {isInstalled ? 'Installed' : 'Not Installed'}
-        </Text>
-      </Box>
-
       {/* Main Content */}
       <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
@@ -416,17 +399,6 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
 
         </>
       )}
-      </Box>
-
-      {/* Footer */}
-      <Box
-        paddingX={2}
-        borderStyle="single"
-        borderColor={theme.ui.borderSubtle}
-      >
-        <Text color={theme.ui.textDim}>
-          ↑↓ Navigate  Space Toggle  ↵ Action  Tab Switch  / Search  f Filter  ESC Back
-        </Text>
       </Box>
     </Box>
   );

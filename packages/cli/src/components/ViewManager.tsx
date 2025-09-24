@@ -51,10 +51,23 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
   const [metadataOverrides, setMetadataOverrides] = useState<Partial<ViewMetadata>>({});
 
   const currentView = history[history.length - 1];
-  const viewDef = views[currentView];
+
+  // Use effect to handle invalid states
+  React.useEffect(() => {
+    if (!currentView || !views[currentView]) {
+      console.error('Invalid view state:', { currentView, history, views: Object.keys(views) });
+      // Fallback to initial view if something goes wrong
+      if (initialView && views[initialView]) {
+        setHistory([initialView]);
+      }
+    }
+  }, [currentView, views, initialView]);
+
+  // For now, if view is invalid, show initial view
+  const viewDef = views[currentView] || views[initialView];
 
   if (!viewDef) {
-    throw new Error(`View "${currentView}" not found in views`);
+    throw new Error(`View "${currentView}" not found in views. History: ${JSON.stringify(history)}`);
   }
 
   const navigate = useCallback((viewId: string) => {
@@ -66,12 +79,16 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
   }, [views]);
 
   const goBack = useCallback(() => {
+    // Check current history length before updating
     if (history.length > 1) {
       setHistory(prev => prev.slice(0, -1));
       setMetadataOverrides({}); // Clear overrides when going back
     } else {
       // At the main menu, trigger exit
-      onExit?.();
+      // Use setTimeout to ensure this happens after the render cycle
+      setTimeout(() => {
+        onExit?.();
+      }, 0);
     }
   }, [history.length, onExit]);
 

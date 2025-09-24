@@ -66,8 +66,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
       setSelectedIndex((prev) => (prev === menuItems.length - 1 ? 0 : prev + 1));
     } else if (key.return) {
       navigate(menuItems[selectedIndex].value);
-    } else if (key.escape || input === 'q') {
-      onExit?.();
     } else if (input === '?') {
       navigate('help');
     }

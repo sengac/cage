@@ -74,8 +74,6 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
       setLastUpdated(new Date());
     } else if (input === '?') {
       setShowHelp(true);
-    } else if (key.escape || input === 'q') {
-      onBack();
     }
   });
 
@@ -276,22 +274,6 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
 
     return (
       <Box flexDirection="column" flexGrow={1}>
-        {/* Header */}
-        <Box
-          paddingX={2}
-          borderStyle="round"
-          borderColor={theme.ui.borderSubtle}
-          justifyContent="space-between"
-          minHeight={3}
-        >
-          <Text color={theme.secondary.blue} bold>
-            CAGE | Statistics Dashboard
-          </Text>
-          <Text color={theme.ui.textMuted} dimColor>
-            {formatNumber(statistics.totalEvents)} events
-          </Text>
-        </Box>
-
         {/* Main Content */}
         <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
@@ -409,17 +391,6 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
           <Text color="gray">Last updated: {lastUpdated.toLocaleTimeString()}</Text>
         )}
 
-        </Box>
-
-        {/* Footer */}
-        <Box
-          paddingX={2}
-          borderStyle="single"
-          borderColor={theme.ui.borderSubtle}
-        >
-          <Text color={theme.ui.textDim}>
-            ↑↓ Navigate  ↵ View Details  r Refresh  ? Help  ESC Back
-          </Text>
         </Box>
       </Box>
     );

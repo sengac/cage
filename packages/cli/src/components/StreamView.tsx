@@ -8,9 +8,10 @@ import type { Event } from '../stores/appStore';
 
 interface StreamViewProps {
   onBack: () => void;
+  onNavigate?: (view: string) => void;
 }
 
-export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
+export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) => {
   const streamBuffer = useAppStore((state) => state.streamBuffer);
   const isStreaming = useAppStore((state) => state.isStreaming);
   const isPaused = useAppStore((state) => state.isPaused);
@@ -18,7 +19,6 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
   const toggleStream = useAppStore((state) => state.toggleStream);
   const pauseStream = useAppStore((state) => state.pauseStream);
   const selectEvent = useAppStore((state) => state.selectEvent);
-  const navigate = useAppStore((state) => state.navigate);
 
   const theme = useTheme();
 
@@ -90,9 +90,9 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
     } else if (key.return && filteredEvents.length > 0 && selectedIndex >= 0) {
       const selectedEvent = filteredEvents[selectedIndex];
       selectEvent(selectedEvent);
-      navigate('eventDetail');
-    } else if (key.escape || input === 'q') {
-      onBack();
+      if (onNavigate) {
+        onNavigate('eventDetail');
+      }
     } else if (input === 's') {
       toggleStream();
     } else if (input === '/') {
@@ -221,22 +221,6 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
 
   return (
     <Box flexDirection="column" flexGrow={1}>
-      {/* Header */}
-      <Box
-        paddingX={2}
-        borderStyle="round"
-        borderColor={theme.ui.borderSubtle}
-        justifyContent="space-between"
-        minHeight={3}
-      >
-        <Text color={theme.secondary.blue} bold>
-          CAGE | Real-time Monitor
-        </Text>
-        <Text color={theme.ui.textMuted} dimColor>
-          {isStreaming ? 'Streaming' : 'Stopped'}
-        </Text>
-      </Box>
-
       {/* Main Content */}
       <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
@@ -319,22 +303,6 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
           </Text>
         </Box>
       )}
-      </Box>
-
-      {/* Footer with shortcuts */}
-      <Box
-        paddingX={2}
-        borderStyle="single"
-        borderColor={theme.ui.borderSubtle}
-      >
-        <Text color={theme.ui.textDim}>
-          {isStreaming
-            ? isPaused
-              ? 'Space Resume'
-              : 'Space Pause'
-            : 's Start'
-          }  ↵ Detail  / Filter  e Export  Tab Split  ESC Back
-        </Text>
       </Box>
     </Box>
   );

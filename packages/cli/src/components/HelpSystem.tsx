@@ -332,8 +332,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
     } else if (input === 'h') {
       setSelectedCategoryIndex(3); // Keyboard Shortcuts
       setViewMode('detail');
-    } else if (key.escape || input === 'q') {
-      onBack();
     }
   });
 
@@ -444,23 +442,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
   const renderMainView = (): JSX.Element => {
     return (
       <Box flexDirection="column" flexGrow={1}>
-        {/* Header */}
-        <Box
-          paddingX={2}
-          borderStyle="round"
-          borderColor={theme.ui.borderSubtle}
-          justifyContent="space-between"
-          minHeight={3}
-        >
-          <Text color={theme.secondary.blue} bold>
-            CAGE | Help System
-          </Text>
-          {context && (
-            <Text color={theme.ui.textMuted} dimColor>
-              {getContextDisplayName(context)}
-            </Text>
-          )}
-        </Box>
 
         {/* Main Content */}
         <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
@@ -513,17 +494,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
           <Text>ESC Go back</Text>
         </Box>
 
-        </Box>
-
-        {/* Footer */}
-        <Box
-          paddingX={2}
-          borderStyle="single"
-          borderColor={theme.ui.borderSubtle}
-        >
-          <Text color={theme.ui.textDim}>
-            ↑↓ Navigate  ↵ View Topic  / Search  ? Advanced  h Reference  ESC Back
-          </Text>
         </Box>
       </Box>
     );

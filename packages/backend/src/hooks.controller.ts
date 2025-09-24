@@ -29,7 +29,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'PreToolUse',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         toolName: validatedPayload.toolName,
         arguments: validatedPayload.arguments,
       });
@@ -44,7 +44,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -62,7 +62,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'PostToolUse',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         toolName: validatedPayload.toolName,
         arguments: validatedPayload.arguments,
         result: validatedPayload.result,
@@ -80,7 +80,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -98,7 +98,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'UserPromptSubmit',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         prompt: validatedPayload.prompt,
         context: validatedPayload.context,
       });
@@ -113,7 +113,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -131,7 +131,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'SessionStart',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         projectPath: validatedPayload.projectPath,
         environment: validatedPayload.environment,
       });
@@ -146,7 +146,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -164,7 +164,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'SessionEnd',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         duration: validatedPayload.duration,
         summary: validatedPayload.summary,
       });
@@ -179,7 +179,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -197,7 +197,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'Notification',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         message: validatedPayload.message,
         level: validatedPayload.level,
       });
@@ -212,7 +212,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -230,7 +230,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'PreCompact',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         reason: validatedPayload.reason,
         currentTokenCount: validatedPayload.currentTokenCount,
         maxTokenCount: validatedPayload.maxTokenCount,
@@ -246,7 +246,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -264,7 +264,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'Stop',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         reason: validatedPayload.reason,
       });
 
@@ -278,7 +278,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -296,7 +296,7 @@ export class HooksController {
       await this.eventLogger.logEvent({
         timestamp: validatedPayload.timestamp || timestamp,
         eventType: 'SubagentStop',
-        sessionId: validatedPayload.sessionId,
+        sessionId: validatedPayload.sessionId || 'unknown',
         subagentId: validatedPayload.subagentId,
         parentSessionId: validatedPayload.parentSessionId,
         result: validatedPayload.result,
@@ -312,7 +312,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }

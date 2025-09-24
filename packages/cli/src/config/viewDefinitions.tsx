@@ -33,7 +33,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Events Inspector',
       subtitle: 'Browse & analyze events',
-      showDefaultFooter: true
+      footer: '↵ View | / Search | t,y,o,s Sort | r Reverse | c Clear | ESC Back',
+      showDefaultFooter: false
     }
   },
 
@@ -42,7 +43,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     component: EventDetailView,
     metadata: {
       title: 'Event Detail',
-      showDefaultFooter: true
+      footer: '← → Switch tabs | c Copy | e Export | ESC Back',
+      showDefaultFooter: false
     }
   },
 
@@ -53,7 +55,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
       title: 'Server Management',
       subtitle: 'Start/stop/status',
       showServerStatus: true,
-      showDefaultFooter: true
+      footer: 's Start/Stop | r Restart | c Config | l Logs | ESC Back',
+      showDefaultFooter: false
     }
   },
 
@@ -63,7 +66,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Hooks Configuration',
       subtitle: 'Setup & verify hooks',
-      showDefaultFooter: true
+      footer: '↑↓ Navigate | Space Toggle | ↵ Action | Tab Switch | / Search | f Filter | ESC Back',
+      showDefaultFooter: false
     }
   },
 
@@ -84,7 +88,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Statistics Dashboard',
       subtitle: 'View metrics & charts',
-      showDefaultFooter: true
+      footer: '↑↓ Navigate | ↵ View Details | r Refresh | ? Help | ESC Back',
+      showDefaultFooter: false
     }
   },
 
@@ -105,7 +110,7 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Debug Console',
       subtitle: 'View debug output',
-      footer: '↑↓ Scroll | F Filter | L Toggle Levels | C Clear | ESC Back',
+      footer: '↑↓/jk Navigate | f Filter | / Search | ? Help | ESC/q Back',
       showDefaultFooter: false
     }
   },
@@ -115,7 +120,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     component: HelpSystemView,
     metadata: {
       title: 'Help System',
-      showDefaultFooter: true
+      footer: '↑↓ Navigate | ↵ View Topic | / Search | ? Advanced | h Reference | ESC Back',
+      showDefaultFooter: false
     }
   }
 };

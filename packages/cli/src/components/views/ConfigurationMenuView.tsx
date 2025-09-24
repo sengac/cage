@@ -1,16 +1,11 @@
 import React from 'react';
-import { Box, Text } from 'ink';
 import type { ViewProps } from '../../types/viewSystem';
+import { ConfigurationMenu } from '../ConfigurationMenu';
 
 /**
- * ConfigurationMenuView - placeholder implementation
- * TODO: Integrate existing component
+ * ConfigurationMenuView - wraps the existing ConfigurationMenu component
+ * Integrates with the new ViewManager system
  */
 export const ConfigurationMenuView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
-  return (
-    <Box flexDirection="column">
-      <Text>Settings Configuration - Coming Soon</Text>
-      <Text dimColor>This view is being refactored to use the new shared component system</Text>
-    </Box>
-  );
+  return <ConfigurationMenu onBack={onBack} />;
 };
