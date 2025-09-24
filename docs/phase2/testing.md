@@ -305,7 +305,7 @@ describe('Event Inspection Flow', () => {
 
         // Skip logo
         stdin.write(' ');
-        expect(lastFrame()).toContain('CAGE | Control • Analyze • Guide • Execute');
+        expect(lastFrame()).toContain('CAGE | Code Alignment Guard Engine');
         expect(lastFrame()).toContain('AI Development Assistant');
 
         // Navigate to events

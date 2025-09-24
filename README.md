@@ -6,10 +6,10 @@
 ╚██████╗██║  ██║╚██████╔╝███████╗
  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
 
-Control • Analyze • Guide • Execute
+Code Alignment Guard Engine
 ```
 
-**A controlled environment for AI development**
+**An AI coding orchestrator that helps to enforce code quality and prevent code drift**
 
 🌐 **Website**: [https://cage.tools](https://cage.tools)
 📦 **Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)

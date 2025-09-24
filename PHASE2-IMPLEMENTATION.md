@@ -744,7 +744,7 @@ describe('Story 1: Developer Launches Interactive Mode', () => {
 
       // Assert
       expect(lastFrame()).toContain('██████╗ █████╗  ██████╗ ███████╗');
-      expect(lastFrame()).toContain('Control • Analyze • Guide • Execute');
+      expect(lastFrame()).toContain('Code Alignment Guard Engine');
       // Note: ink-testing-library strips colors, test color application separately
     });
   });
@@ -1032,7 +1032,7 @@ describe('Logo Animation Specifications', () => {
       // Assert
       const frame = lastFrame();
       expect(frame).toContain('██████╗ █████╗  ██████╗ ███████╗');
-      expect(frame).toContain('Control • Analyze • Guide • Execute');
+      expect(frame).toContain('Code Alignment Guard Engine');
     });
   });
 });
@@ -1871,7 +1871,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       </Text>
       <Box marginTop={1}>
         <Text color="#4ECDC4">
-          Control • Analyze • Guide • Execute
+          Code Alignment Guard Engine
         </Text>
       </Box>
       <Box marginTop={1}>

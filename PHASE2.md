@@ -54,7 +54,7 @@ App
 ### Main Menu Structure
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│ CAGE | Control • Analyze • Guide • Execute   AI Dev Assistant   │
+│ CAGE | Code Alignment Guard Engine   AI Dev Assistant   │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  > Events Inspector      Browse & analyze events                │
@@ -197,7 +197,7 @@ App
     ╚██████╗██║  ██║╚██████╔╝███████╗
      ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
 
-    Control • Analyze • Guide • Execute
+    Code Alignment Guard Engine
 
     A controlled environment for AI development
                  Version 0.0.1
@@ -205,7 +205,7 @@ App
 
 The logo should:
 - Use gradient colors (light aqua → aqua-blue → deep aqua: #7FDBFF → #01B4C6 → #007A8C) for the block letters
-- Make "Control • Analyze • Guide • Execute" in turquoise (#4ECDC4)
+- Make "Code Alignment Guard Engine" in turquoise (#4ECDC4)
 - Display version dynamically from package.json
 - Fade in with a smooth animation over 500ms
 - Display for 1.5 seconds before transitioning to main menu
@@ -227,7 +227,7 @@ Example for `cage status` (using the same ASCII art logo):
 ╚██████╗██║  ██║╚██████╔╝███████╗
  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
 
-Control • Analyze • Guide • Execute
+Code Alignment Guard Engine
 
 🟢 Server Status: Running
   Port: 3790

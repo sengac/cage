@@ -21,7 +21,7 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     id: 'main',
     component: MainMenuView,
     metadata: {
-      title: 'Control • Analyze • Guide • Execute',
+      title: 'Code Alignment Guard Engine',
       showServerStatus: true,
       showDefaultFooter: true
     }
