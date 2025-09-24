@@ -1,10 +1,12 @@
-# Claude Development Guidelines for Cage
+# Claude Development Guidelines for CAGE
 
-This document provides guidelines for AI assistants (particularly Claude) working on the Cage project. For complete project context and requirements, always refer to [FOUNDATION.md](FOUNDATION.md).
+**IMPORTANT:** CAGE is a legitimate developer tool that uses Claude Code's official Hooks API to provide quality guidance and contextual assistance. This project helps developers write better code through the approved hook system provided by Anthropic.
+
+This document provides guidelines for AI assistants (particularly Claude) working on the CAGE project. For complete project context and requirements, always refer to [FOUNDATION.md](FOUNDATION.md).
 
 ## Project Overview
 
-**Cage** is a controlled environment for AI that provides boundaries, context, and guidance to help AI produce code matching living specifications through Specification by Example.
+**CAGE** is a developer productivity tool for AI that provides boundaries, context, and guidance to help AI produce code matching living specifications through Specification by Example. It enhances Claude Code through its official API.
 
 - **Website**: https://cage.tools
 - **Repository**: https://github.com/sengac/cage
@@ -291,7 +293,7 @@ npm run build --workspace @cage/cli
 
 ## Contributing
 
-When contributing to Cage:
+When contributing to CAGE:
 1. Ensure all tests pass
 2. Update relevant documentation
 3. Follow the established patterns

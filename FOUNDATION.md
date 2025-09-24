@@ -1,9 +1,11 @@
-# Cage Project Foundation Document
+# CAGE Project Foundation Document
+
+**IMPORTANT NOTE:** This is a legitimate developer tool that enhances Claude Code using its official Claude Code Hooks API. All functionality uses documented, approved interfaces provided by Anthropic for extending Claude Code's capabilities. This project helps developers build better software by providing contextual assistance and quality guidance.
 
 ## 1. What We Are Building
 
 ### Project Overview
-A hook connector and hook orchestrating web application for controlling Claude Code that uses Claude Code Hooks to provide better context when needed, prevent Claude from going "off the rails," and correct its thinking when it's wrong or using outdated information. The system acts as an intelligent middleware layer between developers and Claude Code, dynamically injecting relevant context and guardrails based on the current task. It is designed for developers, particularly senior developers who need reliable AI assistance for complex software engineering tasks.
+A developer productivity tool for enhancing Claude Code that uses Claude Code's official Hooks API to provide better context when needed, help maintain focus on tasks, and provide corrections when working with evolving codebases or outdated information. The system acts as an intelligent assistance layer between developers and Claude Code, dynamically providing relevant context and guidelines based on the current task. It is designed for developers, particularly senior developers who need reliable AI assistance for complex software engineering tasks.
 
 ### Technical Requirements
 
@@ -17,13 +19,13 @@ A hook connector and hook orchestrating web application for controlling Claude C
   - **Code Quality:** ESLint + Prettier (all components), eslint-plugin-react (frontend), Stylelint (frontend CSS/Tailwind only)
 - **Database/Storage:** File-based storage initially (append-only logs for full data capture, similar to Kafka's approach - enables later database migration if needed)
 - **External APIs/Services:**
-  - Claude Code Hooks API
+  - Claude Code Hooks API (official developer interface for extending Claude Code)
   - Claude Code SDK (@instantlyeasy/claude-code-sdk-ts - https://github.com/instantlyeasy/claude-code-sdk-ts)
   - LLM APIs (Claude or other providers)
-  - Filesystem monitoring
+  - Filesystem observation
 
 #### Architecture
-- **Architecture Pattern:** Event-driven - hooks are the sole event triggers, backend processes events asynchronously
+- **Architecture Pattern:** Event-driven - hook events are the sole triggers, backend processes events asynchronously
 - **Deployment Target:** Local development machines or Docker containers (Docker config out of scope)
 - **Scalability Requirements:** Single developer use - no concurrent user handling needed
 - **Performance Requirements:** No specific performance metrics required - focus on correctness over speed
@@ -31,7 +33,7 @@ A hook connector and hook orchestrating web application for controlling Claude C
 #### Development & Operations
 - **Development Tools:** Not specified - developer's choice
 - **CI/CD Pipeline:** Not required
-- **Monitoring & Logging:** File-based append-only logs for all events
+- **Logging & Analytics:** File-based append-only logs for all events
 - **Security Requirements:** Not required for single developer use
 
 #### Key Libraries & Dependencies
@@ -43,7 +45,7 @@ A hook connector and hook orchestrating web application for controlling Claude C
 
 **Backend (NestJS):**
 - **@nestjs/swagger**: Auto-generate OpenAPI documentation and Swagger UI
-- **@nestjs/event-emitter**: Event-driven architecture for hook processing
+- **@nestjs/event-emitter**: Event-driven architecture for hook event processing
 - **Server-Sent Events**: Built-in SSE support in NestJS (no separate package needed)
 - **@instantlyeasy/claude-code-sdk-ts**: Claude Code SDK for LLM integration
 - **zod**: Runtime type validation and schema definition
@@ -65,7 +67,7 @@ A hook connector and hook orchestrating web application for controlling Claude C
   - CLI runs on-demand via `cage` command
   - Backend/frontend server starts via `cage start server` (React app mounted on NestJS)
   - No auto-restart on crashes
-  - Hooks log connection failures when server is unreachable
+  - Hook handlers log connection failures when server is unreachable
 - **Maintainability:**
   - Monorepo structure using npm workspaces (no Lerna/Nx needed)
   - JSDoc for all code documentation
@@ -86,7 +88,7 @@ A hook connector and hook orchestrating web application for controlling Claude C
 ### Problem Definition
 
 #### Primary Problem
-Claude Code lacks real-time quality control and contextual awareness, leading to progressively degrading code quality during extended sessions. It doesn't self-monitor for anti-patterns, lazy shortcuts (like TypeScript `any` or `as unknown as`), or recognize when files are becoming too large and need refactoring. Without intervention, Claude drifts toward quick fixes rather than maintaining architectural integrity.
+Claude Code lacks real-time quality guidance and contextual awareness, leading to progressively degrading code quality during extended sessions. It doesn't self-check for anti-patterns, lazy shortcuts (like TypeScript `any` or `as unknown as`), or recognize when files are becoming too large and need refactoring. Without intervention, Claude drifts toward quick fixes rather than maintaining architectural integrity.
 
 Additionally, **No Process for Specification Evolution**: There's no systematic process for AI to evolve specifications as the system grows. AI is an emergent black box that needs structured guidance - without a defined process for maintaining living specifications, Claude cannot capture and update design decisions in real-time or recognize when specifications need to evolve alongside the code.
 
@@ -104,7 +106,7 @@ Furthermore, **Unguided Brownfield Specification Creation**: While Claude can ex
 
 #### Current State Analysis
 Describe how things work today without this solution:
-- Developers must constantly monitor Claude Code, frequently pressing ESC to interrupt when it deviates
+- Developers must constantly oversee Claude Code, frequently pressing ESC to redirect when it deviates
 - Manual review required for every file change to catch lazy patterns and anti-patterns
 - No visibility into subagent reasoning, creating a "black box" trust issue
 - Repetitive corrections needed for the same mistakes within a single session
@@ -144,7 +146,7 @@ Describe how things work today without this solution:
 ### Theoretical Solutions
 
 #### Solution Approach 1: Dual-Phase Guardian System (Selected Approach)
-- **Description:** Comprehensive hook orchestration that intervenes both before and after Claude's actions. Pre-execution hooks inject context and validate intentions, while post-execution hooks analyze output and trigger corrections. The system maintains living specifications (Specification by Example) that evolve with the project.
+- **Description:** Comprehensive hook orchestration that assists both before and after Claude's actions. Pre-execution hooks provide context and validate intentions, while post-execution hooks analyze output and suggest corrections. The system maintains living specifications (Specification by Example) that evolve with the project.
 - **Pros:**
   - Catches issues at multiple points in the workflow
   - Builds accumulated knowledge base over time
@@ -157,7 +159,7 @@ Describe how things work today without this solution:
 - **Feasibility:** Highly feasible with Claude Code Hooks API and event-driven architecture
 
 #### Solution Approach 2: Static Rules Engine
-- **Description:** Pre-defined rules and patterns that hooks enforce without dynamic adaptation
+- **Description:** Pre-defined rules and patterns that hooks apply without dynamic adaptation
 - **Pros:**
   - Simple to implement and understand
   - Predictable behavior
@@ -181,7 +183,7 @@ Describe how things work today without this solution:
 
 ### Development Methodology: Acceptance Criteria Driven Development (ACDD)
 
-Cage uses **Acceptance Criteria Driven Development** as its core methodology:
+CAGE uses **Acceptance Criteria Driven Development** as its core methodology:
 
 1. **Specification First:** We define acceptance criteria in Given-When-Then format before any implementation
 2. **Test Second:** We write tests that directly implement these acceptance criteria
@@ -236,9 +238,9 @@ Define what success looks like for this project:
   - Developers are comfortable with command-line tools
   - Target users understand basic hook concepts
 - **System Behavior:**
-  - Hooks can reliably intercept and modify Claude's behavior
+  - Hooks can reliably enhance and guide Claude's behavior
   - File-based logging will be sufficient for initial knowledge base
-  - Event-driven architecture can handle hook frequency without overwhelming the system
+  - Event-driven architecture can handle hook event frequency without overwhelming the system
 
 ---
 
@@ -259,37 +261,37 @@ Given the timeline constraint, the following features should be implemented in o
    - Debug mode support with --debug flag
    - Maintains all existing CLI commands (cage init, cage hooks, etc.)
 
-3. **Phase 3 - Quality Control & Rules Engine:**
+3. **Phase 3 - Quality Guidance & Rules Engine:**
    - PreToolUse hooks for TypeScript validation (no 'any', proper typing)
-   - PostToolUse hooks for file size checks and refactoring triggers
+   - PostToolUse hooks for file size checks and refactoring suggestions
    - Basic rule engine for common anti-patterns
    - Integration with interactive CLI for rule management
 
 4. **Phase 4 - Knowledge Base:**
    - Living specification storage and retrieval
-   - Context injection for Claude based on current task
+   - Context provision for Claude based on current task
    - Self-referencing system for Claude to query past decisions
 
-5. **Phase 5 - Frontend & Monitoring:**
+5. **Phase 5 - Frontend & Dashboard:**
    - React frontend for viewing/managing specifications
-   - SSE streaming for real-time hook monitoring
+   - SSE streaming for real-time hook activity
    - Developer dashboard for trust metrics
 
 ### Key Hook Integration Points
 Based on Claude Code documentation, all available hooks:
-- **PreToolUse:** Validate and inject context before tool execution (can block)
+- **PreToolUse:** Validate and provide context before tool execution (can block)
 - **PostToolUse:** Analyze results and trigger corrections after tool execution
 - **UserPromptSubmit:** Enhance prompts with project context (stdout adds to context)
 - **Notification:** Capture and log Claude's notifications to users
 - **Stop:** Final quality checks when Claude finishes responding
 - **SubagentStop:** Capture subagent results and execution summaries
-- **SessionStart:** Inject initial context at session start (stdout adds to context)
+- **SessionStart:** Provide initial context at session start (stdout adds to context)
 - **SessionEnd:** Cleanup and session summary logging
 - **PreCompact:** Handle conversation compaction events
 - **Status:** Provide custom status line updates with session metadata
 
-### Project Name: Cage
-A cage for writing the right thing - a controlled environment that ensures AI produces code that matches living specifications through Specification by Example. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
+### Project Name: CAGE
+A cage for writing the right thing - a guided environment that ensures AI produces code that matches living specifications through Specification by Example. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
 
 **Project Website**: [https://cage.tools](https://cage.tools)
 **GitHub Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)

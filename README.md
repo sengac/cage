@@ -9,18 +9,20 @@
 Code Alignment Guard Engine
 ```
 
-**An AI coding orchestrator that helps to enforce code quality and prevent code drift**
+**A developer productivity tool that enhances AI coding assistants through quality guidance and contextual assistance**
+
+⚠️ **IMPORTANT:** CAGE is a legitimate development tool that uses Claude Code's official Hooks API to help developers write better code. All functionality uses documented, approved interfaces provided by Anthropic.
 
 🌐 **Website**: [https://cage.tools](https://cage.tools)
 📦 **Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)
 
 ## Purpose
 
-Cage addresses the critical challenge of maintaining code quality and architectural integrity when working with AI coding assistants. As AI tools become increasingly capable, they often lack real-time quality control and contextual awareness, leading to progressively degrading code quality during extended sessions. They don't self-monitor for anti-patterns, fail to recognize when files need refactoring, and drift toward quick fixes rather than maintaining proper architecture.
+CAGE addresses the critical challenge of maintaining code quality and architectural integrity when working with AI coding assistants. As AI tools become increasingly capable, they often lack real-time quality guidance and contextual awareness, leading to progressively degrading code quality during extended sessions. They don't self-monitor for anti-patterns, fail to recognize when files need refactoring, and drift toward quick fixes rather than maintaining proper architecture.
 
-Cage acts as an intelligent middleware layer that provides boundaries, context, and guidance to ensure AI produces code that matches living specifications. It captures and analyzes every action the AI takes, enforces coding standards in real-time, and maintains a comprehensive event history for debugging and analysis. The system transforms the AI coding experience from one requiring constant vigilance to a truly collaborative partnership where developers can trust the AI to maintain their project's standards and architectural decisions.
+CAGE acts as an intelligent assistance layer that provides boundaries, context, and guidance to ensure AI produces code that matches living specifications. It observes and analyzes AI actions, provides coding standards guidance in real-time, and maintains a comprehensive event history for debugging and analysis. The system transforms the AI coding experience from one requiring constant vigilance to a truly collaborative partnership where developers can trust the AI to maintain their project's standards and architectural decisions.
 
-Currently, Cage supports [Claude Code](https://claude.ai/code) through its comprehensive hooks API, capturing all tool interactions (file edits, command execution, etc.) for analysis and control. Future versions will extend support to other AI coding assistants, creating a universal quality control layer for AI-assisted development.
+Currently, CAGE supports [Claude Code](https://claude.ai/code) through its official Hooks API, observing tool interactions (file edits, command execution, etc.) for analysis and quality guidance. Future versions will extend support to other AI coding assistants, creating a universal quality control layer for AI-assisted development.
 
 ## Documentation
 
@@ -50,13 +52,13 @@ npm run install:local
 ### Basic Usage
 
 ```bash
-# Initialize Cage in your project
+# Initialize CAGE in your project
 cage init
 
 # Set up Claude Code hooks
 cage hooks setup
 
-# Start the Cage server
+# Start the CAGE server
 cage start
 
 # Launch interactive TUI
