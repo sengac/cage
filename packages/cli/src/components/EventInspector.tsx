@@ -133,6 +133,12 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return '';
   };
 
+  const truncateText = (text: string, maxLength: number): string => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 1);
+  };
+
   const formatEventDescription = (event: Event) => {
     if (event.eventType === 'ToolUse' && event.toolName) {
       const args = event.arguments as Record<string, unknown>;
@@ -176,18 +182,19 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       )}
 
       {/* Column headers */}
-      <Box marginBottom={1} paddingX={1}>
-        <Box width={12}>
+      <Box marginBottom={1} paddingX={1} width="100%">
+        <Text color={theme.ui.text}> </Text>
+        <Box width={14} flexShrink={0}>
           <Text color={theme.ui.textMuted} bold>
             Time {getSortIndicator('timestamp')}
           </Text>
         </Box>
-        <Box width={15}>
+        <Box width={20} flexShrink={0}>
           <Text color={theme.ui.textMuted} bold>
             Type {getSortIndicator('type')}
           </Text>
         </Box>
-        <Box width={12}>
+        <Box width={20} flexShrink={0}>
           <Text color={theme.ui.textMuted} bold>
             Tool {getSortIndicator('tool')}
           </Text>
@@ -207,28 +214,26 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
           const indicator = isSelected ? figures.pointer : ' ';
 
           return (
-            <Box key={event.id} paddingX={1}>
-              <Text color={textColor}>
-                {indicator}
-              </Text>
-              <Box width={11}>
+            <Box key={event.id} paddingX={1} width="100%">
+              <Text color={textColor}>{indicator}</Text>
+              <Box width={14} flexShrink={0}>
                 <Text color={textColor}>
-                  {format(new Date(event.timestamp), 'HH:mm:ss.SSS')}
+                  {truncateText(format(new Date(event.timestamp), 'HH:mm:ss.SSS'), 13)}
                 </Text>
               </Box>
-              <Box width={15}>
+              <Box width={20} flexShrink={0}>
                 <Text color={textColor}>
-                  {event.eventType}
+                  {truncateText(event.eventType || '', 19)}
                 </Text>
               </Box>
-              <Box width={12}>
+              <Box width={20} flexShrink={0}>
                 <Text color={textColor}>
-                  {event.toolName || '-'}
+                  {truncateText(event.toolName || '-', 19)}
                 </Text>
               </Box>
               <Box flexGrow={1}>
                 <Text color={textColor}>
-                  {formatEventDescription(event)}
+                  {truncateText(formatEventDescription(event), 100)}
                 </Text>
               </Box>
             </Box>

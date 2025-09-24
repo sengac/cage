@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useAppStore } from '../stores/appStore';
+import { Footer } from './shared/Footer';
+import { useTheme } from '../hooks/useTheme';
 
 export interface StatisticsDashboardProps {
   onBack: () => void;
@@ -26,17 +28,15 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
   const [showHelp, setShowHelp] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  const {
-    statistics,
-    refreshStatistics,
-    isLoadingStats,
-    statsError
-  } = useAppStore(state => ({
-    statistics: state.statistics,
-    refreshStatistics: state.refreshStatistics,
-    isLoadingStats: state.isLoadingStats,
-    statsError: state.statsError,
-  }));
+  const statistics = useAppStore(state => state.statistics);
+  const refreshStatistics = useAppStore(state => state.refreshStatistics);
+  const isLoadingStats = useAppStore(state => state.isLoadingStats);
+  const statsError = useAppStore(state => state.statsError);
+
+  // Load statistics on component mount
+  useEffect(() => {
+    refreshStatistics();
+  }, []); // Empty dependency array - only run once on mount
 
   useInput((input, key) => {
     if (showHelp) {
@@ -69,6 +69,8 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
       setSelectedSectionIndex((prev) => (prev - 1 + SECTIONS.length) % SECTIONS.length);
     } else if (key.return) {
       setViewMode('detail');
+    } else if (key.escape || input === 'q') {
+      onBack();
     } else if (input === 'r') {
       refreshStatistics();
       setLastUpdated(new Date());
@@ -85,7 +87,14 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${hours}m ${minutes}s`;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
   };
 
   const formatPercentage = (value: number): string => {
@@ -119,9 +128,11 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     });
   };
 
+  const theme = useTheme();
+
   const renderHelp = (): JSX.Element => (
     <Box flexDirection="column" padding={1}>
-      <Text bold color="cyan">STATISTICS HELP</Text>
+      <Text bold color={theme.primary.main}>STATISTICS HELP</Text>
       <Text></Text>
       <Text bold>Navigation Commands:</Text>
       <Text>  ↑↓ / j/k    Navigate sections</Text>
@@ -137,7 +148,7 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
       <Text>  • Tool usage analytics and performance</Text>
       <Text>  • Session metrics and error rates</Text>
       <Text></Text>
-      <Text color="gray">Press ? to close help</Text>
+      <Text color={theme.ui.textDim}>Press ? to close help</Text>
     </Box>
   );
 
@@ -145,8 +156,8 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     if (!statistics) return <Text>No data available</Text>;
 
     return (
-      <Box flexDirection="column">
-        <Text bold color="cyan">EVENT TYPE DETAILS</Text>
+      <Box flexDirection="column" padding={1}>
+        <Text bold color={theme.primary.main}>EVENT TYPE DETAILS</Text>
         <Text></Text>
         {Object.entries(statistics.eventsByType).map(([type, count]) => {
           const percentage = (count / statistics.totalEvents) * 100;
@@ -171,8 +182,8 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     if (!statistics) return <Text>No data available</Text>;
 
     return (
-      <Box flexDirection="column">
-        <Text bold color="cyan">ACTIVITY TIMELINE DETAILS</Text>
+      <Box flexDirection="column" padding={1}>
+        <Text bold color={theme.primary.main}>ACTIVITY TIMELINE DETAILS</Text>
         <Text></Text>
         <Text bold>Hourly Breakdown:</Text>
         {Object.entries(statistics.hourlyDistribution).slice(8, 20).map(([hour, count]) => (
@@ -191,8 +202,8 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     if (!statistics) return <Text>No data available</Text>;
 
     return (
-      <Box flexDirection="column">
-        <Text bold color="cyan">TOOL USAGE ANALYSIS</Text>
+      <Box flexDirection="column" padding={1}>
+        <Text bold color={theme.primary.main}>TOOL USAGE ANALYSIS</Text>
         <Text></Text>
         <Text bold>Usage Patterns:</Text>
         {Object.entries(statistics.toolUsageStats).map(([tool, count]) => {
@@ -215,8 +226,8 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     if (!statistics) return <Text>No data available</Text>;
 
     return (
-      <Box flexDirection="column">
-        <Text bold color="cyan">PERFORMANCE DETAILS</Text>
+      <Box flexDirection="column" padding={1}>
+        <Text bold color={theme.primary.main}>PERFORMANCE DETAILS</Text>
         <Text></Text>
         <Text bold>Response Time Distribution:</Text>
         <Text>  Average: {statistics.performanceMetrics.averageResponseTime}ms</Text>
@@ -255,15 +266,15 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
 
   const renderErrorState = (): JSX.Element => (
     <Box flexDirection="column" alignItems="center" justifyContent="center" height={20}>
-      <Text color="red">Error: {statsError}</Text>
-      <Text color="gray">Press r to retry</Text>
+      <Text color={theme.status.error}>Error: {statsError}</Text>
+      <Text color={theme.ui.textDim}>Press r to retry</Text>
     </Box>
   );
 
   const renderEmptyState = (): JSX.Element => (
     <Box flexDirection="column" alignItems="center" justifyContent="center" height={20}>
       <Text>No statistics available</Text>
-      <Text color="gray">Start using Cage to see analytics</Text>
+      <Text color={theme.ui.textDim}>Start using Cage to see analytics</Text>
     </Box>
   );
 
@@ -308,7 +319,7 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
             }
 
             return (
-              <Text key={section.key} color={isSelected ? 'cyan' : 'white'}>
+              <Text key={section.key} color={isSelected ? theme.primary.main : theme.ui.text}>
                 {prefix}{section.name} - {sectionContent}
               </Text>
             );
@@ -326,7 +337,7 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
                   <Box flexDirection="column">
                     <Text bold>Event Type Breakdown:</Text>
                     {createBarChart(statistics.eventsByType).slice(0, 5).map((line, index) => (
-                      <Text key={index} color="green">{line}</Text>
+                      <Text key={index} color={theme.status.success}>{line}</Text>
                     ))}
                     {Object.entries(statistics.eventsByType).slice(0, 3).map(([type, count]) => {
                       const percentage = (count / statistics.totalEvents) * 100;
@@ -340,7 +351,7 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
                   <Box flexDirection="column">
                     <Text bold>Daily Activity:</Text>
                     {createTimelineChart(statistics.dailyActivity).map((line, index) => (
-                      <Text key={index} color="blue">{line}</Text>
+                      <Text key={index} color={theme.secondary.blue}>{line}</Text>
                     ))}
                     <Text>Weekly Growth: +{formatPercentage(statistics.trends.weeklyGrowth)}</Text>
                     <Text>Monthly Growth: +{formatPercentage(statistics.trends.monthlyGrowth)}</Text>
@@ -372,7 +383,7 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
                     <Text>Fastest: {statistics.performanceMetrics.fastestTool.name} ({statistics.performanceMetrics.fastestTool.avgTime}ms)</Text>
                     <Text>Slowest: {statistics.performanceMetrics.slowestTool.name} ({formatNumber(statistics.performanceMetrics.slowestTool.avgTime)}ms)</Text>
                     <Text>Error Rate: {formatPercentage(statistics.performanceMetrics.errorRate * 100)}</Text>
-                    <Text>Avg Session: 30m 47s</Text>
+                    <Text>Avg Session: {formatDuration(statistics.sessionAnalytics.averageSessionDuration)}</Text>
                     <Text>Total Sessions: {formatNumber(statistics.sessionAnalytics.totalSessions)}</Text>
                     <Text>Events/Session: {statistics.sessionAnalytics.averageEventsPerSession.toFixed(1)}</Text>
                   </Box>
@@ -386,9 +397,9 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
 
         {/* Last updated info */}
         {isLoadingStats ? (
-          <Text color="yellow">Refreshing statistics...</Text>
+          <Text color={theme.status.warning}>Refreshing statistics...</Text>
         ) : (
-          <Text color="gray">Last updated: {lastUpdated.toLocaleTimeString()}</Text>
+          <Text color={theme.ui.textDim}>Last updated: {lastUpdated.toLocaleTimeString()}</Text>
         )}
 
         </Box>

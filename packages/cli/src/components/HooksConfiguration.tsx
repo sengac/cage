@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../stores/appStore';
@@ -44,29 +44,22 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
 
   const theme = useTheme();
 
-  // Get hooks status from store
-  const {
-    hooksStatus = {
-      isInstalled: true,
-      settingsPath: '/test/.claude/settings.json',
-      backendPort: 3790,
-      backendEnabled: true,
-      installedHooks: [],
-      totalEvents: 0,
-    } as HooksStatus,
-    refreshHooksStatus = () => {},
-    installHooks = () => {},
-    uninstallHooks = () => {},
-    toggleHook = () => {},
-    verifyHooks = () => {},
-  } = useAppStore((state) => ({
-    hooksStatus: state.hooksStatus,
-    refreshHooksStatus: state.refreshHooksStatus,
-    installHooks: state.installHooks,
-    uninstallHooks: state.uninstallHooks,
-    toggleHook: state.toggleHook,
-    verifyHooks: state.verifyHooks,
-  }));
+  // Get hooks status from store - use shallow equality check
+  const hooksStatus = useAppStore((state) => state.hooksStatus) || {
+    isInstalled: false,
+    installedHooks: [],
+    totalEvents: 0,
+  };
+  const refreshHooksStatus = useAppStore((state) => state.refreshHooksStatus);
+  const installHooks = useAppStore((state) => state.installHooks);
+  const uninstallHooks = useAppStore((state) => state.uninstallHooks);
+  const toggleHook = useAppStore((state) => state.toggleHook);
+  const verifyHooks = useAppStore((state) => state.verifyHooks);
+
+  // Initialize hooks status on mount
+  useEffect(() => {
+    refreshHooksStatus();
+  }, [refreshHooksStatus]);
 
   const actions: ActionButton[] = ['install', 'uninstall', 'verify', 'refresh'];
 

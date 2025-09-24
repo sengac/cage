@@ -55,9 +55,10 @@ export const Footer: React.FC<FooterProps> = ({
 
   return (
     <Box
-      paddingX={2}
       borderStyle="single"
       borderColor={theme.ui.borderSubtle}
+      paddingX={2}
+      minHeight={3}
     >
       {renderContent()}
     </Box>

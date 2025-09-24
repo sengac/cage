@@ -6,6 +6,6 @@ import { StatisticsDashboard } from '../StatisticsDashboard';
  * StatisticsDashboardView - wraps the existing StatisticsDashboard component
  * Integrates with the new ViewManager system
  */
-export const StatisticsDashboardView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
+export const StatisticsDashboardView: React.FC<ViewProps> = ({ onBack }) => {
   return <StatisticsDashboard onBack={onBack} />;
 };
