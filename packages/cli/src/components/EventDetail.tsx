@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { format } from 'date-fns';
 import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
@@ -34,7 +35,7 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
     }
   }, [copyMessage]);
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (key.leftArrow) {
       const currentIndex = tabs.findIndex(tab => tab.key === activeTab);
       const newIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;

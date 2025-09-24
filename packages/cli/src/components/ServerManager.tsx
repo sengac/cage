@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { format, formatDistanceToNow } from 'date-fns';
 import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
@@ -73,7 +74,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     return () => clearInterval(interval);
   }, []);
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (configMode) {
       if (key.return) {
         // Validate and save configuration

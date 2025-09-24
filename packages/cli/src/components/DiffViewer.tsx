@@ -253,7 +253,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
     // For syntax highlighting, render as a Box since SyntaxHighlighter returns Box components
     if (highlightSyntax && line.type !== 'header') {
       return (
-        <Box key={line.content} flexDirection="row">
+        <Box flexDirection="row">
           <Text color={color}>{prefix}</Text>
           <SyntaxHighlighter
             code={line.content}
@@ -266,7 +266,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
     }
 
     return (
-      <Text key={line.content} color={color}>
+      <Text color={color}>
         {prefix}{line.content}
       </Text>
     );
@@ -292,7 +292,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
               </Text>
             )}
             {chunk.lines.map((line, lineIndex) => (
-              <Box key={lineIndex} flexDirection="row">
+              <Box key={`unified-${chunkIndex}-${lineIndex}`} flexDirection="row">
                 {showLineNumbers && (
                   <Box flexDirection="row" marginRight={1}>
                     <Text color={colors.lineNumber}>
@@ -339,7 +339,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
             {chunk.lines.map((line, lineIndex) => {
               if (line.type === 'context') {
                 return (
-                  <Box key={lineIndex} flexDirection="row">
+                  <Box key={`sidebyside-${chunkIndex}-${lineIndex}`} flexDirection="row">
                     <Box width="50%">
                       <Text color={colors.context}>  {line.content}</Text>
                     </Box>
@@ -350,7 +350,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
                 );
               } else {
                 return (
-                  <Box key={lineIndex} flexDirection="row">
+                  <Box key={`sidebyside-${chunkIndex}-${lineIndex}`} flexDirection="row">
                     <Box width="50%">
                       {line.type === 'remove' && (
                         <Text color={colors.remove}>- {line.content}</Text>

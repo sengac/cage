@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { format } from 'date-fns';
 import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
@@ -58,7 +59,7 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
     }
   }, [filteredEvents.length, internalSelectedIndex]);
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (filterMode) {
       if (key.return) {
         setAppliedFilter(filterQuery);

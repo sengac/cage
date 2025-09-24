@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { useTheme } from '../hooks/useTheme';
 import { useSettingsStore } from '../stores/settingsStore';
 
@@ -51,7 +52,7 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
   const sections: ConfigSection[] = ['theme', 'server', 'display', 'keyBindings'];
   const actions: ActionButton[] = ['apply', 'cancel', 'reset', 'import', 'export'];
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (showExitConfirm) {
       if (input === 'y' || input === 'Y') {
         onBack();

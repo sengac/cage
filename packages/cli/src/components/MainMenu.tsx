@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Text, useInput, useStdout } from 'ink';
+import { Box, Text, useStdout } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { useAppStore, type ViewType } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import { StatusBar } from './shared/StatusBar';
@@ -59,7 +60,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
   const theme = useTheme();
   const { stdout } = useStdout();
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (key.upArrow || input === 'k') {
       setSelectedIndex((prev) => (prev === 0 ? menuItems.length - 1 : prev - 1));
     } else if (key.downArrow || input === 'j') {

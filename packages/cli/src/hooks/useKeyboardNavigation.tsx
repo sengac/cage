@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext, createContext, useRef } from 'react';
-import { useInput, useApp } from 'ink';
+import { useApp } from 'ink';
+import { useSafeInput } from './useSafeInput';
 import type { ReactNode } from 'react';
 
 // Types
@@ -224,7 +225,7 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
   }, [state.pendingKeys, mergedConfig, updateState, announce]);
 
   // Input handler
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     // Quit confirmation handling
     if (state.showQuitConfirmation) {
       if (input === 'y' || input === 'Y') {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../../hooks/useSafeInput';
 import { useTheme } from '../../hooks/useTheme';
 import type { ViewProps } from '../../types/viewSystem';
 import figures from 'figures';
@@ -56,7 +57,7 @@ export const MainMenuView: React.FC<ViewProps> = ({ onNavigate, onBack }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const theme = useTheme();
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (key.upArrow || input === 'k') {
       setSelectedIndex((prev) => (prev === 0 ? menuItems.length - 1 : prev - 1));
     } else if (key.downArrow || input === 'j') {

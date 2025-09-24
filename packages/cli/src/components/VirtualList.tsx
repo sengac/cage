@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput, useFocusManager } from 'ink';
+import { Box, Text, useFocusManager } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { useTheme } from '../hooks/useTheme';
 import figures from 'figures';
 
@@ -53,7 +54,7 @@ export function VirtualList<T>({
     }
   }, [selectedIndex, items, onFocus]);
 
-  useInput(
+  useSafeInput(
     (input, key) => {
       if ((!isFocused && !testMode) || items.length === 0) return;
 

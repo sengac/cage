@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { format } from 'date-fns';
 import figures from 'figures';
 import type { Event } from '../stores/appStore';
@@ -95,7 +96,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     }
   }, [processedEvents.length, selectedIndex]);
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (searchMode) {
       if (key.return) {
         setAppliedSearch(searchQuery);

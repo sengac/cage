@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { useAppStore } from '../stores/appStore';
 import { Footer } from './shared/Footer';
 import { useTheme } from '../hooks/useTheme';
@@ -38,7 +39,7 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     refreshStatistics();
   }, []); // Empty dependency array - only run once on mount
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (showHelp) {
       if (key.escape || input === '?') {
         setShowHelp(false);

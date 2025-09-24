@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { useAppStore } from '../stores/appStore';
 import { useDebugStore } from '../stores/useStore';
 import { existsSync, readdirSync, readFileSync } from 'fs';
@@ -187,7 +188,7 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     setDebugEvents(filtered);
   }, [events, debugMode, debugLogs, filterLevel, filterComponent, searchTerm]);
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (viewMode === 'help') {
       if (key.escape || input === '?') {
         setViewMode('list');

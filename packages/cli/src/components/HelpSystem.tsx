@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 
 export interface HelpSystemProps {
   onBack: () => void;
@@ -271,7 +272,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
     }
   }, [tooltip, viewMode, onBack]);
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (viewMode === 'overlay') {
       if (key.escape) {
         onBack();

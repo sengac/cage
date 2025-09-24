@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../stores/appStore';
 import { getRealHooksStatus, installRealHooks, uninstallRealHooks, verifyRealHooks, type RealHooksStatus } from '../utils/real-hooks';
@@ -68,7 +69,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack, 
 
   const selectedHook = filteredHooks[selectedHookIndex] || filteredHooks[0];
 
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     // Handle modal states - when customBackHandler is active, we handle escape ourselves
     if (showSetupWizard) {
       if (key.escape) {

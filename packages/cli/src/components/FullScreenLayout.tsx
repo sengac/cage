@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
-import { Box, useInput } from 'ink';
+import { Box } from 'ink';
+import { useSafeInput } from '../hooks/useSafeInput';
 import { Header } from './shared/Header';
 import { Footer } from './shared/Footer';
 
@@ -29,7 +30,7 @@ export const FullScreenLayout: React.FC<FullScreenLayoutProps> = ({
   showServerStatus = false
 }) => {
   // Handle ESC key for going back (if onBack is provided)
-  useInput((input, key) => {
+  useSafeInput((input, key) => {
     if (onBack && (key.escape || input === 'q')) {
       onBack();
     }
