@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { format } from 'date-fns';
 import figures from 'figures';
 import type { Event } from '../stores/appStore';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
+import { loadRealEvents } from '../utils/real-events';
 
 interface EventInspectorProps {
   onSelectEvent: (event: Event) => void;
@@ -22,13 +23,32 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
   const [searchQuery, setSearchQuery] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
   const [filterField, setFilterField] = useState<string | null>(null);
+  const [realEvents, setRealEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const events = useAppStore((state) => state.events);
   const theme = useTheme();
+
+  // Load real events on component mount
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        setLoading(true);
+        const events = await loadRealEvents();
+        setRealEvents(events);
+      } catch (error) {
+        // Error is already logged in loadRealEvents
+        setRealEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEvents();
+  }, []);
 
   // Sort and filter events
   const processedEvents = useMemo(() => {
-    let filtered = [...events];
+    let filtered = [...realEvents];
 
     // Apply search filter
     if (appliedSearch) {
@@ -66,7 +86,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     });
 
     return filtered;
-  }, [events, sortField, sortOrder, appliedSearch]);
+  }, [realEvents, sortField, sortOrder, appliedSearch]);
 
   // Reset selection when events change
   React.useEffect(() => {
@@ -159,7 +179,17 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return event.eventType;
   };
 
-  if (events.length === 0) {
+  if (loading) {
+    return (
+      <Box justifyContent="center" alignItems="center" flexGrow={1}>
+        <Text color={theme.ui.textMuted}>
+          Loading events...
+        </Text>
+      </Box>
+    );
+  }
+
+  if (realEvents.length === 0) {
     return (
       <Box justifyContent="center" alignItems="center" flexGrow={1}>
         <Text color={theme.ui.textMuted}>

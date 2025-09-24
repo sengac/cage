@@ -109,7 +109,7 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
   }
 }
 
-export async function getServerStatus(options: { format?: 'json' | 'text' } = {}): Promise<ServerStatus> {
+export async function getServerStatus(): Promise<ServerStatus> {
   const status: ServerStatus = {
     server: { running: false, port: `${PORT} (available)` },
     hooks: { installed: false },

@@ -23,13 +23,6 @@ export interface FilterOptions {
   searchText?: string;
 }
 
-export interface ServerInfo {
-  status: 'running' | 'stopped' | 'error';
-  port: number;
-  pid?: number;
-  uptime?: number;
-  memoryUsage?: number;
-}
 
 export type ViewType =
   | 'menu'
@@ -111,9 +104,6 @@ interface AppState {
   streamBuffer: Event[];
   newEventCount: number;
 
-  // Server
-  serverStatus: 'running' | 'stopped' | 'connecting' | 'error';
-  serverInfo: ServerInfo | null;
 
   // UI
   isLoading: boolean;
@@ -140,7 +130,6 @@ interface AppState {
   clearFilter: () => void;
   toggleStream: () => void;
   pauseStream: () => void;
-  setServerInfo: (info: ServerInfo) => void;
   setLoading: (loading: boolean, message?: string) => void;
   addError: (error: Error) => void;
   clearErrors: () => void;
@@ -192,8 +181,6 @@ export const useAppStore = create<AppState>()(
       isPaused: false,
       streamBuffer: [],
       newEventCount: 0,
-      serverStatus: 'stopped',
-      serverInfo: null,
       isLoading: false,
       loadingMessage: '',
       errors: [],
@@ -281,12 +268,6 @@ export const useAppStore = create<AppState>()(
           state.isPaused = !state.isPaused;
         }),
 
-      // Server actions
-      setServerInfo: (info) =>
-        set((state) => {
-          state.serverInfo = info;
-          state.serverStatus = info.status;
-        }),
 
       // UI actions
       setLoading: (loading, message = '') =>

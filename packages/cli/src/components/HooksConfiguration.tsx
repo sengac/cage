@@ -2,36 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../stores/appStore';
+import { getRealHooksStatus, installRealHooks, uninstallRealHooks, verifyRealHooks, type RealHooksStatus } from '../utils/real-hooks';
 
 type FocusArea = 'hooks' | 'actions';
 type ActionButton = 'install' | 'uninstall' | 'verify' | 'refresh';
 
-interface Hook {
-  name: string;
-  enabled: boolean;
-  eventCount: number;
-}
-
-interface HooksStatus {
-  isInstalled: boolean;
-  settingsPath?: string;
-  backendPort?: number;
-  backendEnabled?: boolean;
-  installedHooks: Hook[];
-  totalEvents: number;
-  isLoading?: boolean;
-  isVerifying?: boolean;
-  lastOperation?: {
-    success: boolean;
-    message: string;
-  };
-}
-
 interface HooksConfigurationProps {
   onBack: () => void;
+  updateMetadata?: (metadata: { customBackHandler?: boolean }) => void;
 }
 
-export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }) => {
+export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack, updateMetadata }) => {
   const [selectedHookIndex, setSelectedHookIndex] = useState(0);
   const [focusArea, setFocusArea] = useState<FocusArea>('hooks');
   const [selectedAction, setSelectedAction] = useState<ActionButton>('install');
@@ -41,30 +22,45 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
   const [searchMode, setSearchMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEnabled, setFilterEnabled] = useState(false);
-
-  const theme = useTheme();
-
-  // Get hooks status from store - use shallow equality check
-  const hooksStatus = useAppStore((state) => state.hooksStatus) || {
+  const [realHooksStatus, setRealHooksStatus] = useState<RealHooksStatus>({
     isInstalled: false,
     installedHooks: [],
     totalEvents: 0,
-  };
-  const refreshHooksStatus = useAppStore((state) => state.refreshHooksStatus);
-  const installHooks = useAppStore((state) => state.installHooks);
-  const uninstallHooks = useAppStore((state) => state.uninstallHooks);
-  const toggleHook = useAppStore((state) => state.toggleHook);
-  const verifyHooks = useAppStore((state) => state.verifyHooks);
+  });
+  const [loading, setLoading] = useState(true);
+  const [operationInProgress, setOperationInProgress] = useState(false);
 
-  // Initialize hooks status on mount
+  const theme = useTheme();
+
+  // Load real hooks status on component mount and refresh periodically
   useEffect(() => {
-    refreshHooksStatus();
-  }, [refreshHooksStatus]);
+    const loadHooksStatus = async () => {
+      try {
+        setLoading(true);
+        const status = await getRealHooksStatus();
+        setRealHooksStatus(status);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHooksStatus();
+
+    // Refresh every 10 seconds
+    const interval = setInterval(loadHooksStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update metadata when modal states change to control escape key handling
+  useEffect(() => {
+    const inModalState = showHookDetails || showSetupWizard || searchMode;
+    updateMetadata?.({ customBackHandler: inModalState });
+  }, [showHookDetails, showSetupWizard, searchMode, updateMetadata]);
 
   const actions: ActionButton[] = ['install', 'uninstall', 'verify', 'refresh'];
 
   // Filter hooks based on search and filter settings
-  const filteredHooks = hooksStatus.installedHooks.filter(hook => {
+  const filteredHooks = realHooksStatus.installedHooks.filter(hook => {
     if (filterEnabled && !hook.enabled) return false;
     if (searchTerm && !hook.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     return true;
@@ -73,6 +69,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
   const selectedHook = filteredHooks[selectedHookIndex] || filteredHooks[0];
 
   useInput((input, key) => {
+    // Handle modal states - when customBackHandler is active, we handle escape ourselves
     if (showSetupWizard) {
       if (key.escape) {
         setShowSetupWizard(false);
@@ -82,7 +79,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
         setWizardStep(Math.min(3, wizardStep + 1));
       } else if (key.return) {
         // Trigger installation from wizard
-        installHooks();
+        handleActionClick('install');
         setShowSetupWizard(false);
       }
       return;
@@ -109,6 +106,12 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
       return;
     }
 
+    // Handle escape key when NOT in modal states - call onBack to return to previous view
+    if (key.escape || input === 'q') {
+      onBack();
+      return;
+    }
+
     if (focusArea === 'hooks') {
       if (key.upArrow || input === 'k') {
         const newIndex = selectedHookIndex === 0 ? filteredHooks.length - 1 : selectedHookIndex - 1;
@@ -117,8 +120,9 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
         const newIndex = (selectedHookIndex + 1) % filteredHooks.length;
         setSelectedHookIndex(newIndex);
       } else if (input === ' ') {
-        if (selectedHook) {
-          toggleHook(selectedHook.name);
+        // Space to toggle hook - in this context it means reinstall/verify
+        if (selectedHook && !operationInProgress) {
+          handleActionClick('verify');
         }
       } else if (key.return) {
         setShowHookDetails(true);
@@ -142,15 +146,15 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
     }
 
     // Global shortcuts
-    if (input === 'i' && !searchMode) {
-      installHooks();
-    } else if (input === 'u' && !searchMode) {
-      uninstallHooks();
-    } else if (input === 'v' && !searchMode) {
-      verifyHooks();
-    } else if (input === 'r' && !searchMode) {
-      refreshHooksStatus();
-    } else if (input === 'w' && !hooksStatus.isInstalled) {
+    if (input === 'i' && !searchMode && !operationInProgress) {
+      handleActionClick('install');
+    } else if (input === 'u' && !searchMode && !operationInProgress) {
+      handleActionClick('uninstall');
+    } else if (input === 'v' && !searchMode && !operationInProgress) {
+      handleActionClick('verify');
+    } else if (input === 'r' && !searchMode && !operationInProgress) {
+      handleActionClick('refresh');
+    } else if (input === 'w' && !realHooksStatus.isInstalled) {
       setShowSetupWizard(true);
     } else if (input === '/' && !searchMode) {
       setSearchMode(true);
@@ -159,33 +163,65 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
     } else if (input === 'c' && !searchMode) {
       setFilterEnabled(false);
       setSearchTerm('');
-    // ESC/q handled by FullScreenLayout when not in search mode
     }
   });
 
-  const handleActionClick = (action: ActionButton) => {
-    switch (action) {
-      case 'install':
-        installHooks();
-        break;
-      case 'uninstall':
-        uninstallHooks();
-        break;
-      case 'verify':
-        verifyHooks();
-        break;
-      case 'refresh':
-        refreshHooksStatus();
-        break;
+  const handleActionClick = async (action: ActionButton) => {
+    if (operationInProgress) return;
+
+    setOperationInProgress(true);
+
+    try {
+      let result = { success: false, message: '' };
+
+      switch (action) {
+        case 'install':
+          setRealHooksStatus(prev => ({ ...prev, isLoading: true }));
+          result = await installRealHooks();
+          break;
+        case 'uninstall':
+          setRealHooksStatus(prev => ({ ...prev, isLoading: true }));
+          result = await uninstallRealHooks();
+          break;
+        case 'verify':
+          setRealHooksStatus(prev => ({ ...prev, isVerifying: true }));
+          result = await verifyRealHooks();
+          break;
+        case 'refresh':
+          // Refresh is handled by reloading the status
+          const status = await getRealHooksStatus();
+          setRealHooksStatus(status);
+          result = { success: true, message: 'Status refreshed' };
+          break;
+      }
+
+      // Update the status with the operation result
+      setRealHooksStatus(prev => ({
+        ...prev,
+        isLoading: false,
+        isVerifying: false,
+        lastOperation: result
+      }));
+
+      // Reload status after operations that change state
+      if (action !== 'refresh' && action !== 'verify') {
+        setTimeout(async () => {
+          const updatedStatus = await getRealHooksStatus();
+          setRealHooksStatus(updatedStatus);
+        }, 1000);
+      }
+
+    } finally {
+      setOperationInProgress(false);
     }
   };
 
   const getEnabledCount = () => {
-    return hooksStatus.installedHooks.filter(hook => hook.enabled).length;
+    return realHooksStatus.installedHooks.filter(hook => hook.enabled).length;
   };
 
   const getTotalCount = () => {
-    return hooksStatus.installedHooks.length;
+    return realHooksStatus.installedHooks.length;
   };
 
   const renderSetupWizard = () => {
@@ -259,7 +295,15 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
   };
 
   const renderStatusMessages = () => {
-    if (hooksStatus.isLoading) {
+    if (loading) {
+      return (
+        <Box marginY={1} paddingX={1}>
+          <Text color={theme.status.warning}>Loading hooks status...</Text>
+        </Box>
+      );
+    }
+
+    if (realHooksStatus.isLoading) {
       return (
         <Box marginY={1} paddingX={1}>
           <Text color={theme.status.warning}>Installing...</Text>
@@ -267,7 +311,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
       );
     }
 
-    if (hooksStatus.isVerifying) {
+    if (realHooksStatus.isVerifying) {
       return (
         <Box marginY={1} paddingX={1}>
           <Text color={theme.status.warning}>Verifying...</Text>
@@ -275,11 +319,11 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
       );
     }
 
-    if (hooksStatus.lastOperation) {
-      const color = hooksStatus.lastOperation.success ? theme.status.success : theme.status.error;
+    if (realHooksStatus.lastOperation) {
+      const color = realHooksStatus.lastOperation.success ? theme.status.success : theme.status.error;
       return (
         <Box marginY={1} paddingX={1}>
-          <Text color={color}>{hooksStatus.lastOperation.message}</Text>
+          <Text color={color}>{realHooksStatus.lastOperation.message}</Text>
         </Box>
       );
     }
@@ -310,24 +354,24 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
           {/* Installation Status */}
           <Box flexDirection="column" marginBottom={1} paddingX={1}>
             <Text color={theme.ui.textMuted}>
-              Status: <Text color={hooksStatus.isInstalled ? theme.status.success : theme.status.error}>
-                {hooksStatus.isInstalled ? 'Installed' : 'Not Installed'}
+              Status: <Text color={realHooksStatus.isInstalled ? theme.status.success : theme.status.error}>
+                {realHooksStatus.isInstalled ? 'Installed' : 'Not Installed'}
               </Text>
             </Text>
-            {hooksStatus.settingsPath && (
+            {realHooksStatus.settingsPath && (
               <Text color={theme.ui.textMuted}>
-                Settings: <Text color={theme.ui.text}>{hooksStatus.settingsPath}</Text>
+                Settings: <Text color={theme.ui.text}>{realHooksStatus.settingsPath}</Text>
               </Text>
             )}
-            {hooksStatus.backendPort && (
+            {realHooksStatus.backendPort && (
               <Text color={theme.ui.textMuted}>
-                Backend Port: <Text color={theme.ui.text}>{hooksStatus.backendPort}</Text>
+                Backend Port: <Text color={theme.ui.text}>{realHooksStatus.backendPort}</Text>
               </Text>
             )}
-            {hooksStatus.backendEnabled !== undefined && (
+            {realHooksStatus.backendEnabled !== undefined && (
               <Text color={theme.ui.textMuted}>
-                Backend: <Text color={hooksStatus.backendEnabled ? theme.status.success : theme.status.error}>
-                  {hooksStatus.backendEnabled ? 'Enabled' : 'Disabled'}
+                Backend: <Text color={realHooksStatus.backendEnabled ? theme.status.success : theme.status.error}>
+                  {realHooksStatus.backendEnabled ? 'Enabled' : 'Disabled'}
                 </Text>
               </Text>
             )}
@@ -336,9 +380,9 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
           {/* Statistics */}
           <Box marginBottom={1} paddingX={1}>
             <Text color={theme.ui.textMuted}>
-              Total Events: <Text color={theme.ui.text}>{hooksStatus.totalEvents}</Text>
+              Total Events: <Text color={theme.ui.text}>{realHooksStatus.totalEvents}</Text>
             </Text>
-            {hooksStatus.installedHooks.length > 0 && (
+            {realHooksStatus.installedHooks.length > 0 && (
               <Text color={theme.ui.textMuted}>
                    Hooks: <Text color={theme.ui.text}>{getEnabledCount()}/{getTotalCount()}</Text>
               </Text>
@@ -346,7 +390,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
           </Box>
 
           {/* Hooks List or Not Installed Message */}
-          {hooksStatus.isInstalled && filteredHooks.length > 0 ? (
+          {realHooksStatus.isInstalled && filteredHooks.length > 0 ? (
             <Box flexDirection="column" marginBottom={1}>
               {filteredHooks.map((hook, index) => (
                 <Box key={hook.name} paddingX={1} marginBottom={1}>
@@ -362,7 +406,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
                 </Box>
               ))}
             </Box>
-          ) : !hooksStatus.isInstalled ? (
+          ) : !realHooksStatus.isInstalled ? (
             <Box flexDirection="column" marginBottom={1} paddingX={1}>
               <Text color={theme.ui.textMuted}>No hooks installed</Text>
               <Text color={theme.ui.textDim}>Press i to install or w for Setup Wizard</Text>
@@ -379,13 +423,16 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
               <Text
                 key={action}
                 color={
-                  focusArea === 'actions' && selectedAction === action
+                  operationInProgress
+                    ? theme.ui.textMuted
+                    : focusArea === 'actions' && selectedAction === action
                     ? theme.status.success
                     : theme.ui.text
                 }
               >
                 {focusArea === 'actions' && selectedAction === action ? '❯ ' : '  '}
                 {action.charAt(0).toUpperCase() + action.slice(1)}
+                {operationInProgress && (focusArea === 'actions' && selectedAction === action) ? '...' : ''}
               </Text>
             ))}
           </Box>

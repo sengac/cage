@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import { useTheme } from '../../hooks/useTheme';
-import { useAppStore } from '../../stores/appStore';
-import figures from 'figures';
+import { StatusBar } from './StatusBar';
 import type { ReactNode } from 'react';
 
 interface HeaderProps {
@@ -26,44 +25,10 @@ export const Header: React.FC<HeaderProps> = ({
   showServerStatus = false
 }) => {
   const theme = useTheme();
-  const serverStatus = useAppStore((state) => state.serverStatus);
-
-  const getStatusColor = () => {
-    switch (serverStatus) {
-      case 'running':
-        return theme.status.success;
-      case 'error':
-        return theme.status.error;
-      case 'connecting':
-        return theme.status.warning;
-      default:
-        return theme.ui.textMuted;
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (serverStatus) {
-      case 'running':
-        return figures.tick;
-      case 'error':
-        return figures.cross;
-      case 'connecting':
-        return figures.ellipsis;
-      default:
-        return figures.circle;
-    }
-  };
 
   const renderRightContent = () => {
     if (showServerStatus) {
-      return (
-        <Box>
-          <Text color={theme.ui.textMuted}>Server: </Text>
-          <Text color={getStatusColor()}>
-            {getStatusIcon()} {serverStatus}
-          </Text>
-        </Box>
-      );
+      return <StatusBar compact />
     }
 
     if (subtitle) {

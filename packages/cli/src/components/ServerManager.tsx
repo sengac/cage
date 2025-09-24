@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { format, formatDistanceToNow } from 'date-fns';
 import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
-import type { ServerInfo } from '../stores/appStore';
+import { getRealServerStatus, getRealServerStatusFormatted } from '../utils/real-server-status';
+import type { ServerStatus } from '../commands/server-management';
+
+// Define ServerInfo locally since it's component-specific
+interface ServerInfo {
+  status: 'running' | 'stopped' | 'error';
+  port: number;
+  pid?: number;
+  uptime?: number;
+  memoryUsage?: number;
+}
 
 interface ExtendedServerInfo extends ServerInfo {
   cpuUsage?: number;
@@ -20,17 +30,46 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   const [configPort, setConfigPort] = useState('');
   const [validationError, setValidationError] = useState('');
   const [showSuccess, setShowSuccess] = useState('');
+  const [realServerStatus, setRealServerStatus] = useState<'running' | 'stopped' | 'connecting' | 'error'>('stopped');
+  const [realServerInfo, setRealServerInfo] = useState<ServerInfo | null>(null);
+  const [fullServerStatus, setFullServerStatus] = useState<ServerStatus | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const serverStatus = useAppStore((state) => state.serverStatus);
-  const serverInfo = useAppStore((state) => state.serverInfo);
   const isLoading = useAppStore((state) => state.isLoading);
   const loadingMessage = useAppStore((state) => state.loadingMessage);
   const errors = useAppStore((state) => state.errors);
-  const setServerInfo = useAppStore((state) => state.setServerInfo);
-  const setLoading = useAppStore((state) => state.setLoading);
+  const setAppLoading = useAppStore((state) => state.setLoading);
   const addError = useAppStore((state) => state.addError);
 
   const theme = useTheme();
+
+  // Load real server status on component mount and periodically refresh
+  useEffect(() => {
+    const loadServerStatus = async () => {
+      try {
+        setLoading(true);
+        const [status, fullStatus] = await Promise.all([
+          getRealServerStatus(),
+          getRealServerStatusFormatted()
+        ]);
+        setRealServerStatus(status.status);
+        setRealServerInfo(status.serverInfo);
+        setFullServerStatus(fullStatus);
+      } catch (error) {
+        // Error is already logged in getRealServerStatus
+        setRealServerStatus('error');
+        setRealServerInfo(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadServerStatus();
+
+    // Refresh every 5 seconds
+    const interval = setInterval(loadServerStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   useInput((input, key) => {
     if (configMode) {
@@ -67,35 +106,50 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
 
     if (input === 's') {
       // Start/Stop server
-      if (serverStatus === 'running') {
-        setLoading(true, 'Stopping server...');
-        // Simulate server stop
+      if (realServerStatus === 'running') {
+        setAppLoading(true, 'Stopping server...');
+        // TODO: Implement actual server stop using stopServer from server-management
         setTimeout(() => {
-          setLoading(false);
+          setAppLoading(false);
+          // Refresh status
+          getRealServerStatus().then(status => {
+            setRealServerStatus(status.status);
+            setRealServerInfo(status.serverInfo);
+          });
         }, 1000);
       } else {
-        setLoading(true, 'Starting server...');
-        // Simulate server start
+        setAppLoading(true, 'Starting server...');
+        // TODO: Implement actual server start
         setTimeout(() => {
-          setLoading(false);
+          setAppLoading(false);
+          // Refresh status
+          getRealServerStatus().then(status => {
+            setRealServerStatus(status.status);
+            setRealServerInfo(status.serverInfo);
+          });
         }, 1000);
       }
     } else if (input === 'r') {
       // Restart server
-      setLoading(true, 'Restarting server...');
+      setAppLoading(true, 'Restarting server...');
       setTimeout(() => {
-        setLoading(false);
+        setAppLoading(false);
+        // Refresh status
+        getRealServerStatus().then(status => {
+          setRealServerStatus(status.status);
+          setRealServerInfo(status.serverInfo);
+        });
       }, 1500);
     } else if (input === 'c') {
       setConfigMode(true);
-      setConfigPort(serverInfo?.port?.toString() || '3000');
+      setConfigPort(realServerInfo?.port?.toString() || '3790');
     } else if (input === 'l') {
       setShowLogs(!showLogs);
     }
   });
 
   const getStatusColor = () => {
-    switch (serverStatus) {
+    switch (realServerStatus) {
       case 'running':
         return theme.status.success;
       case 'error':
@@ -108,7 +162,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   };
 
   const getStatusText = () => {
-    switch (serverStatus) {
+    switch (realServerStatus) {
       case 'running':
         return 'Running';
       case 'stopped':
@@ -128,7 +182,17 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   };
 
   const renderServerInfo = () => {
-    if (!serverInfo) {
+    if (loading) {
+      return (
+        <Box marginY={1} paddingX={1}>
+          <Text color={theme.ui.textMuted}>
+            Loading server status...
+          </Text>
+        </Box>
+      );
+    }
+
+    if (!realServerInfo) {
       return (
         <Box marginY={1} paddingX={1}>
           <Text color={theme.ui.textMuted}>
@@ -142,30 +206,30 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
       <Box flexDirection="column" marginY={1} paddingX={1}>
         <Box marginBottom={1}>
           <Text color={theme.ui.textMuted}>Port: </Text>
-          <Text color={theme.ui.text}>{serverInfo.port}</Text>
-          {serverInfo.pid && (
+          <Text color={theme.ui.text}>{realServerInfo.port}</Text>
+          {realServerInfo.pid && (
             <>
               <Text color={theme.ui.textMuted}>  PID: </Text>
-              <Text color={theme.ui.text}>{serverInfo.pid}</Text>
+              <Text color={theme.ui.text}>{realServerInfo.pid}</Text>
             </>
           )}
         </Box>
-        {serverInfo.uptime && (
+        {realServerInfo.uptime && (
           <Box marginBottom={1}>
             <Text color={theme.ui.textMuted}>Uptime: </Text>
-            <Text color={theme.ui.text}>{formatUptime(serverInfo.uptime)}</Text>
+            <Text color={theme.ui.text}>{formatUptime(realServerInfo.uptime)}</Text>
           </Box>
         )}
-        {serverInfo.memoryUsage && (
+        {realServerInfo.memoryUsage && (
           <Box marginBottom={1}>
             <Text color={theme.ui.textMuted}>Memory: </Text>
-            <Text color={theme.ui.text}>{serverInfo.memoryUsage} MB</Text>
+            <Text color={theme.ui.text}>{realServerInfo.memoryUsage} MB</Text>
           </Box>
         )}
-        {(serverInfo as ExtendedServerInfo).cpuUsage && (
+        {(realServerInfo as ExtendedServerInfo).cpuUsage && (
           <Box>
             <Text color={theme.ui.textMuted}>CPU: </Text>
-            <Text color={theme.ui.text}>{(serverInfo as ExtendedServerInfo).cpuUsage}%</Text>
+            <Text color={theme.ui.text}>{(realServerInfo as ExtendedServerInfo).cpuUsage}%</Text>
           </Box>
         )}
       </Box>
@@ -179,7 +243,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
           <Text color={theme.ui.textMuted} bold>Configuration</Text>
           <Box marginTop={1}>
             <Text color={theme.ui.textMuted}>Port: </Text>
-            <Text color={theme.ui.text}>{serverInfo?.port || 3000}</Text>
+            <Text color={theme.ui.text}>{realServerInfo?.port || 3790}</Text>
           </Box>
         </Box>
       );
@@ -241,9 +305,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   };
 
   const renderControls = () => {
-    const isRunning = serverStatus === 'running';
-    const isError = serverStatus === 'error';
-    const isConnecting = serverStatus === 'connecting';
+    const isRunning = realServerStatus === 'running';
+    const isError = realServerStatus === 'error';
+    const isConnecting = realServerStatus === 'connecting';
 
     return (
       <Box
@@ -324,6 +388,53 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
 
       {/* Configuration */}
       {renderConfiguration()}
+
+      {/* Extended Status Information */}
+      {fullServerStatus && (
+        <Box flexDirection="column" marginY={1} paddingX={1}>
+          <Text color={theme.ui.textMuted} bold>System Status</Text>
+
+          {/* Hooks Status */}
+          <Box marginTop={1}>
+            <Text color={theme.ui.textMuted}>Hooks: </Text>
+            <Text color={fullServerStatus.hooks.installed ? theme.status.success : theme.status.warning}>
+              {fullServerStatus.hooks.installed ? 'Installed' : 'Not Installed'}
+            </Text>
+            {fullServerStatus.hooks.count && (
+              <>
+                <Text color={theme.ui.textMuted}> (</Text>
+                <Text color={theme.ui.text}>{fullServerStatus.hooks.count} types</Text>
+                <Text color={theme.ui.textMuted}>)</Text>
+              </>
+            )}
+          </Box>
+
+          {/* Events Status */}
+          <Box marginTop={1}>
+            <Text color={theme.ui.textMuted}>Events: </Text>
+            <Text color={theme.ui.text}>{fullServerStatus.events.total} total</Text>
+            {fullServerStatus.events.today !== undefined && (
+              <>
+                <Text color={theme.ui.textMuted}>, </Text>
+                <Text color={theme.ui.text}>{fullServerStatus.events.today} today</Text>
+              </>
+            )}
+          </Box>
+
+          {/* Warnings */}
+          {fullServerStatus.server.warning && (
+            <Box marginTop={1}>
+              <Text color={theme.status.warning}>⚠ {fullServerStatus.server.warning}</Text>
+            </Box>
+          )}
+
+          {fullServerStatus.offline.count > 0 && (
+            <Box marginTop={1}>
+              <Text color={theme.status.warning}>⚠ {fullServerStatus.offline.count} offline log entries</Text>
+            </Box>
+          )}
+        </Box>
+      )}
 
       {/* Logs */}
       {renderLogs()}
