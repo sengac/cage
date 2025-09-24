@@ -126,11 +126,9 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
     <ViewContext.Provider value={contextValue}>
       <FullScreenLayout
         title={currentMetadata.title}
-        subtitle={currentMetadata.subtitle}
         footer={currentMetadata.footer}
         showDefaultFooter={currentMetadata.showDefaultFooter}
         isMainMenu={history.length === 1}
-        showServerStatus={currentMetadata.showServerStatus}
         onBack={handleBack}
       >
         <ViewComponent {...viewProps} />

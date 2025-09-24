@@ -27,7 +27,7 @@ export async function getRealServerStatus(): Promise<{
       status: 'running',
       port: typeof status.server.port === 'number' ? status.server.port : parseInt(status.server.port.toString()),
       pid: status.server.pid,
-      uptime: status.server.uptime ? Date.now() : undefined,
+      uptime: status.server.uptime, // Now properly tracked in milliseconds
       memoryUsage: undefined, // Not available in current server status
     } : null;
 

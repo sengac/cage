@@ -38,7 +38,16 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
   // Check if server is already running
   if (existsSync(pidFile)) {
     try {
-      const existingPid = parseInt(readFileSync(pidFile, 'utf-8').trim());
+      const pidFileContent = readFileSync(pidFile, 'utf-8').trim();
+      let existingPid: number;
+
+      // Try to parse as JSON or fallback to plain PID
+      try {
+        const pidData = JSON.parse(pidFileContent);
+        existingPid = pidData.pid;
+      } catch {
+        existingPid = parseInt(pidFileContent);
+      }
 
       // Check if process is actually running
       process.kill(existingPid, 0); // This throws if process doesn't exist
@@ -123,8 +132,12 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
       };
     }
 
-    // Write PID file
-    writeFileSync(pidFile, pid.toString());
+    // Write PID file with start time as JSON
+    const pidData = {
+      pid: pid,
+      startTime: Date.now()
+    };
+    writeFileSync(pidFile, JSON.stringify(pidData));
 
     // Critical: unref to allow parent to exit without waiting
     subprocess.unref();
@@ -194,7 +207,16 @@ export async function isServerRunning(): Promise<{ running: boolean; pid?: numbe
   }
 
   try {
-    const pid = parseInt(readFileSync(pidFile, 'utf-8').trim());
+    const pidFileContent = readFileSync(pidFile, 'utf-8').trim();
+    let pid: number;
+
+    // Try to parse as JSON or fallback to plain PID
+    try {
+      const pidData = JSON.parse(pidFileContent);
+      pid = pidData.pid;
+    } catch {
+      pid = parseInt(pidFileContent);
+    }
 
     // Check if process exists
     process.kill(pid, 0);

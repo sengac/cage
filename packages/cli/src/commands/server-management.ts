@@ -10,7 +10,7 @@ export interface ServerStatus {
     running: boolean;
     port: number | string;
     pid?: number;
-    uptime?: string;
+    uptime?: number; // Uptime in milliseconds
     health?: string;
     warning?: string;
   };
@@ -138,7 +138,19 @@ export async function getServerStatus(): Promise<ServerStatus> {
   // Check server status
   if (existsSync(PID_FILE)) {
     try {
-      const pid = parseInt(readFileSync(PID_FILE, 'utf-8').trim());
+      const pidFileContent = readFileSync(PID_FILE, 'utf-8').trim();
+      let pid: number;
+      let startTime: number | undefined;
+
+      // Try to parse as JSON (new format) or fallback to plain PID (legacy format)
+      try {
+        const pidData = JSON.parse(pidFileContent);
+        pid = pidData.pid;
+        startTime = pidData.startTime;
+      } catch {
+        // Legacy format - just a plain PID number
+        pid = parseInt(pidFileContent);
+      }
 
       // Check if process is running (cross-platform)
       try {
@@ -151,6 +163,11 @@ export async function getServerStatus(): Promise<ServerStatus> {
         status.server.pid = pid;
         status.server.port = PORT;
 
+        // Calculate uptime if start time is available
+        if (startTime) {
+          status.server.uptime = Date.now() - startTime;
+        }
+
         // Try to get health status
         try {
           execSync(`curl -s http://localhost:${PORT}/health`, { stdio: 'ignore' });
@@ -158,9 +175,6 @@ export async function getServerStatus(): Promise<ServerStatus> {
         } catch {
           status.server.health = 'Not responding';
         }
-
-        // Get uptime (simplified - would need process start time tracking)
-        status.server.uptime = 'Running';
 
       } catch {
         // Process not running but PID file exists

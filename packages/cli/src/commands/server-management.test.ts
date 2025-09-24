@@ -340,4 +340,140 @@ describe('Server Management Commands', () => {
       });
     });
   });
+
+  describe('Server Uptime Tracking', () => {
+    describe('AC: Server uptime should be accurately tracked', () => {
+      describe('Given a running server with a PID file containing start time', () => {
+        describe('When getServerStatus is called', () => {
+          it('Then it should calculate uptime as milliseconds since server start', async () => {
+            // Given: A server started 5 minutes ago
+            const startTime = Date.now() - (5 * 60 * 1000); // 5 minutes ago
+            const pidFileContent = JSON.stringify({
+              pid: 12345,
+              startTime: startTime
+            });
+
+            vi.mocked(existsSync).mockReturnValue(true);
+            vi.mocked(readFileSync).mockImplementation((path) => {
+              if (path.includes('server.pid')) {
+                return pidFileContent;
+              }
+              return '';
+            });
+            vi.mocked(execSync).mockImplementation((cmd: string) => {
+              if (cmd.includes('kill -0')) {
+                return Buffer.from(''); // Process exists
+              }
+              if (cmd.includes('curl')) {
+                return Buffer.from(''); // Health check passes
+              }
+              throw new Error('Unknown command');
+            });
+
+            // When
+            const status = await getServerStatus();
+
+            // Then
+            expect(status.server.running).toBe(true);
+            expect(status.server.uptime).toBeDefined();
+            expect(typeof status.server.uptime).toBe('number');
+
+            // Uptime should be approximately 5 minutes (allowing for test execution time)
+            const uptimeMs = status.server.uptime as number;
+            expect(uptimeMs).toBeGreaterThanOrEqual(5 * 60 * 1000 - 1000); // Allow 1 second tolerance
+            expect(uptimeMs).toBeLessThanOrEqual(5 * 60 * 1000 + 1000);
+          });
+        });
+      });
+
+      describe('Given a PID file with legacy format (no start time)', () => {
+        describe('When getServerStatus is called', () => {
+          it('Then it should handle gracefully and return undefined uptime', async () => {
+            // Given: Legacy PID file with just the PID number
+            vi.mocked(existsSync).mockReturnValue(true);
+            vi.mocked(readFileSync).mockImplementation((path) => {
+              if (path.includes('server.pid')) {
+                return '12345';
+              }
+              return '';
+            });
+            vi.mocked(execSync).mockImplementation((cmd: string) => {
+              if (cmd.includes('kill -0')) {
+                return Buffer.from(''); // Process exists
+              }
+              if (cmd.includes('curl')) {
+                return Buffer.from(''); // Health check passes
+              }
+              throw new Error('Unknown command');
+            });
+
+            // When
+            const status = await getServerStatus();
+
+            // Then
+            expect(status.server.running).toBe(true);
+            expect(status.server.uptime).toBeUndefined();
+          });
+        });
+      });
+
+      describe('Given a stopped server', () => {
+        describe('When getServerStatus is called', () => {
+          it('Then uptime should be undefined', async () => {
+            // Given: No PID file exists
+            vi.mocked(existsSync).mockReturnValue(false);
+
+            // When
+            const status = await getServerStatus();
+
+            // Then
+            expect(status.server.running).toBe(false);
+            expect(status.server.uptime).toBeUndefined();
+          });
+        });
+      });
+
+      describe('Given a server that was just started', () => {
+        describe('When getServerStatus is called immediately', () => {
+          it('Then uptime should be close to zero', async () => {
+            // Given: A server started just now
+            const startTime = Date.now();
+            const pidFileContent = JSON.stringify({
+              pid: 12345,
+              startTime: startTime
+            });
+
+            vi.mocked(existsSync).mockReturnValue(true);
+            vi.mocked(readFileSync).mockImplementation((path) => {
+              if (path.includes('server.pid')) {
+                return pidFileContent;
+              }
+              return '';
+            });
+            vi.mocked(execSync).mockImplementation((cmd: string) => {
+              if (cmd.includes('kill -0')) {
+                return Buffer.from(''); // Process exists
+              }
+              if (cmd.includes('curl')) {
+                return Buffer.from(''); // Health check passes
+              }
+              throw new Error('Unknown command');
+            });
+
+            // When
+            const status = await getServerStatus();
+
+            // Then
+            expect(status.server.running).toBe(true);
+            expect(status.server.uptime).toBeDefined();
+
+            // Uptime should be very small (less than 1 second)
+            const uptimeMs = status.server.uptime as number;
+            expect(uptimeMs).toBeGreaterThanOrEqual(0);
+            expect(uptimeMs).toBeLessThan(1000);
+          });
+        });
+      });
+    });
+  });
 });

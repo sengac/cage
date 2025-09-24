@@ -6,13 +6,11 @@ import { Footer } from './shared/Footer';
 
 interface FullScreenLayoutProps {
   title: string;
-  subtitle?: string | ReactNode;
   onBack?: () => void;
   children: ReactNode;
   footer?: string | ReactNode;
   showDefaultFooter?: boolean;
   isMainMenu?: boolean;
-  showServerStatus?: boolean;
 }
 
 /**
@@ -21,13 +19,11 @@ interface FullScreenLayoutProps {
  */
 export const FullScreenLayout: React.FC<FullScreenLayoutProps> = ({
   title,
-  subtitle,
   onBack,
   children,
   footer,
   showDefaultFooter = true,
-  isMainMenu = false,
-  showServerStatus = false
+  isMainMenu = false
 }) => {
   // Handle ESC key for going back (if onBack is provided)
   useSafeInput((input, key) => {
@@ -38,11 +34,7 @@ export const FullScreenLayout: React.FC<FullScreenLayoutProps> = ({
 
   return (
     <Box flexDirection="column" flexGrow={1}>
-      <Header
-        title={title}
-        subtitle={subtitle}
-        showServerStatus={showServerStatus}
-      />
+      <Header title={title} />
 
       {/* Main Content Area - flexGrow to fill available space */}
       <Box flexDirection="column" flexGrow={1} paddingX={2} paddingY={1}>
