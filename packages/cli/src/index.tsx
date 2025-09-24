@@ -18,12 +18,12 @@ const program = new Command();
 
 program
   .name('cage')
-  .description('Controlled AI Environment - Hook infrastructure for Claude Code')
+  .description('Code Alignment Guard Engine - Enhances AI coding assistants through quality guidance and contextual assistance')
   .version('0.0.1');
 
 program
   .command('init')
-  .description('Initialize Cage in the current project')
+  .description('Initialize CAGE in the current project')
   .action(() => {
     render(<InitCommand />);
   });
@@ -88,7 +88,7 @@ events
 // Server commands
 program
   .command('start')
-  .description('Start the Cage backend server')
+  .description('Start the CAGE backend server')
   .option('-p, --port <port>', 'Port to run on', '3790')
   .action((options) => {
     render(<ServerStartCommand port={options.port} />);
@@ -96,7 +96,7 @@ program
 
 program
   .command('stop')
-  .description('Stop the Cage backend server')
+  .description('Stop the CAGE backend server')
   .option('-f, --force', 'Force kill the server')
   .action(async (options) => {
     await stopCommand(options);
@@ -104,7 +104,7 @@ program
 
 program
   .command('status')
-  .description('Check Cage system status')
+  .description('Check CAGE system status')
   .option('-j, --json', 'Output as JSON')
   .action(async (options) => {
     await statusCommand(options);
@@ -113,7 +113,7 @@ program
 // Logs command
 const logs = program
   .command('logs <type>')
-  .description('View various Cage logs')
+  .description('View various CAGE logs')
   .action(async (type) => {
     // TODO: Implement logs command
     console.log(`Logs command for ${type} not yet implemented`);

@@ -17,7 +17,7 @@ interface SetupState {
 export function HooksSetupCommand(): JSX.Element {
   const [state, setState] = useState<SetupState>({
     status: 'checking',
-    message: 'Checking Cage configuration...'
+    message: 'Checking CAGE configuration...'
   });
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function HooksSetupCommand(): JSX.Element {
         if (!config) {
           setState({
             status: 'error',
-            message: 'Cage is not initialized',
+            message: 'CAGE is not initialized',
             error: 'Please run "cage init" first'
           });
           // Only exit in non-test environments
@@ -104,7 +104,7 @@ export function HooksSetupCommand(): JSX.Element {
         ]}
       />
       <Box marginTop={1}>
-        <Text color="yellow">⚠ Restart Claude Code for changes to take effect</Text>
+        <Text color="yellow">Restart Claude Code for changes to take effect</Text>
       </Box>
     </Box>
   );

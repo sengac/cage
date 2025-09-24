@@ -30,7 +30,7 @@ export function InitCommand(): JSX.Element {
         if (existsSync(configPath)) {
           setState({
             status: 'already-initialized',
-            message: 'Cage is already initialized in this project'
+            message: 'CAGE is already initialized in this project'
           });
           setTimeout(() => process.exit(1), 100);
           return;
@@ -38,7 +38,7 @@ export function InitCommand(): JSX.Element {
 
         setState({
           status: 'creating',
-          message: 'Creating Cage configuration...'
+          message: 'Creating CAGE configuration...'
         });
 
         // Create .cage directory structure
@@ -55,7 +55,7 @@ export function InitCommand(): JSX.Element {
 
         setState({
           status: 'done',
-          message: 'Cage initialized successfully'
+          message: 'CAGE initialized successfully'
         });
 
         // Exit successfully
@@ -63,7 +63,7 @@ export function InitCommand(): JSX.Element {
       } catch (err) {
         setState({
           status: 'error',
-          message: 'Failed to initialize Cage',
+          message: 'Failed to initialize CAGE',
           error: err instanceof Error ? err.message : 'Unknown error'
         });
         setTimeout(() => process.exit(1), 100);
@@ -80,7 +80,7 @@ export function InitCommand(): JSX.Element {
   if (state.status === 'already-initialized') {
     return (
       <Box>
-        <Text color="yellow">⚠ {state.message}</Text>
+        <Text color="yellow">{state.message}</Text>
       </Box>
     );
   }
@@ -88,7 +88,7 @@ export function InitCommand(): JSX.Element {
   if (state.status === 'error') {
     return (
       <Box flexDirection="column">
-        <Text color="red">✖ {state.message}</Text>
+        <Text>🔴 {state.message}</Text>
         {state.error && <Text color="gray">  {state.error}</Text>}
       </Box>
     );
@@ -96,7 +96,7 @@ export function InitCommand(): JSX.Element {
 
   return (
     <Box flexDirection="column">
-      <Text color="green">✔ {state.message}</Text>
+      <Text>🟢 {state.message}</Text>
       <Text color="gray">  Configuration saved to cage.config.json</Text>
       <Text color="gray">  Event logs will be stored in .cage/events/</Text>
     </Box>

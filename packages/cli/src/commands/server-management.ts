@@ -3,6 +3,7 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
 import ora from 'ora';
+import { platform } from 'os';
 
 export interface ServerStatus {
   server: {
@@ -43,41 +44,58 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
     if (!existsSync(PID_FILE)) {
       return {
         success: true,
-        message: chalk.blue('ℹ No Cage server is running')
+        message: '🔴 No CAGE server is running'
       };
     }
 
     // Read PID from file
     const pid = parseInt(readFileSync(PID_FILE, 'utf-8').trim());
 
-    // Check if process exists
+    // Check if process exists (cross-platform)
     try {
-      execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+      if (platform() === 'win32') {
+        // Windows: use tasklist to check if process exists
+        execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, { stdio: 'ignore', shell: true });
+      } else {
+        // Unix: use kill -0 to check if process exists
+        execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+      }
     } catch {
       // Process doesn't exist, clean up PID file
       unlinkSync(PID_FILE);
       return {
         success: true,
-        message: chalk.blue('ℹ No Cage server is running (cleaned up stale PID file)')
+        message: '🔴 No CAGE server is running (cleaned up stale PID file)'
       };
     }
 
-    // Kill the process
-    const signal = options.force ? 'KILL' : 'TERM';
+    // Kill the process (cross-platform)
     try {
-      execSync(`kill -${signal} ${pid}`, { stdio: 'ignore' });
+      if (platform() === 'win32') {
+        // Windows: use taskkill
+        const forceFlag = options.force ? '/F' : '';
+        execSync(`taskkill /PID ${pid} ${forceFlag}`, { stdio: 'ignore', shell: true });
+      } else {
+        // Unix: use kill
+        const signal = options.force ? 'KILL' : 'TERM';
+        execSync(`kill -${signal} ${pid}`, { stdio: 'ignore' });
+      }
 
       // Wait a moment for process to die
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Verify it's dead
+      // Verify it's dead (cross-platform)
       try {
-        execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+        if (platform() === 'win32') {
+          execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, { stdio: 'ignore', shell: true });
+        } else {
+          execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+        }
         // Still running, might need force
         if (!options.force) {
           return {
             success: false,
-            message: chalk.yellow('⚠ Server not responding. Try: cage stop --force')
+            message: chalk.yellow('Server not responding. Try: cage stop --force')
           };
         }
       } catch {
@@ -86,7 +104,7 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
     } catch (error) {
       return {
         success: false,
-        message: chalk.red(`✗ Failed to stop server: ${error}`)
+        message: chalk.red(`Failed to stop server: ${error}`)
       };
     }
 
@@ -98,13 +116,13 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
     return {
       success: true,
       message: options.force
-        ? chalk.green('✓ Cage server forcefully stopped')
-        : chalk.green('✓ Cage server stopped')
+        ? '🔴 CAGE server forcefully stopped'
+        : '🔴 CAGE server stopped'
     };
   } catch (error) {
     return {
       success: false,
-      message: chalk.red(`✗ Error stopping server: ${error}`)
+      message: chalk.red(`Error stopping server: ${error}`)
     };
   }
 }
@@ -122,9 +140,13 @@ export async function getServerStatus(): Promise<ServerStatus> {
     try {
       const pid = parseInt(readFileSync(PID_FILE, 'utf-8').trim());
 
-      // Check if process is running
+      // Check if process is running (cross-platform)
       try {
-        execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+        if (platform() === 'win32') {
+          execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, { stdio: 'ignore', shell: true });
+        } else {
+          execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
+        }
         status.server.running = true;
         status.server.pid = pid;
         status.server.port = PORT;
@@ -150,13 +172,28 @@ export async function getServerStatus(): Promise<ServerStatus> {
     }
   }
 
-  // Check if port is in use by another process
+  // Check if port is in use by another process (cross-platform)
   if (!status.server.running) {
     try {
-      const lsofOutput = execSync(`lsof -ti :${PORT}`, { encoding: 'utf-8' }).trim();
-      if (lsofOutput) {
-        const otherPid = parseInt(lsofOutput.split('\n')[0]);
-        status.server.warning = `Port ${PORT} is in use by another process (PID: ${otherPid})`;
+      if (platform() === 'win32') {
+        // Windows: use netstat to check port
+        const netstatOutput = execSync(`netstat -ano | findstr :${PORT}`, { encoding: 'utf-8', shell: true }).trim();
+        if (netstatOutput) {
+          const lines = netstatOutput.split('\n');
+          const firstLine = lines[0];
+          const pidMatch = firstLine.match(/\s+(\d+)\s*$/);
+          if (pidMatch) {
+            const otherPid = parseInt(pidMatch[1]);
+            status.server.warning = `Port ${PORT} is in use by another process (PID: ${otherPid})`;
+          }
+        }
+      } else {
+        // Unix: use lsof
+        const lsofOutput = execSync(`lsof -ti :${PORT}`, { encoding: 'utf-8' }).trim();
+        if (lsofOutput) {
+          const otherPid = parseInt(lsofOutput.split('\n')[0]);
+          status.server.warning = `Port ${PORT} is in use by another process (PID: ${otherPid})`;
+        }
       }
     } catch {
       // Port is free
@@ -297,28 +334,28 @@ export function formatStatus(status: ServerStatus): string {
   }
 
   if (status.server.warning) {
-    lines.push(chalk.yellow(`  ⚠️  ${status.server.warning}`));
+    lines.push(chalk.yellow(`  ${status.server.warning}`))
   }
 
   lines.push('');
 
   // Hooks status
   if (status.hooks.installed) {
-    lines.push(chalk.green('📎 Hooks: Installed'));
+    lines.push(chalk.green('Hooks: Installed'));
     if (status.hooks.location) lines.push(`  Location: ${status.hooks.location}`);
     if (status.hooks.count) lines.push(`  Hook Types: ${status.hooks.count}`);
     if (status.hooks.hasQualityCheck) {
-      lines.push(chalk.green('  ✓ Quality check hook detected'));
+      lines.push(chalk.green('  Quality check hook detected'));
     }
   } else {
-    lines.push(chalk.yellow('📎 Hooks: Not Installed'));
+    lines.push(chalk.yellow('Hooks: Not Installed'));
     if (status.hooks.message) lines.push(`  ${status.hooks.message}`);
   }
 
   lines.push('');
 
   // Events status
-  lines.push('📊 Events:');
+  lines.push('Events:');
   if (status.events.total > 0) {
     lines.push(`  Total Captured: ${status.events.total}`);
     if (status.events.today !== undefined) lines.push(`  Today: ${status.events.today}`);
@@ -331,7 +368,7 @@ export function formatStatus(status: ServerStatus): string {
   // Offline logs
   if (status.offline.count > 0) {
     lines.push('');
-    lines.push(chalk.yellow(`⚠️  Offline Logs: ${status.offline.count} entries`));
+    lines.push(chalk.yellow(`Offline Logs: ${status.offline.count} entries`));
     if (status.offline.location) lines.push(`  Location: ${status.offline.location}`);
     if (status.offline.latestError) lines.push(`  Latest Error: ${status.offline.latestError}`);
     lines.push(`  Run 'cage logs offline' to view`);
@@ -342,13 +379,19 @@ export function formatStatus(status: ServerStatus): string {
 
 // Export for CLI command registration
 export async function stopCommand(options: { force?: boolean }) {
-  const spinner = ora('Stopping Cage server...').start();
+  // Quick check if server is running before showing spinner
+  if (!existsSync(PID_FILE)) {
+    console.log('🔴 No CAGE server is running');
+    return;
+  }
+
+  const spinner = ora('Stopping CAGE server...').start();
   const result = await stopServer(options);
 
-  if (result.success) {
-    spinner.succeed(result.message);
-  } else {
-    spinner.fail(result.message);
+  spinner.stop();
+  console.log(result.message);
+
+  if (!result.success) {
     process.exit(1);
   }
 }

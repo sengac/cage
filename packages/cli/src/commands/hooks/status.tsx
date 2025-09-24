@@ -26,11 +26,11 @@ export function HooksStatusCommand(): JSX.Element {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        // Check if Cage is initialized
+        // Check if CAGE is initialized
         if (!isCageInitialized()) {
           setState({
             status: 'error',
-            message: 'Cage is not initialized',
+            message: 'CAGE is not initialized',
             error: 'Please run "cage init" first'
           });
           setTimeout(() => process.exit(1), 100);
@@ -89,7 +89,7 @@ export function HooksStatusCommand(): JSX.Element {
         <Text bold>Installed Hooks ({installedHooks.length}/{allHookTypes.length}):</Text>
         {installedHooks.length > 0 ? (
           installedHooks.map(hook => (
-            <Text key={hook} color="green">  ✔ {hook}</Text>
+            <Text key={hook} color="green">  {hook}</Text>
           ))
         ) : (
           <Text color="gray">  No hooks installed</Text>

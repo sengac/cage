@@ -40,7 +40,7 @@ export function EventsTailCommand({ count = 10 }: TailProps): JSX.Element {
         if (!config) {
           setState({
             status: 'error',
-            message: 'Cage is not initialized',
+            message: 'CAGE is not initialized',
             error: 'Please run "cage init" first',
             events: []
           });

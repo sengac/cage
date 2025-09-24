@@ -6,6 +6,8 @@ import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import { getRealServerStatus, getRealServerStatusFormatted } from '../utils/real-server-status';
 import type { ServerStatus } from '../commands/server-management';
+import { stopServer, getServerStatus } from '../commands/server-management';
+import { startServer } from '../commands/start/server';
 
 // Define ServerInfo locally since it's component-specific
 interface ServerInfo {
@@ -107,39 +109,75 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     if (input === 's') {
       // Start/Stop server
       if (realServerStatus === 'running') {
-        setAppLoading(true, 'Stopping server...');
-        // TODO: Implement actual server stop using stopServer from server-management
-        setTimeout(() => {
+        setAppLoading(true, 'Stopping CAGE server...');
+        stopServer().then(result => {
           setAppLoading(false);
+          if (result.success) {
+            setShowSuccess('Server stopped successfully');
+            setTimeout(() => setShowSuccess(''), 2000);
+          } else {
+            addError(result.message);
+          }
           // Refresh status
           getRealServerStatus().then(status => {
             setRealServerStatus(status.status);
             setRealServerInfo(status.serverInfo);
+            setFullServerStatus(status.fullStatus);
           });
-        }, 1000);
+        });
       } else {
-        setAppLoading(true, 'Starting server...');
-        // TODO: Implement actual server start
-        setTimeout(() => {
+        setAppLoading(true, 'Starting CAGE server...');
+        const port = parseInt(configPort || '3790');
+        startServer({ port }).then(result => {
           setAppLoading(false);
-          // Refresh status
-          getRealServerStatus().then(status => {
-            setRealServerStatus(status.status);
-            setRealServerInfo(status.serverInfo);
-          });
-        }, 1000);
+          if (result.success) {
+            setShowSuccess('Server started successfully');
+            setTimeout(() => setShowSuccess(''), 2000);
+          } else {
+            addError(result.message);
+          }
+          // Refresh status after a moment for server to stabilize
+          setTimeout(() => {
+            getRealServerStatus().then(status => {
+              setRealServerStatus(status.status);
+              setRealServerInfo(status.serverInfo);
+              setFullServerStatus(status.fullStatus);
+            });
+          }, 500);
+        });
       }
     } else if (input === 'r') {
       // Restart server
-      setAppLoading(true, 'Restarting server...');
-      setTimeout(() => {
-        setAppLoading(false);
-        // Refresh status
-        getRealServerStatus().then(status => {
-          setRealServerStatus(status.status);
-          setRealServerInfo(status.serverInfo);
-        });
-      }, 1500);
+      setAppLoading(true, 'Restarting CAGE server...');
+      const port = parseInt(configPort || '3790');
+
+      // Stop first if running
+      const stopPromise = realServerStatus === 'running'
+        ? stopServer()
+        : Promise.resolve({ success: true, message: 'Server not running' });
+
+      stopPromise.then(() => {
+        // Wait a moment then start
+        setTimeout(() => {
+          startServer({ port }).then(result => {
+            setAppLoading(false);
+            if (result.success) {
+              setShowSuccess('Server restarted successfully');
+              setTimeout(() => setShowSuccess(''), 2000);
+            } else {
+              addError(result.message);
+            }
+            // Refresh status
+            setTimeout(() => {
+              getRealServerStatus().then(status => {
+                setRealServerStatus(status.status);
+                setRealServerInfo(status.serverInfo);
+                setFullServerStatus(status.fullStatus);
+              });
+            }, 500);
+          });
+        }, 500);
+      });
     } else if (input === 'c') {
       setConfigMode(true);
       setConfigPort(realServerInfo?.port?.toString() || '3790');

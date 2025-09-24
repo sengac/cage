@@ -43,6 +43,7 @@
     "cli-spinners": "latest",
     "commander": "^14.0.1",
     "date-fns": "latest",
+    "execa": "^9.6.0",
     "figures": "latest",
     "gradient-string": "latest",
     "immer": "latest",

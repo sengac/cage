@@ -9,7 +9,7 @@ interface SuccessMessageProps {
 export function SuccessMessage({ message, details }: SuccessMessageProps): JSX.Element {
   return (
     <Box flexDirection="column">
-      <Text color="green">✔ {message}</Text>
+      <Text>🟢 {message}</Text>
       {details?.map((detail, index) => (
         <Text key={index} color="gray">  {detail}</Text>
       ))}

@@ -21,7 +21,7 @@ interface ServerState {
 export function ServerStartCommand({ port }: ServerProps): JSX.Element {
   const [state, setState] = useState<ServerState>({
     status: 'checking',
-    message: 'Checking Cage configuration...'
+    message: 'Checking CAGE configuration...'
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
         if (!config) {
           setState({
             status: 'error',
-            message: 'Cage is not initialized',
+            message: 'CAGE is not initialized',
             error: 'Please run "cage init" first'
           });
           return;
@@ -63,7 +63,7 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
         if (result.success) {
           setState({
             status: 'running',
-            message: 'Cage backend server is running',
+            message: 'CAGE backend server is running',
             port: serverPort,
             pid: result.pid
           });

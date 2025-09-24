@@ -50,7 +50,7 @@ export function EventsListCommand({ from, to }: ListProps): JSX.Element {
         if (!config) {
           setState({
             status: 'error',
-            message: 'Cage is not initialized',
+            message: 'CAGE is not initialized',
             error: 'Please run "cage init" first',
             summary: null,
             events: []

@@ -35,7 +35,7 @@ export interface RealHooksStatus {
 
 export async function getRealHooksStatus(): Promise<RealHooksStatus> {
   try {
-    // Check if Cage is initialized
+    // Check if CAGE is initialized
     if (!isCageInitialized()) {
       return {
         isInstalled: false,
@@ -43,7 +43,7 @@ export async function getRealHooksStatus(): Promise<RealHooksStatus> {
         totalEvents: 0,
         lastOperation: {
           success: false,
-          message: 'Cage is not initialized. Run "cage init" first.'
+          message: 'CAGE is not initialized. Run "cage init" first.'
         }
       };
     }
@@ -103,7 +103,7 @@ export async function installRealHooks(): Promise<{ success: boolean; message: s
     if (!config) {
       return {
         success: false,
-        message: 'Cage is not initialized. Run "cage init" first.'
+        message: 'CAGE is not initialized. Run "cage init" first.'
       };
     }
 
