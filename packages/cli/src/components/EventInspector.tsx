@@ -4,26 +4,25 @@ import { useSafeInput } from '../hooks/useSafeInput';
 import { format } from 'date-fns';
 import figures from 'figures';
 import type { Event } from '../stores/appStore';
-import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import { loadRealEvents } from '../utils/real-events';
+import { VirtualList } from './VirtualList';
 
 interface EventInspectorProps {
-  onSelectEvent: (event: Event) => void;
+  onSelectEvent: (event: Event, index: number) => void;
   onBack: () => void;
+  initialSelectedIndex?: number;
 }
 
 type SortField = 'timestamp' | 'type' | 'tool' | 'session';
 type SortOrder = 'asc' | 'desc';
 
-export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, onBack }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, onBack, initialSelectedIndex = 0 }) => {
   const [sortField, setSortField] = useState<SortField>('timestamp');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
-  const [filterField, setFilterField] = useState<string | null>(null);
   const [realEvents, setRealEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +36,6 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         const events = await loadRealEvents();
         setRealEvents(events);
       } catch (error) {
-        // Error is already logged in loadRealEvents
         setRealEvents([]);
       } finally {
         setLoading(false);
@@ -89,19 +87,13 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return filtered;
   }, [realEvents, sortField, sortOrder, appliedSearch]);
 
-  // Reset selection when events change
-  React.useEffect(() => {
-    if (selectedIndex >= processedEvents.length && processedEvents.length > 0) {
-      setSelectedIndex(0);
-    }
-  }, [processedEvents.length, selectedIndex]);
-
+  // Handle keyboard shortcuts when not in VirtualList
   useSafeInput((input, key) => {
+    // Handle search mode
     if (searchMode) {
       if (key.return) {
         setAppliedSearch(searchQuery);
         setSearchMode(false);
-        setSelectedIndex(0);
       } else if (key.escape) {
         setSearchMode(false);
         setSearchQuery('');
@@ -113,37 +105,40 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       return;
     }
 
-    if (key.upArrow || input === 'k') {
-      setSelectedIndex((prev) => (prev === 0 ? processedEvents.length - 1 : prev - 1));
-    } else if (key.downArrow || input === 'j') {
-      setSelectedIndex((prev) => (prev === processedEvents.length - 1 ? 0 : prev + 1));
-    } else if (key.return && processedEvents.length > 0) {
-      onSelectEvent(processedEvents[selectedIndex]);
-    } else if (input === '/') {
-      setSearchMode(true);
-      setSearchQuery('');
-    } else if (input === 't') {
-      setSortField('timestamp');
-      setSortOrder(prev => sortField === 'timestamp' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-    } else if (input === 'y') {
-      setSortField('type');
-      setSortOrder(prev => sortField === 'type' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-    } else if (input === 'o') {
-      setSortField('tool');
-      setSortOrder(prev => sortField === 'tool' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-    } else if (input === 's') {
-      setSortField('session');
-      setSortOrder(prev => sortField === 'session' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-    } else if (input === 'r') {
-      setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
-    } else if (input === 'f') {
-      // Cycle through filter fields (placeholder)
-      setFilterField(prev => prev === null ? 'type' : null);
-    } else if (input === 'F') {
-      // Clear all filters
-      setAppliedSearch('');
-      setFilterField(null);
-      setSelectedIndex(0);
+    // Handle escape to go back
+    if (key.escape) {
+      onBack();
+      return;
+    }
+
+    // Sort commands
+    switch (input) {
+      case '/':
+        setSearchMode(true);
+        setSearchQuery('');
+        break;
+      case 't':
+        setSortField('timestamp');
+        setSortOrder(prev => sortField === 'timestamp' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
+        break;
+      case 'y':
+        setSortField('type');
+        setSortOrder(prev => sortField === 'type' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
+        break;
+      case 'o':
+        setSortField('tool');
+        setSortOrder(prev => sortField === 'tool' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
+        break;
+      case 's':
+        setSortField('session');
+        setSortOrder(prev => sortField === 'session' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
+        break;
+      case 'r':
+        setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+        break;
+      case 'c':
+        setAppliedSearch('');
+        break;
     }
   });
 
@@ -154,30 +149,38 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return '';
   };
 
-  const truncateText = (text: string, maxLength: number): string => {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 3) + '...';
+  const formatEventDescription = (event: Event) => {
+    const args = event.arguments as Record<string, unknown>;
+
+    // Try to get a meaningful description from arguments
+    if (args?.file_path) return String(args.file_path);
+    if (args?.pattern) return String(args.pattern);
+    if (args?.command) return String(args.command);
+    if (args?.prompt) return String(args.prompt).slice(0, 60);
+
+    // For tool events, show the tool name
+    if (event.toolName) return `${event.toolName} operation`;
+
+    // Default to event type
+    return '';
   };
 
-  const formatEventDescription = (event: Event) => {
-    if (event.eventType === 'ToolUse' && event.toolName) {
-      const args = event.arguments as Record<string, unknown>;
-      if (args?.file_path) {
-        return `${args.file_path}`;
-      }
-      if (args?.pattern) {
-        return `${args.pattern}`;
-      }
-      if (args?.command) {
-        return `${args.command}`;
-      }
-    }
-    if (event.eventType === 'UserMessage') {
-      const args = event.arguments as Record<string, unknown>;
-      return args?.prompt ? String(args.prompt).slice(0, 50) + '...' : 'User input';
-    }
-    return event.eventType;
+  // Render a single event row
+  const renderEvent = (event: Event, _index: number, isSelected: boolean) => {
+    const textColor = isSelected ? theme.ui.hover : theme.ui.text;
+    const indicator = isSelected ? figures.pointer : ' ';
+
+    // Format fields with proper width
+    const time = format(new Date(event.timestamp), 'HH:mm:ss.SSS');
+    const type = (event.eventType || '').substring(0, 18).padEnd(18);
+    const tool = (event.toolName || '-').substring(0, 18).padEnd(18);
+    const desc = formatEventDescription(event).substring(0, 80);
+
+    return (
+      <Text color={textColor}>
+        {indicator} {time}  {type}  {tool}  {desc}
+      </Text>
+    );
   };
 
   if (loading) {
@@ -200,9 +203,11 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     );
   }
 
-  return (
-      <Box flexDirection="column" flexGrow={1}>
+  // Calculate available height (subtract header and search bar)
+  const availableHeight = process.stdout.rows ? process.stdout.rows - 8 : 20;
 
+  return (
+    <Box flexDirection="column" flexGrow={1}>
       {/* Search bar */}
       {searchMode && (
         <Box marginBottom={1} paddingX={1} borderStyle="single" borderColor={theme.primary.aqua}>
@@ -213,65 +218,27 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       )}
 
       {/* Column headers */}
-      <Box marginBottom={1} paddingX={1} width="100%">
-        <Text key="header-spacer" color={theme.ui.text}> </Text>
-        <Box key="header-time" width={14} flexShrink={0}>
-          <Text color={theme.ui.textMuted} bold>
-            Time {getSortIndicator('timestamp')}
-          </Text>
-        </Box>
-        <Box key="header-type" width={24} flexShrink={0}>
-          <Text color={theme.ui.textMuted} bold>
-            Type {getSortIndicator('type')}
-          </Text>
-        </Box>
-        <Box key="header-tool" width={24} flexShrink={0}>
-          <Text color={theme.ui.textMuted} bold>
-            Tool {getSortIndicator('tool')}
-          </Text>
-        </Box>
-        <Box key="header-description" flexGrow={1}>
-          <Text color={theme.ui.textMuted} bold>
-            Description
-          </Text>
-        </Box>
+      <Box paddingX={1} marginBottom={1}>
+        <Text color={theme.ui.textMuted} bold>
+          {'  Time           Type                Tool                Description'}
+        </Text>
       </Box>
 
-      {/* Event list */}
-      <Box flexDirection="column" flexGrow={1}>
-        {processedEvents.map((event, index) => {
-          const isSelected = index === selectedIndex;
-          const textColor = isSelected ? theme.ui.hover : theme.ui.text;
-          const indicator = isSelected ? figures.pointer : ' ';
-
-          return (
-            <Box key={event.id} paddingX={1} width="100%">
-              <Text key={`indicator-${event.id}`} color={textColor}>{indicator}</Text>
-              <Box key={`time-${event.id}`} width={14} flexShrink={0}>
-                <Text color={textColor}>
-                  {truncateText(format(new Date(event.timestamp), 'HH:mm:ss.SSS'), 13)}
-                </Text>
-              </Box>
-              <Box key={`type-${event.id}`} width={24} flexShrink={0}>
-                <Text color={textColor}>
-                  {truncateText(event.eventType || '', 23)}
-                </Text>
-              </Box>
-              <Box key={`tool-${event.id}`} width={24} flexShrink={0}>
-                <Text color={textColor}>
-                  {truncateText(event.toolName || '-', 23)}
-                </Text>
-              </Box>
-              <Box key={`desc-${event.id}`} flexGrow={1}>
-                <Text color={textColor}>
-                  {truncateText(formatEventDescription(event), 100)}
-                </Text>
-              </Box>
-            </Box>
-          );
-        })}
-      </Box>
-
-      </Box>
+      {/* Event list using VirtualList */}
+      <VirtualList
+        items={processedEvents}
+        height={availableHeight}
+        renderItem={renderEvent}
+        onSelect={(event, index) => {
+          onSelectEvent(event, index);
+        }}
+        keyExtractor={(event) => event.id}
+        emptyMessage="No events to display"
+        showScrollbar={true}
+        enableWrapAround={true}
+        testMode={true}  // Enable input without focus check
+        initialIndex={initialSelectedIndex}
+      />
+    </Box>
   );
 };

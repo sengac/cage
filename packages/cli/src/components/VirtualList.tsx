@@ -15,6 +15,7 @@ interface VirtualListProps<T> {
   showScrollbar?: boolean;
   enableWrapAround?: boolean;
   testMode?: boolean; // For testing, bypasses focus requirement
+  initialIndex?: number; // Initial selected index
 }
 
 export function VirtualList<T>({
@@ -28,11 +29,18 @@ export function VirtualList<T>({
   showScrollbar = true,
   enableWrapAround = true,
   testMode = false,
+  initialIndex = 0,
 }: VirtualListProps<T>): React.ReactElement {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollOffset, setScrollOffset] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const [scrollOffset, setScrollOffset] = useState(Math.max(0, initialIndex - Math.floor(height / 2)));
   const theme = useTheme();
   const { isFocused } = useFocusManager();
+
+  // Reset selection when initialIndex changes
+  useEffect(() => {
+    setSelectedIndex(initialIndex);
+    setScrollOffset(Math.max(0, initialIndex - Math.floor(height / 2)));
+  }, [initialIndex, height]);
 
   // Calculate visible range
   const visibleHeight = Math.min(height, items.length);

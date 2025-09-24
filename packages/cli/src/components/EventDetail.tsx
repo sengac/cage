@@ -137,10 +137,10 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
           <Text color={theme.ui.text}>
             {format(new Date(selectedEvent.timestamp), 'yyyy-MM-dd HH:mm:ss')}
           </Text>
-          {selectedEvent.executionTime && (
+          {selectedEvent.executionTime !== undefined && (
             <>
               <Text color={theme.ui.textMuted}>  Duration: </Text>
-              <Text color={theme.ui.text}>{selectedEvent.executionTime}ms</Text>
+              <Text color={theme.ui.text}>{String(selectedEvent.executionTime)}ms</Text>
             </>
           )}
         </Box>

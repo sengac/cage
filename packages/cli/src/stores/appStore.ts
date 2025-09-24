@@ -96,6 +96,7 @@ interface AppState {
   events: Event[];
   filteredEvents: Event[];
   selectedEvent: Event | null;
+  selectedEventIndex: number;
   eventFilters: FilterOptions;
 
   // Stream
@@ -125,7 +126,7 @@ interface AppState {
   goBack: () => void;
   setEvents: (events: Event[]) => void;
   addEvent: (event: Event) => void;
-  selectEvent: (event: Event | null) => void;
+  selectEvent: (event: Event | null, index?: number) => void;
   applyFilter: (filters: FilterOptions) => void;
   clearFilter: () => void;
   toggleStream: () => void;
@@ -176,6 +177,7 @@ export const useAppStore = create<AppState>()(
       events: generateMockEvents(100), // Use mock data for testing
       filteredEvents: generateMockEvents(100),
       selectedEvent: null,
+      selectedEventIndex: 0,
       eventFilters: {},
       isStreaming: false,
       isPaused: false,
@@ -236,9 +238,12 @@ export const useAppStore = create<AppState>()(
           }
         }),
 
-      selectEvent: (event) =>
+      selectEvent: (event, index) =>
         set((state) => {
           state.selectedEvent = event;
+          if (index !== undefined) {
+            state.selectedEventIndex = index;
+          }
         }),
 
       applyFilter: (filters) =>
