@@ -1,8 +1,26 @@
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import swc from 'unplugin-swc';
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  plugins: [
+    tsconfigPaths(),
+    swc.vite({
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          decorators: true,
+        },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+        },
+        target: 'es2020',
+        keepClassNames: true,
+      },
+    })
+  ],
+  esbuild: false, // Disable esbuild since we're using SWC
   build: {
     lib: {
       entry: 'src/main.ts',

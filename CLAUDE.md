@@ -6,7 +6,7 @@ This document provides guidelines for AI assistants (particularly Claude) workin
 
 ## Project Overview
 
-**CAGE** is a developer productivity tool for AI that provides boundaries, context, and guidance to help AI produce code matching living specifications through Specification by Example. It enhances Claude Code through its official API.
+**CAGE** is a developer productivity tool for AI that provides boundaries, context, and guidance to help AI produce code matching living specifications. It enhances Claude Code through its official API.
 
 - **Website**: https://cage.tools
 - **Repository**: https://github.com/sengac/cage

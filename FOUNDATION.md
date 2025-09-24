@@ -146,7 +146,7 @@ Describe how things work today without this solution:
 ### Theoretical Solutions
 
 #### Solution Approach 1: Dual-Phase Guardian System (Selected Approach)
-- **Description:** Comprehensive hook orchestration that assists both before and after Claude's actions. Pre-execution hooks provide context and validate intentions, while post-execution hooks analyze output and suggest corrections. The system maintains living specifications (Specification by Example) that evolve with the project.
+- **Description:** Comprehensive hook orchestration that assists both before and after Claude's actions. Pre-execution hooks provide context and validate intentions, while post-execution hooks analyze output and suggest corrections. The system maintains living specifications that evolve with the project.
 - **Pros:**
   - Catches issues at multiple points in the workflow
   - Builds accumulated knowledge base over time
@@ -291,7 +291,7 @@ Based on Claude Code documentation, all available hooks:
 - **Status:** Provide custom status line updates with session metadata
 
 ### Project Name: CAGE
-A cage for writing the right thing - a guided environment that ensures AI produces code that matches living specifications through Specification by Example. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
+A cage for writing the right thing - a guided environment that ensures AI produces code that matches living specifications. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
 
 **Project Website**: [https://cage.tools](https://cage.tools)
 **GitHub Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)
