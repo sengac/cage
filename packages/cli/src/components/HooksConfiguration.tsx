@@ -296,13 +296,25 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
   };
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header */}
-      <Box marginBottom={1} justifyContent="center">
-        <Text color={theme.primary.aqua} bold>
-          HOOKS CONFIGURATION
+      <Box
+        paddingX={2}
+        borderStyle="round"
+        borderColor={theme.ui.borderSubtle}
+        justifyContent="space-between"
+        minHeight={3}
+      >
+        <Text color={theme.secondary.blue} bold>
+          CAGE | Hooks Configuration
+        </Text>
+        <Text color={theme.ui.textMuted} dimColor>
+          {isInstalled ? 'Installed' : 'Not Installed'}
         </Text>
       </Box>
+
+      {/* Main Content */}
+      <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
       {/* Status messages */}
       {renderStatusMessages()}
@@ -402,14 +414,20 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
             ))}
           </Box>
 
-          {/* Controls */}
-          <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
-            <Text color={theme.ui.textDim}>
-              ↑↓ Navigate  Space Toggle  ↵ Action  Tab Switch  / Search  f Filter  ESC Back
-            </Text>
-          </Box>
         </>
       )}
+      </Box>
+
+      {/* Footer */}
+      <Box
+        paddingX={2}
+        borderStyle="single"
+        borderColor={theme.ui.borderSubtle}
+      >
+        <Text color={theme.ui.textDim}>
+          ↑↓ Navigate  Space Toggle  ↵ Action  Tab Switch  / Search  f Filter  ESC Back
+        </Text>
+      </Box>
     </Box>
   );
 };

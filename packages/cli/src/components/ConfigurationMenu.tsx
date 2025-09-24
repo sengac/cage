@@ -375,13 +375,25 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
   };
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header */}
-      <Box marginBottom={1} justifyContent="center">
-        <Text color={theme.primary.aqua} bold>
-          CONFIGURATION{hasUnsavedChanges ? ' *' : ''}
+      <Box
+        paddingX={2}
+        borderStyle="round"
+        borderColor={theme.ui.borderSubtle}
+        justifyContent="space-between"
+        minHeight={3}
+      >
+        <Text color={theme.secondary.blue} bold>
+          CAGE | Settings{hasUnsavedChanges ? ' *' : ''}
+        </Text>
+        <Text color={theme.ui.textMuted} dimColor>
+          {hasUnsavedChanges ? 'Modified' : 'Saved'}
         </Text>
       </Box>
+
+      {/* Main Content */}
+      <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
       {/* Success message */}
       {successMessage && (
@@ -441,14 +453,20 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
             ))}
           </Box>
 
-          {/* Controls */}
-          <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
-            <Text color={theme.ui.textDim}>
-              ↑↓ Navigate  ↵ Select  Tab Switch  s Save  r Reset  ESC Back
-            </Text>
-          </Box>
         </>
       )}
+      </Box>
+
+      {/* Footer */}
+      <Box
+        paddingX={2}
+        borderStyle="single"
+        borderColor={theme.ui.borderSubtle}
+      >
+        <Text color={theme.ui.textDim}>
+          ↑↓ Navigate  ↵ Select  Tab Switch  s Save  r Reset  ESC Back
+        </Text>
+      </Box>
     </Box>
   );
 };

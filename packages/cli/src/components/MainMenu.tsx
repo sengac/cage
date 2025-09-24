@@ -125,10 +125,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
       {/* Header */}
       <Box
         paddingX={2}
-        paddingY={1}
         borderStyle="round"
         borderColor={theme.ui.borderSubtle}
         justifyContent="space-between"
+        minHeight={3}
       >
         <Text color={theme.secondary.blue} bold>
           CAGE | Code Alignment Guard Engine
@@ -149,7 +149,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
       {/* Footer - positioned at bottom */}
       <Box
         paddingX={2}
-        paddingY={1}
         borderStyle="single"
         borderColor={theme.ui.borderSubtle}
       >

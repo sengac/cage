@@ -106,18 +106,29 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
 
   if (!selectedEvent) {
     return (
-      <Box flexDirection="column" padding={1}>
-        <Box marginBottom={1} justifyContent="center">
-          <Text color={theme.primary.aqua} bold>
-            EVENT DETAIL
+      <Box flexDirection="column" flexGrow={1}>
+        {/* Header */}
+        <Box
+          paddingX={2}
+          borderStyle="round"
+          borderColor={theme.ui.borderSubtle}
+          justifyContent="space-between"
+          minHeight={3}
+        >
+          <Text color={theme.secondary.blue} bold>
+            CAGE | Event Detail
           </Text>
         </Box>
-        <Box justifyContent="center" marginY={2}>
+        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1} justifyContent="center" alignItems="center">
           <Text color={theme.ui.textMuted}>
             No event selected
           </Text>
         </Box>
-        <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
+        <Box
+          paddingX={2}
+          borderStyle="single"
+          borderColor={theme.ui.borderSubtle}
+        >
           <Text color={theme.ui.textDim}>
             ESC Back
           </Text>
@@ -127,13 +138,25 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
   }
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header with event info */}
-      <Box marginBottom={1} justifyContent="center">
-        <Text color={theme.primary.aqua} bold>
-          EVENT DETAIL
+      <Box
+        paddingX={2}
+        borderStyle="round"
+        borderColor={theme.ui.borderSubtle}
+        justifyContent="space-between"
+        minHeight={3}
+      >
+        <Text color={theme.secondary.blue} bold>
+          CAGE | Event Detail
+        </Text>
+        <Text color={theme.ui.textMuted} dimColor>
+          {selectedEvent.eventType}
         </Text>
       </Box>
+
+      {/* Main Content */}
+      <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
       {/* Event metadata */}
       <Box flexDirection="column" marginBottom={1} paddingX={1}>
@@ -217,9 +240,14 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
           </Text>
         </Box>
       )}
+      </Box>
 
       {/* Footer with shortcuts */}
-      <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
+      <Box
+        paddingX={2}
+        borderStyle="single"
+        borderColor={theme.ui.borderSubtle}
+      >
         <Text color={theme.ui.textDim}>
           ← → Switch tabs  c Copy  e Export  ESC Back
         </Text>

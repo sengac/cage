@@ -275,11 +275,25 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
     }
 
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" flexGrow={1}>
         {/* Header */}
-        <Box justifyContent="center" marginBottom={1}>
-          <Text bold color="cyan">STATISTICS DASHBOARD</Text>
+        <Box
+          paddingX={2}
+          borderStyle="round"
+          borderColor={theme.ui.borderSubtle}
+          justifyContent="space-between"
+          minHeight={3}
+        >
+          <Text color={theme.secondary.blue} bold>
+            CAGE | Statistics Dashboard
+          </Text>
+          <Text color={theme.ui.textMuted} dimColor>
+            {formatNumber(statistics.totalEvents)} events
+          </Text>
         </Box>
+
+        {/* Main Content */}
+        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
         {/* Total Events */}
         <Box justifyContent="center" marginBottom={1}>
@@ -395,14 +409,15 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ onBack
           <Text color="gray">Last updated: {lastUpdated.toLocaleTimeString()}</Text>
         )}
 
-        {/* Keyboard shortcuts */}
+        </Box>
+
+        {/* Footer */}
         <Box
+          paddingX={2}
           borderStyle="single"
-          borderColor="gray"
-          padding={1}
-          marginTop={1}
+          borderColor={theme.ui.borderSubtle}
         >
-          <Text color="gray">
+          <Text color={theme.ui.textDim}>
             ↑↓ Navigate  ↵ View Details  r Refresh  ? Help  ESC Back
           </Text>
         </Box>

@@ -297,11 +297,25 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     };
 
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" flexGrow={1}>
         {/* Header */}
-        <Box justifyContent="center" marginBottom={1}>
-          <Text bold color="cyan">DEBUG CONSOLE</Text>
+        <Box
+          paddingX={2}
+          borderStyle="round"
+          borderColor={theme.ui.borderSubtle}
+          justifyContent="space-between"
+          minHeight={3}
+        >
+          <Text color={theme.secondary.blue} bold>
+            CAGE | Debug Console
+          </Text>
+          <Text color={theme.ui.textMuted} dimColor>
+            {debugEvents.length} events
+          </Text>
         </Box>
+
+        {/* Main Content */}
+        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
         {/* Status bar */}
         <Box marginBottom={1}>
@@ -340,9 +354,15 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
           })}
         </Box>
 
+        </Box>
+
         {/* Footer with shortcuts */}
-        <Box borderStyle="single" borderColor="gray" paddingX={1}>
-          <Text color="gray">
+        <Box
+          paddingX={2}
+          borderStyle="single"
+          borderColor={theme.ui.borderSubtle}
+        >
+          <Text color={theme.ui.textDim}>
             ↑↓/jk Navigate | f Filter | / Search | ? Help | ESC/q Back
           </Text>
         </Box>

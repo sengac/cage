@@ -56,13 +56,12 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
 
   const letters = [letterC, letterA, letterG, letterE];
 
-  // Hacker-style characters for scrambling effect
-  const hackerChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   const scrambleText = (original: string) => {
     return original.split('').map(char => {
       if (char === ' ' || char === '•') return char;
-      return hackerChars[Math.floor(Math.random() * hackerChars.length)];
+      return chars[Math.floor(Math.random() * chars.length)];
     }).join('');
   };
 

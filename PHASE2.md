@@ -32,6 +32,25 @@ Phase 2 enhances the Cage CLI with a full-screen interactive Terminal User Inter
 
 ## Interactive TUI Architecture
 
+### Shared Component Architecture
+
+The interactive TUI must use a consistent shared component architecture where:
+- A centralized `FullScreenLayout` component wraps all views
+- A shared `Header` component displays title, subtitle, and status information
+- A shared `Footer` component shows contextual keyboard shortcuts
+- A view controller manages the current view state and navigation
+- Individual views focus only on their content, not layout or navigation
+
+#### Component Hierarchy
+```
+App
+├── ViewManager (manages current view state)
+│   └── FullScreenLayout (shared wrapper)
+│       ├── Header (shared, dynamic content)
+│       ├── Content (view-specific component)
+│       └── Footer (shared, contextual shortcuts)
+```
+
 ### Main Menu Structure
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -121,6 +140,41 @@ Phase 2 enhances the Cage CLI with a full-screen interactive Terminal User Inter
 ```
 
 ## Acceptance Criteria
+
+### Feature: Shared Component System
+
+#### Scenario: Shared header displays consistent information
+**Given** I am in any view of the interactive TUI
+**When** the view is rendered
+**Then** a shared Header component should display at the top
+**And** show "CAGE | [Current View Name]" as the title
+**And** optionally show a subtitle or status on the right
+**And** maintain consistent height (minHeight: 3) across all views
+**And** use consistent styling (borderStyle: round, theme colors)
+
+#### Scenario: Shared footer shows contextual shortcuts
+**Given** I am in any view of the interactive TUI
+**When** the view is rendered
+**Then** a shared Footer component should display at the bottom
+**And** show keyboard shortcuts relevant to the current view
+**And** update dynamically based on the current view context
+**And** maintain consistent styling (borderStyle: single)
+
+#### Scenario: View manager controls navigation
+**Given** I am using the interactive TUI
+**When** I navigate between different views
+**Then** a ViewManager should track the current view state
+**And** provide the current view's metadata to shared components
+**And** handle navigation transitions smoothly
+**And** maintain a navigation stack for back functionality
+
+#### Scenario: Individual views focus on content only
+**Given** a developer is implementing a new view
+**When** they create the view component
+**Then** they should only implement the content area
+**And** not duplicate header/footer code
+**And** receive navigation callbacks from the ViewManager
+**And** provide metadata (title, shortcuts) to the shared components
 
 ### Feature: Interactive Mode Launch
 

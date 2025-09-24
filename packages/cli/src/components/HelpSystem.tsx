@@ -443,11 +443,27 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
 
   const renderMainView = (): JSX.Element => {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" flexGrow={1}>
         {/* Header */}
-        <Box justifyContent="center" marginBottom={1}>
-          <Text bold color="cyan">CAGE HELP SYSTEM</Text>
+        <Box
+          paddingX={2}
+          borderStyle="round"
+          borderColor={theme.ui.borderSubtle}
+          justifyContent="space-between"
+          minHeight={3}
+        >
+          <Text color={theme.secondary.blue} bold>
+            CAGE | Help System
+          </Text>
+          {context && (
+            <Text color={theme.ui.textMuted} dimColor>
+              {getContextDisplayName(context)}
+            </Text>
+          )}
         </Box>
+
+        {/* Main Content */}
+        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
         {/* Context indicator */}
         {context && (
@@ -497,14 +513,15 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
           <Text>ESC Go back</Text>
         </Box>
 
-        {/* Keyboard shortcuts */}
+        </Box>
+
+        {/* Footer */}
         <Box
+          paddingX={2}
           borderStyle="single"
-          borderColor="gray"
-          padding={1}
-          marginTop={1}
+          borderColor={theme.ui.borderSubtle}
         >
-          <Text color="gray">
+          <Text color={theme.ui.textDim}>
             ↑↓ Navigate  ↵ View Topic  / Search  ? Advanced  h Reference  ESC Back
           </Text>
         </Box>

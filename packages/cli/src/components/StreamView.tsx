@@ -220,13 +220,25 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
   };
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header */}
-      <Box marginBottom={1} justifyContent="center">
-        <Text color={theme.primary.aqua} bold>
-          REAL-TIME MONITOR
+      <Box
+        paddingX={2}
+        borderStyle="round"
+        borderColor={theme.ui.borderSubtle}
+        justifyContent="space-between"
+        minHeight={3}
+      >
+        <Text color={theme.secondary.blue} bold>
+          CAGE | Real-time Monitor
+        </Text>
+        <Text color={theme.ui.textMuted} dimColor>
+          {isStreaming ? 'Streaming' : 'Stopped'}
         </Text>
       </Box>
+
+      {/* Main Content */}
+      <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
       {/* Status bar */}
       <Box marginBottom={1} paddingX={1}>
@@ -307,9 +319,14 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack }) => {
           </Text>
         </Box>
       )}
+      </Box>
 
       {/* Footer with shortcuts */}
-      <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
+      <Box
+        paddingX={2}
+        borderStyle="single"
+        borderColor={theme.ui.borderSubtle}
+      >
         <Text color={theme.ui.textDim}>
           {isStreaming
             ? isPaused

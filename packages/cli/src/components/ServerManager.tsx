@@ -248,7 +248,11 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     const isConnecting = serverStatus === 'connecting';
 
     return (
-      <Box marginTop={1} paddingY={1} borderStyle="single" borderColor={theme.ui.borderSubtle}>
+      <Box
+        paddingX={2}
+        borderStyle="single"
+        borderColor={theme.ui.borderSubtle}
+      >
         <Text color={theme.ui.textDim}>
           {isConnecting
             ? 'Please wait...'
@@ -265,26 +269,50 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
 
   if (configMode) {
     return (
-      <Box flexDirection="column" padding={1}>
-        <Box marginBottom={1} justifyContent="center">
-          <Text color={theme.primary.aqua} bold>
-            SERVER MANAGEMENT
+      <Box flexDirection="column" flexGrow={1}>
+        {/* Header */}
+        <Box
+          paddingX={2}
+          borderStyle="round"
+          borderColor={theme.ui.borderSubtle}
+          justifyContent="space-between"
+          minHeight={3}
+        >
+          <Text color={theme.secondary.blue} bold>
+            CAGE | Server Management
+          </Text>
+          <Text color={theme.ui.textMuted} dimColor>
+            Configuration Mode
           </Text>
         </Box>
+        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
         {renderConfiguration()}
+        </Box>
         {renderControls()}
       </Box>
     );
   }
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header */}
-      <Box marginBottom={1} justifyContent="center">
-        <Text color={theme.primary.aqua} bold>
-          SERVER MANAGEMENT
+      <Box
+        paddingX={2}
+        borderStyle="round"
+        borderColor={theme.ui.borderSubtle}
+        justifyContent="space-between"
+        minHeight={3}
+      >
+        <Text color={theme.secondary.blue} bold>
+          CAGE | Server Management
+        </Text>
+        <Text color={theme.ui.textMuted} dimColor>
+          {getStatusText()}
         </Text>
       </Box>
+
+      {/* Main Content */}
+      <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
 
       {/* Status */}
       <Box marginBottom={1} paddingX={1}>
@@ -333,8 +361,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
 
       {/* Logs */}
       {renderLogs()}
+      </Box>
 
-      {/* Controls */}
+      {/* Footer */}
       {renderControls()}
     </Box>
   );
