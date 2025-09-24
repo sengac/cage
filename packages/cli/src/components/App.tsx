@@ -17,9 +17,7 @@ interface AppProps {
  */
 export const App: React.FC<AppProps> = ({
   showLogo = true,
-  onExit,
-  showDebugPanel = false,
-  args = []
+  onExit
 }) => {
   const [logoComplete, setLogoComplete] = useState(!showLogo);
 

@@ -25,7 +25,11 @@ program
   .command('init')
   .description('Initialize CAGE in the current project')
   .action(() => {
-    render(<InitCommand />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<InitCommand />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 // Hook commands
@@ -37,14 +41,22 @@ hooks
   .command('setup')
   .description('Configure Claude Code hooks')
   .action(() => {
-    render(<HooksSetupCommand />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<HooksSetupCommand />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 hooks
   .command('status')
   .description('Check hook configuration status')
   .action(() => {
-    render(<HooksStatusCommand />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<HooksStatusCommand />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 // Events commands
@@ -57,7 +69,11 @@ events
   .description('Stream events in real-time')
   .option('-t, --type <type>', 'Filter by event type')
   .action((options) => {
-    render(<EventsStreamCommand filter={options.type} />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<EventsStreamCommand filter={options.type} />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 events
@@ -66,7 +82,11 @@ events
   .option('-n, --lines <number>', 'Number of lines to show', '10')
   .action((options) => {
     const count = parseInt(options.lines, 10);
-    render(<EventsTailCommand count={count} />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<EventsTailCommand count={count} />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 events
@@ -75,14 +95,22 @@ events
   .option('-f, --from <date>', 'Start date (YYYY-MM-DD)')
   .option('-t, --to <date>', 'End date (YYYY-MM-DD)')
   .action((options) => {
-    render(<EventsListCommand from={options.from} to={options.to} />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<EventsListCommand from={options.from} to={options.to} />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 events
   .command('stats')
   .description('Display event statistics')
   .action(() => {
-    render(<EventsStatsCommand />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<EventsStatsCommand />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 // Server commands
@@ -91,7 +119,11 @@ program
   .description('Start the CAGE backend server')
   .option('-p, --port <port>', 'Port to run on', '3790')
   .action((options) => {
-    render(<ServerStartCommand port={options.port} />);
+    const stdin = process.stdin.isTTY ? process.stdin : undefined;
+    render(<ServerStartCommand port={options.port} />, {
+      stdin,
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    });
   });
 
 program
@@ -128,13 +160,21 @@ if (process.argv.length === 2 || (debugMode && remainingArgs.length === 0)) {
   // This ensures Ink starts from a clean slate at position (0,0)
   process.stdout.write('\x1B[2J\x1B[3J\x1B[H');
 
+  // Check if stdin supports raw mode before launching interactive TUI
+  const stdin = process.stdin.isTTY ? process.stdin : undefined;
+
   // Launch interactive TUI with debug mode if enabled
   const { waitUntilExit } = render(
     <DebugMode
       debugMode={debugMode}
       logFile={logFile}
       remainingArgs={[]}
-    />
+    />,
+    {
+      stdin,
+      // Disable raw mode if stdin doesn't support it
+      isRawModeSupported: process.stdin.isTTY !== undefined
+    }
   );
   waitUntilExit().then(() => {
     process.exit(0);

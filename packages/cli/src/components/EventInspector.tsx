@@ -157,7 +157,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
   const truncateText = (text: string, maxLength: number): string => {
     if (!text) return '';
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 1);
+    return text.substring(0, maxLength - 3) + '...';
   };
 
   const formatEventDescription = (event: Event) => {
@@ -214,23 +214,23 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
 
       {/* Column headers */}
       <Box marginBottom={1} paddingX={1} width="100%">
-        <Text color={theme.ui.text}> </Text>
-        <Box width={14} flexShrink={0}>
+        <Text key="header-spacer" color={theme.ui.text}> </Text>
+        <Box key="header-time" width={14} flexShrink={0}>
           <Text color={theme.ui.textMuted} bold>
             Time {getSortIndicator('timestamp')}
           </Text>
         </Box>
-        <Box width={20} flexShrink={0}>
+        <Box key="header-type" width={24} flexShrink={0}>
           <Text color={theme.ui.textMuted} bold>
             Type {getSortIndicator('type')}
           </Text>
         </Box>
-        <Box width={20} flexShrink={0}>
+        <Box key="header-tool" width={24} flexShrink={0}>
           <Text color={theme.ui.textMuted} bold>
             Tool {getSortIndicator('tool')}
           </Text>
         </Box>
-        <Box flexGrow={1}>
+        <Box key="header-description" flexGrow={1}>
           <Text color={theme.ui.textMuted} bold>
             Description
           </Text>
@@ -246,23 +246,23 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
 
           return (
             <Box key={event.id} paddingX={1} width="100%">
-              <Text color={textColor}>{indicator}</Text>
-              <Box width={14} flexShrink={0}>
+              <Text key={`indicator-${event.id}`} color={textColor}>{indicator}</Text>
+              <Box key={`time-${event.id}`} width={14} flexShrink={0}>
                 <Text color={textColor}>
                   {truncateText(format(new Date(event.timestamp), 'HH:mm:ss.SSS'), 13)}
                 </Text>
               </Box>
-              <Box width={20} flexShrink={0}>
+              <Box key={`type-${event.id}`} width={24} flexShrink={0}>
                 <Text color={textColor}>
-                  {truncateText(event.eventType || '', 19)}
+                  {truncateText(event.eventType || '', 23)}
                 </Text>
               </Box>
-              <Box width={20} flexShrink={0}>
+              <Box key={`tool-${event.id}`} width={24} flexShrink={0}>
                 <Text color={textColor}>
-                  {truncateText(event.toolName || '-', 19)}
+                  {truncateText(event.toolName || '-', 23)}
                 </Text>
               </Box>
-              <Box flexGrow={1}>
+              <Box key={`desc-${event.id}`} flexGrow={1}>
                 <Text color={textColor}>
                   {truncateText(formatEventDescription(event), 100)}
                 </Text>
