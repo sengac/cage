@@ -15,6 +15,7 @@ const logger = new Logger({ context: 'real-server-status' });
 export async function getRealServerStatus(): Promise<{
   status: 'running' | 'stopped' | 'connecting' | 'error';
   serverInfo: ServerInfo | null;
+  fullStatus?: ServerStatus;
 }> {
   try {
     const status = await getServerStatus();
@@ -34,12 +35,14 @@ export async function getRealServerStatus(): Promise<{
     return {
       status: mappedStatus,
       serverInfo,
+      fullStatus: status,
     };
   } catch (error) {
     logger.error('Failed to get real server status', { error });
     return {
       status: 'error',
       serverInfo: null,
+      fullStatus: undefined,
     };
   }
 }

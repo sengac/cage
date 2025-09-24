@@ -1,104 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { useTheme } from '../../hooks/useTheme';
-import { getRealServerStatus } from '../../utils/real-server-status';
-import { getRealHooksStatus } from '../../utils/real-hooks';
-import { getEventsCounts } from '../../utils/real-events';
+import { getStatusMonitor } from '../../utils/status-monitor';
+import type { SystemStatus } from '../../utils/status-monitor';
 
 interface StatusBarProps {
   compact?: boolean;
 }
 
-interface SystemStatus {
-  server: {
-    status: 'running' | 'stopped' | 'connecting' | 'error';
-    port?: number;
-    pid?: number;
-  };
-  hooks: {
-    installed: boolean;
-    active: number;
-    total: number;
-  };
-  events: {
-    total: number;
-    today: number;
-    rate: number; // events per minute
-  };
-}
 
 export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
   const theme = useTheme();
-  const [status, setStatus] = useState<SystemStatus>({
+  const [status, setStatus] = useState<Omit<SystemStatus, 'lastUpdated'>>({
     server: { status: 'stopped' },
     hooks: { installed: false, active: 0, total: 0 },
     events: { total: 0, today: 0, rate: 0 }
   });
   const [loading, setLoading] = useState(true);
-  const [lastEventCount, setLastEventCount] = useState(0);
-  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
+  const statusMonitor = getStatusMonitor();
 
   useEffect(() => {
-    let mounted = true;
-
-    const loadStatus = async () => {
-      try {
-        const [serverStatus, hooksStatus, eventsCounts] = await Promise.all([
-          getRealServerStatus(),
-          getRealHooksStatus(),
-          getEventsCounts()
-        ]);
-
-        if (!mounted) return;
-
-        // Calculate events per minute rate
-        const now = Date.now();
-        const timeDiff = (now - lastUpdateTime) / 1000 / 60; // minutes
-        const eventDiff = eventsCounts.total - lastEventCount;
-        const rate = timeDiff > 0.1 ? Math.round(eventDiff / timeDiff) : 0; // Only calculate after 6 seconds
-
-        setStatus({
-          server: {
-            status: serverStatus.status,
-            port: serverStatus.serverInfo?.port,
-            pid: serverStatus.serverInfo?.pid
-          },
-          hooks: {
-            installed: hooksStatus.isInstalled,
-            active: hooksStatus.installedHooks.filter(h => h.enabled).length,
-            total: hooksStatus.installedHooks.length
-          },
-          events: {
-            total: eventsCounts.total,
-            today: eventsCounts.today,
-            rate: rate > 0 ? rate : 0
-          }
-        });
-
-        setLastEventCount(eventsCounts.total);
-        setLastUpdateTime(now);
-        setLoading(false);
-      } catch (error) {
-        if (!mounted) return;
-        setStatus({
-          server: { status: 'error' },
-          hooks: { installed: false, active: 0, total: 0 },
-          events: { total: 0, today: 0, rate: 0 }
-        });
-        setLoading(false);
-      }
+    const handleStatusUpdate = (fullStatus: SystemStatus) => {
+      setStatus({
+        server: fullStatus.server,
+        hooks: fullStatus.hooks,
+        events: fullStatus.events
+      });
+      setLoading(false);
     };
 
-    loadStatus();
+    const handleStatusError = () => {
+      setStatus({
+        server: { status: 'error' },
+        hooks: { installed: false, active: 0, total: 0 },
+        events: { total: 0, today: 0, rate: 0 }
+      });
+      setLoading(false);
+    };
 
-    // Refresh every 2 seconds for more responsive updates
-    const interval = setInterval(loadStatus, 2000);
+    // Subscribe to status updates
+    statusMonitor.on('statusUpdated', handleStatusUpdate);
+    statusMonitor.on('statusError', handleStatusError);
 
+    // Start monitoring if not already started (10 second minimum interval)
+    statusMonitor.start(10000);
+
+    // Get initial status
+    const initialStatus = statusMonitor.getStatus();
+    if (initialStatus.lastUpdated > 0) {
+      handleStatusUpdate(initialStatus);
+    } else {
+      // Force immediate update for initial load
+      statusMonitor.forceUpdate().then(handleStatusUpdate).catch(handleStatusError);
+    }
+
+    // Cleanup
     return () => {
-      mounted = false;
-      clearInterval(interval);
+      statusMonitor.off('statusUpdated', handleStatusUpdate);
+      statusMonitor.off('statusError', handleStatusError);
     };
-  }, [lastEventCount, lastUpdateTime]);
+  }, []);
 
   const getServerColor = () => {
     if (loading) return theme.ui.textMuted;

@@ -4,6 +4,7 @@ import { execSync } from 'child_process';
 import chalk from 'chalk';
 import ora from 'ora';
 import { platform } from 'os';
+import { findProcessesOnPort, killProcess, isProcessRunning, killProcessesOnPort } from '../utils/process-utils';
 
 export interface ServerStatus {
   server: {
@@ -40,84 +41,101 @@ const PORT = 3790;
 
 export async function stopServer(options: { force?: boolean } = {}): Promise<{ success: boolean; message: string }> {
   try {
-    // Check if PID file exists
-    if (!existsSync(PID_FILE)) {
+    let pidFromFile: number | undefined;
+    let killedFromPid = false;
+    let killedFromPort = 0;
+
+    // First, try to stop using PID file if it exists
+    if (existsSync(PID_FILE)) {
+      try {
+        // Read PID from file
+        const pidFileContent = readFileSync(PID_FILE, 'utf-8').trim();
+
+        // Handle both JSON format and plain PID
+        try {
+          const pidData = JSON.parse(pidFileContent);
+          pidFromFile = pidData.pid;
+        } catch {
+          pidFromFile = parseInt(pidFileContent);
+        }
+
+        if (pidFromFile && !isNaN(pidFromFile)) {
+          // Check if process exists
+          if (isProcessRunning(pidFromFile)) {
+            // Kill the process
+            if (killProcess(pidFromFile, options.force)) {
+              killedFromPid = true;
+
+              // Wait a moment for process to die
+              await new Promise(resolve => setTimeout(resolve, 500));
+
+              // Verify it's dead
+              if (isProcessRunning(pidFromFile) && !options.force) {
+                return {
+                  success: false,
+                  message: chalk.yellow('Server not responding. Try: cage stop --force')
+                };
+              }
+            }
+          }
+        }
+
+        // Clean up PID file regardless
+        unlinkSync(PID_FILE);
+      } catch (error) {
+        // Error reading/parsing PID file, continue to port check
+      }
+    }
+
+    // Also check for any processes on the port (handles orphaned processes)
+    const processesOnPort = findProcessesOnPort(PORT);
+
+    // Filter out the PID we already killed
+    const remainingProcesses = pidFromFile
+      ? processesOnPort.filter(p => p.pid !== pidFromFile)
+      : processesOnPort;
+
+    if (remainingProcesses.length > 0) {
+      // Kill all processes on the port
+      killedFromPort = killProcessesOnPort(PORT, options.force);
+
+      // Wait for processes to die
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Check if any still remain
+      const stillRunning = findProcessesOnPort(PORT);
+      if (stillRunning.length > 0 && !options.force) {
+        return {
+          success: false,
+          message: chalk.yellow(`${stillRunning.length} process(es) still using port ${PORT}. Try: cage stop --force`)
+        };
+      }
+    }
+
+    // Clean up PID file if it still exists
+    if (existsSync(PID_FILE)) {
+      unlinkSync(PID_FILE);
+    }
+
+    // Determine result message
+    if (!killedFromPid && killedFromPort === 0) {
       return {
         success: true,
         message: '🔴 No CAGE server is running'
       };
     }
 
-    // Read PID from file
-    const pid = parseInt(readFileSync(PID_FILE, 'utf-8').trim());
+    const message = options.force
+      ? '🔴 CAGE server forcefully stopped'
+      : '🔴 CAGE server stopped';
 
-    // Check if process exists (cross-platform)
-    try {
-      if (platform() === 'win32') {
-        // Windows: use tasklist to check if process exists
-        execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, { stdio: 'ignore', shell: true });
-      } else {
-        // Unix: use kill -0 to check if process exists
-        execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
-      }
-    } catch {
-      // Process doesn't exist, clean up PID file
-      unlinkSync(PID_FILE);
-      return {
-        success: true,
-        message: '🔴 No CAGE server is running (cleaned up stale PID file)'
-      };
-    }
-
-    // Kill the process (cross-platform)
-    try {
-      if (platform() === 'win32') {
-        // Windows: use taskkill
-        const forceFlag = options.force ? '/F' : '';
-        execSync(`taskkill /PID ${pid} ${forceFlag}`, { stdio: 'ignore', shell: true });
-      } else {
-        // Unix: use kill
-        const signal = options.force ? 'KILL' : 'TERM';
-        execSync(`kill -${signal} ${pid}`, { stdio: 'ignore' });
-      }
-
-      // Wait a moment for process to die
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Verify it's dead (cross-platform)
-      try {
-        if (platform() === 'win32') {
-          execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, { stdio: 'ignore', shell: true });
-        } else {
-          execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
-        }
-        // Still running, might need force
-        if (!options.force) {
-          return {
-            success: false,
-            message: chalk.yellow('Server not responding. Try: cage stop --force')
-          };
-        }
-      } catch {
-        // Process is dead, good
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: chalk.red(`Failed to stop server: ${error}`)
-      };
-    }
-
-    // Clean up PID file
-    if (existsSync(PID_FILE)) {
-      unlinkSync(PID_FILE);
-    }
+    const details: string[] = [];
+    if (killedFromPid) details.push('PID from file');
+    if (killedFromPort > 0) details.push(`${killedFromPort} orphaned process(es)`);
 
     return {
       success: true,
-      message: options.force
-        ? '🔴 CAGE server forcefully stopped'
-        : '🔴 CAGE server stopped'
+      message: details.length > 0 ? `${message} (killed: ${details.join(', ')})` : message
     };
   } catch (error) {
     return {
@@ -393,12 +411,7 @@ export function formatStatus(status: ServerStatus): string {
 
 // Export for CLI command registration
 export async function stopCommand(options: { force?: boolean }) {
-  // Quick check if server is running before showing spinner
-  if (!existsSync(PID_FILE)) {
-    console.log('🔴 No CAGE server is running');
-    return;
-  }
-
+  // Don't do early check - let stopServer handle all cases including orphaned processes
   const spinner = ora('Stopping CAGE server...').start();
   const result = await stopServer(options);
 

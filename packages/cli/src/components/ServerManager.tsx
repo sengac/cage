@@ -6,7 +6,9 @@ import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import { getRealServerStatus, getRealServerStatusFormatted } from '../utils/real-server-status';
+import { getStatusMonitor } from '../utils/status-monitor';
 import type { ServerStatus } from '../commands/server-management';
+import type { SystemStatus } from '../utils/status-monitor';
 import { stopServer, getServerStatus } from '../commands/server-management';
 import { startServer } from '../commands/start/server';
 
@@ -37,6 +39,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   const [realServerInfo, setRealServerInfo] = useState<ServerInfo | null>(null);
   const [fullServerStatus, setFullServerStatus] = useState<ServerStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const statusMonitor = getStatusMonitor();
 
   const isLoading = useAppStore((state) => state.isLoading);
   const loadingMessage = useAppStore((state) => state.loadingMessage);
@@ -46,32 +49,43 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
 
   const theme = useTheme();
 
-  // Load real server status on component mount and periodically refresh
+  // Load real server status on component mount and listen for updates
   useEffect(() => {
-    const loadServerStatus = async () => {
-      try {
-        setLoading(true);
-        const [status, fullStatus] = await Promise.all([
-          getRealServerStatus(),
-          getRealServerStatusFormatted()
-        ]);
-        setRealServerStatus(status.status);
-        setRealServerInfo(status.serverInfo);
-        setFullServerStatus(fullStatus);
-      } catch (error) {
-        // Error is already logged in getRealServerStatus
-        setRealServerStatus('error');
-        setRealServerInfo(null);
-      } finally {
-        setLoading(false);
-      }
+    const handleStatusUpdate = (status: SystemStatus) => {
+      setRealServerStatus(status.server.status);
+      setRealServerInfo(status.server.serverInfo as ServerInfo | null);
+      setFullServerStatus(status.server.fullStatus || null);
+      setLoading(false);
     };
 
-    loadServerStatus();
+    const handleStatusError = () => {
+      setRealServerStatus('error');
+      setRealServerInfo(null);
+      setFullServerStatus(null);
+      setLoading(false);
+    };
 
-    // Refresh every 5 seconds
-    const interval = setInterval(loadServerStatus, 5000);
-    return () => clearInterval(interval);
+    // Subscribe to status updates
+    statusMonitor.on('statusUpdated', handleStatusUpdate);
+    statusMonitor.on('statusError', handleStatusError);
+
+    // Start monitoring if not already started
+    statusMonitor.start(10000); // Update every 10 seconds minimum
+
+    // Get initial status
+    const initialStatus = statusMonitor.getStatus();
+    if (initialStatus.lastUpdated > 0) {
+      handleStatusUpdate(initialStatus);
+    } else {
+      // Force immediate update for initial load
+      statusMonitor.forceUpdate().then(handleStatusUpdate).catch(handleStatusError);
+    }
+
+    // Cleanup
+    return () => {
+      statusMonitor.off('statusUpdated', handleStatusUpdate);
+      statusMonitor.off('statusError', handleStatusError);
+    };
   }, []);
 
   useSafeInput((input, key) => {
@@ -119,12 +133,8 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
           } else {
             addError(result.message);
           }
-          // Refresh status
-          getRealServerStatus().then(status => {
-            setRealServerStatus(status.status);
-            setRealServerInfo(status.serverInfo);
-            setFullServerStatus(status.fullStatus);
-          });
+          // Trigger status update
+          statusMonitor.triggerUpdate();
         });
       } else {
         setAppLoading(true, 'Starting CAGE server...');
@@ -137,13 +147,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
           } else {
             addError(result.message);
           }
-          // Refresh status after a moment for server to stabilize
+          // Trigger status update after a moment for server to stabilize
           setTimeout(() => {
-            getRealServerStatus().then(status => {
-              setRealServerStatus(status.status);
-              setRealServerInfo(status.serverInfo);
-              setFullServerStatus(status.fullStatus);
-            });
+            statusMonitor.forceUpdate();
           }, 500);
         });
       }
@@ -168,13 +174,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
             } else {
               addError(result.message);
             }
-            // Refresh status
+            // Trigger status update
             setTimeout(() => {
-              getRealServerStatus().then(status => {
-                setRealServerStatus(status.status);
-                setRealServerInfo(status.serverInfo);
-                setFullServerStatus(status.fullStatus);
-              });
+              statusMonitor.forceUpdate();
             }, 500);
           });
         }, 500);
