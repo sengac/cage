@@ -6,6 +6,7 @@ import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import type { Event } from '../stores/appStore';
+import { VirtualList } from './VirtualList';
 
 interface StreamViewProps {
   onBack: () => void;
@@ -26,8 +27,7 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
   const [filterMode, setFilterMode] = useState(false);
   const [filterQuery, setFilterQuery] = useState('');
   const [appliedFilter, setAppliedFilter] = useState('');
-  const [showExportOptions, setShowExportOptions] = useState(false);
-  const [splitScreenMode, setSplitScreenMode] = useState(false);
+  const [lastSelectedIndex, setLastSelectedIndex] = useState(0);
 
   // Filter events based on applied filter
   const filteredEvents = appliedFilter
@@ -42,29 +42,19 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
       })
     : streamBuffer;
 
-  const [internalSelectedIndex, setInternalSelectedIndex] = useState(-1);
-
-  // Calculate actual selected index - auto-select most recent when streaming
-  const selectedIndex = (() => {
-    if (filteredEvents.length === 0) return -1;
-    if (isStreaming && !isPaused) return filteredEvents.length - 1; // Always latest when streaming
-    if (internalSelectedIndex === -1) return filteredEvents.length - 1; // Default to latest
-    return Math.min(internalSelectedIndex, filteredEvents.length - 1); // Ensure within bounds
-  })();
-
-  // Update internal index when events change
+  // Auto-follow latest event when streaming
   useEffect(() => {
-    if (filteredEvents.length > 0 && internalSelectedIndex === -1) {
-      setInternalSelectedIndex(filteredEvents.length - 1);
+    if (isStreaming && !isPaused && filteredEvents.length > 0) {
+      setLastSelectedIndex(filteredEvents.length - 1);
     }
-  }, [filteredEvents.length, internalSelectedIndex]);
+  }, [isStreaming, isPaused, filteredEvents.length]);
 
   useSafeInput((input, key) => {
     if (filterMode) {
       if (key.return) {
         setAppliedFilter(filterQuery);
         setFilterMode(false);
-        setInternalSelectedIndex(0);
+        setLastSelectedIndex(0);
       } else if (key.escape) {
         setFilterMode(false);
         setFilterQuery('');
@@ -76,33 +66,25 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
       return;
     }
 
-    if (input === ' ') {
-      pauseStream();
-    } else if (key.upArrow && isPaused && filteredEvents.length > 0) {
-      setInternalSelectedIndex((prev) => {
-        const current = prev === -1 ? filteredEvents.length - 1 : prev;
-        return current === 0 ? filteredEvents.length - 1 : current - 1;
-      });
-    } else if (key.downArrow && isPaused && filteredEvents.length > 0) {
-      setInternalSelectedIndex((prev) => {
-        const current = prev === -1 ? filteredEvents.length - 1 : prev;
-        return current === filteredEvents.length - 1 ? 0 : current + 1;
-      });
-    } else if (key.return && filteredEvents.length > 0 && selectedIndex >= 0) {
-      const selectedEvent = filteredEvents[selectedIndex];
-      selectEvent(selectedEvent);
-      if (onNavigate) {
-        onNavigate('eventDetail');
-      }
-    } else if (input === 's') {
-      toggleStream();
-    } else if (input === '/') {
-      setFilterMode(true);
-      setFilterQuery('');
-    } else if (input === 'e') {
-      setShowExportOptions(!showExportOptions);
-    } else if (key.tab) {
-      setSplitScreenMode(!splitScreenMode);
+    if (key.escape) {
+      onBack();
+      return;
+    }
+
+    switch (input) {
+      case ' ':
+        pauseStream();
+        break;
+      case 's':
+        toggleStream();
+        break;
+      case '/':
+        setFilterMode(true);
+        setFilterQuery('');
+        break;
+      case 'c':
+        setAppliedFilter('');
+        break;
     }
   });
 
@@ -118,113 +100,58 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
     return theme.status.success;
   };
 
-  const formatEventDescription = (event: Event) => {
+  const renderEvent = (event: Event, _index: number, isSelected: boolean) => {
+    const textColor = isSelected ? theme.ui.hover : theme.ui.text;
+    const indicator = isSelected ? figures.pointer : ' ';
+
+    // Format fields
+    const time = format(new Date(event.timestamp), 'HH:mm:ss.SSS');
+    const type = (event.eventType || '').substring(0, 18).padEnd(18);
+    const tool = (event.toolName || '-').substring(0, 18).padEnd(18);
+
+    // Format description
+    let desc = '';
     if (event.eventType === 'ToolUse' && event.toolName) {
       const args = event.arguments as Record<string, unknown>;
-      if (args?.file_path) {
-        return String(args.file_path);
-      }
-      if (args?.command) {
-        return String(args.command);
-      }
-    }
-    if (event.eventType === 'UserMessage') {
+      if (args?.file_path) desc = String(args.file_path);
+      else if (args?.command) desc = String(args.command);
+      else if (args?.pattern) desc = String(args.pattern);
+    } else if (event.eventType === 'UserMessage') {
       const args = event.arguments as Record<string, unknown>;
-      return args?.prompt ? String(args.prompt).slice(0, 30) + '...' : 'User input';
-    }
-    return event.eventType;
-  };
-
-  const renderStreamContent = () => {
-    if (!isStreaming && streamBuffer.length === 0) {
-      return (
-        <Box justifyContent="center" marginY={2}>
-          <Text color={theme.ui.textMuted}>
-            No events in stream
-          </Text>
-        </Box>
-      );
-    }
-
-    if (filteredEvents.length === 0) {
-      return (
-        <Box justifyContent="center" marginY={2}>
-          <Text color={theme.ui.textMuted}>
-            No events match filter
-          </Text>
-        </Box>
-      );
+      desc = args?.prompt ? String(args.prompt).slice(0, 50) : 'User input';
+    } else {
+      desc = event.eventType;
     }
 
     return (
-      <Box flexDirection="column" flexGrow={1}>
-        {filteredEvents.map((event, index) => {
-          const isSelected = index === selectedIndex && selectedIndex >= 0;
-          const textColor = isSelected ? theme.ui.hover : theme.ui.text;
-          const indicator = isSelected ? figures.pointer : ' ';
-
-          return (
-            <Box key={event.id} paddingX={1}>
-              <Text color={textColor}>
-                {indicator}
-              </Text>
-              <Box width={11}>
-                <Text color={textColor}>
-                  {format(new Date(event.timestamp), 'HH:mm:ss.SSS')}
-                </Text>
-              </Box>
-              <Box width={15}>
-                <Text color={textColor}>
-                  {event.eventType}
-                </Text>
-              </Box>
-              <Box width={12}>
-                <Text color={textColor}>
-                  {event.toolName || '-'}
-                </Text>
-              </Box>
-              <Box flexGrow={1}>
-                <Text color={textColor}>
-                  {formatEventDescription(event)}
-                </Text>
-              </Box>
-            </Box>
-          );
-        })}
-      </Box>
+      <Text color={textColor}>
+        {indicator} {time}  {type}  {tool}  {desc.substring(0, 60)}
+      </Text>
     );
   };
 
-  const renderSplitScreen = () => {
-    if (!splitScreenMode || filteredEvents.length === 0 || selectedIndex < 0) return null;
+  const handleSelectEvent = (event: Event, index: number) => {
+    setLastSelectedIndex(index);
+    selectEvent(event, index);
+    if (onNavigate) {
+      onNavigate('eventDetail');
+    }
+  };
 
-    const selectedEvent = filteredEvents[selectedIndex];
+  if (!isStreaming && streamBuffer.length === 0) {
     return (
-      <Box
-        marginTop={1}
-        paddingX={2}
-        paddingY={1}
-        borderStyle="single"
-        borderColor={theme.ui.borderSubtle}
-        minHeight={8}
-      >
-        <Box flexDirection="column">
-          <Text color={theme.ui.textMuted}>Event Detail:</Text>
-          <Text color={theme.ui.text}>{selectedEvent.id}</Text>
-          <Text color={theme.ui.text}>{selectedEvent.eventType}</Text>
-          {selectedEvent.toolName && (
-            <Text color={theme.ui.text}>{selectedEvent.toolName}</Text>
-          )}
-        </Box>
+      <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
+        <Text color={theme.ui.textMuted}>
+          No events in stream. Press 's' to start streaming.
+        </Text>
       </Box>
     );
-  };
+  }
+
+  const availableHeight = process.stdout.rows ? process.stdout.rows - 10 : 20;
 
   return (
     <Box flexDirection="column" flexGrow={1}>
-      {/* Main Content */}
-      <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
-
       {/* Status bar */}
       <Box marginBottom={1} paddingX={1}>
         <Text color={theme.ui.textMuted}>Status: </Text>
@@ -233,77 +160,58 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
         </Text>
         {isStreaming && (
           <>
-            <Text color={theme.ui.textMuted}>  Mode: </Text>
-            <Text color={theme.ui.text}>Streaming</Text>
+            <Text color={theme.ui.textMuted}>  Events: </Text>
+            <Text color={theme.ui.text}>{filteredEvents.length}</Text>
           </>
         )}
         {newEventCount > 0 && (
           <>
-            <Text color={theme.ui.textMuted}>  </Text>
-            <Text color={theme.status.success}>{newEventCount} new</Text>
+            <Text color={theme.ui.textMuted}>  New: </Text>
+            <Text color={theme.status.success}>{newEventCount}</Text>
+          </>
+        )}
+        {appliedFilter && (
+          <>
+            <Text color={theme.ui.textMuted}>  Filter: </Text>
+            <Text color={theme.primary.aqua}>{appliedFilter}</Text>
           </>
         )}
       </Box>
 
-      {/* Event count */}
-      <Box marginBottom={1} paddingX={1}>
-        <Text color={theme.ui.text}>
-          {appliedFilter
-            ? `${filteredEvents.length} events (filtered)`
-            : `${filteredEvents.length} events`
-          }
-        </Text>
-      </Box>
-
-      {/* Filter bar */}
+      {/* Filter input */}
       {filterMode && (
         <Box marginBottom={1} paddingX={1} borderStyle="single" borderColor={theme.primary.aqua}>
-          <Text color={theme.ui.text}>
-            Filter: {filterQuery}
-          </Text>
+          <Text color={theme.ui.text}>Filter: {filterQuery}</Text>
         </Box>
       )}
 
       {/* Column headers */}
-      {filteredEvents.length > 0 && (
-        <Box marginBottom={1} paddingX={1}>
-          <Box width={12}>
-            <Text color={theme.ui.textMuted} bold>
-              Time
-            </Text>
-          </Box>
-          <Box width={15}>
-            <Text color={theme.ui.textMuted} bold>
-              Type
-            </Text>
-          </Box>
-          <Box width={12}>
-            <Text color={theme.ui.textMuted} bold>
-              Tool
-            </Text>
-          </Box>
-          <Box flexGrow={1}>
-            <Text color={theme.ui.textMuted} bold>
-              Description
-            </Text>
-          </Box>
-        </Box>
-      )}
+      <Box paddingX={1} marginBottom={1}>
+        <Text color={theme.ui.textMuted} bold>
+          {'  Time           Type                Tool                Description'}
+        </Text>
+      </Box>
 
-      {/* Stream content */}
-      {renderStreamContent()}
+      {/* Events list */}
+      <VirtualList
+        items={filteredEvents}
+        height={availableHeight}
+        renderItem={renderEvent}
+        onSelect={handleSelectEvent}
+        onFocus={(_, index) => setLastSelectedIndex(index)}
+        keyExtractor={(event) => event.id}
+        emptyMessage="No events match filter"
+        showScrollbar={true}
+        enableWrapAround={false}
+        testMode={true}
+        initialIndex={lastSelectedIndex}
+      />
 
-      {/* Split screen detail */}
-      {renderSplitScreen()}
-
-      {/* Export options */}
-      {showExportOptions && (
-        <Box marginY={1} paddingX={1} borderStyle="single" borderColor={theme.primary.aqua}>
-          <Text color={theme.ui.text}>
-            Export options: JSON, CSV, Raw
-          </Text>
-        </Box>
-      )}
+      {/* Help text */}
+      <Box marginTop={1} paddingX={1}>
+        <Text color={theme.ui.textDim}>
+          Space: Pause | s: Start/Stop | /: Filter | c: Clear | ↵: View | ESC: Back
+        </Text>
       </Box>
     </Box>
   );

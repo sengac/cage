@@ -1,360 +1,272 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { useSafeInput } from '../hooks/useSafeInput';
-import { useAppStore } from '../stores/appStore';
-import { useDebugStore } from '../stores/useStore';
-import { existsSync, readdirSync, readFileSync } from 'fs';
+import { useTheme } from '../hooks/useTheme';
+import figures from 'figures';
+import { VirtualList } from './VirtualList';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { getEventsDir } from '../utils/event-utils';
+import { Logger } from '@cage/shared';
 
-export interface DebugConsoleProps {
-  onBack: () => void;
-}
-
-type ViewMode = 'list' | 'filter' | 'search' | 'help';
+const logger = new Logger({ context: 'DebugConsole' });
 
 interface DebugEvent {
   id: string;
   timestamp: string;
+  level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+  component: string;
   type: string;
-  level: 'ERROR' | 'WARN' | 'INFO' | 'DEBUG';
-  component: 'hooks' | 'backend' | 'cli';
   message: string;
-  duration?: number;
   stackTrace?: string;
+  duration?: number;
+}
+
+interface DebugConsoleProps {
+  onBack: () => void;
 }
 
 export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterLevel, setFilterLevel] = useState<string>('all');
-  const [filterComponent, setFilterComponent] = useState<string>('all');
   const [debugEvents, setDebugEvents] = useState<DebugEvent[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [filterLevel, setFilterLevel] = useState<'all' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'>('all');
+  const [filterComponent, setFilterComponent] = useState<string>('all');
+  const [searchMode, setSearchMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // Get real events from store
-  const events = useAppStore(state => state.events) || [];
-  const debugMode = useDebugStore(state => state.debugMode) || false;
-  const debugLogs = useDebugStore(state => state.debugLogs) || [];
+  const theme = useTheme();
 
-  // Convert real events to debug events
+  // Load debug events from filesystem
   useEffect(() => {
-    const converted: DebugEvent[] = [];
+    const loadDebugEvents = () => {
+      try {
+        setLoading(true);
+        const events: DebugEvent[] = [];
+        const eventsDir = join(process.cwd(), '.cage/events');
 
-    // Add events from appStore
-    if (events && events.length > 0) {
-      events.forEach(event => {
-        converted.push({
-          id: event.id,
-          timestamp: event.timestamp,
-          type: event.eventType,
-          level: event.error ? 'ERROR' : 'INFO',
-          component: event.toolName ? 'hooks' : 'backend',
-          message: `${event.eventType} ${event.toolName ? `for ${event.toolName}` : ''}`,
-          duration: event.executionTime,
-          stackTrace: event.error
-        });
-      });
-    }
-
-    // Add debug logs if in debug mode
-    if (debugMode && debugLogs.length > 0) {
-      debugLogs.forEach((log, index) => {
-        converted.push({
-          id: `debug-${index}`,
-          timestamp: new Date().toISOString(),
-          type: 'Debug',
-          level: 'DEBUG',
-          component: 'cli',
-          message: log
-        });
-      });
-    }
-
-    // Try to load real events from filesystem if available
-    try {
-      const eventsDir = getEventsDir();
-      if (existsSync(eventsDir)) {
-        const files = readdirSync(eventsDir)
-          .filter(f => f.endsWith('.jsonl'))
-          .slice(-5); // Get last 5 files
-
-        files.forEach(file => {
-          const content = readFileSync(join(eventsDir, file), 'utf-8');
-          const lines = content.split('\n').filter(line => line.trim());
-
-          lines.forEach((line, idx) => {
-            try {
-              const event = JSON.parse(line);
-              converted.push({
-                id: `file-${file}-${idx}`,
-                timestamp: event.timestamp || new Date().toISOString(),
-                type: event.type || event.eventType || 'Unknown',
-                level: event.level || (event.error ? 'ERROR' : 'INFO'),
-                component: event.tool ? 'hooks' : event.source || 'backend',
-                message: event.message || JSON.stringify(event).substring(0, 100),
-                duration: event.duration || event.executionTime,
-                stackTrace: event.stackTrace || event.error
-              });
-            } catch (e) {
-              // Skip malformed lines
-            }
-          });
-        });
-      }
-    } catch (error) {
-      // Fallback to mock data if filesystem fails
-      converted.push(
-        {
-          id: 'fallback-1',
-          timestamp: new Date().toISOString(),
-          type: 'PreToolUse',
-          level: 'INFO',
-          component: 'hooks',
-          message: 'Processing PreToolUse hook for Read tool',
-          duration: 45
-        },
-        {
-          id: 'fallback-2',
-          timestamp: new Date().toISOString(),
-          type: 'Backend',
-          level: 'INFO',
-          component: 'backend',
-          message: 'Connection established to backend server',
-        },
-        {
-          id: 'fallback-3',
-          timestamp: new Date().toISOString(),
-          type: 'Error',
-          level: 'ERROR',
-          component: 'backend',
-          message: 'Failed to connect to server - Connection refused',
-          stackTrace: 'Error: Connection refused\n    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1146:16)\n    at connect() line 42'
-        },
-        {
-          id: 'fallback-4',
-          timestamp: new Date().toISOString(),
-          type: 'PostToolUse',
-          level: 'INFO',
-          component: 'hooks',
-          message: 'PostToolUse hook completed for Edit tool',
-          duration: 78
-        },
-        {
-          id: 'fallback-5',
-          timestamp: new Date().toISOString(),
-          type: 'UserPromptSubmit',
-          level: 'INFO',
-          component: 'hooks',
-          message: 'User prompt submitted and processed',
-        },
-        {
-          id: 'fallback-6',
-          timestamp: new Date().toISOString(),
-          type: 'Performance',
-          level: 'WARN',
-          component: 'hooks',
-          message: 'Slow operation detected',
-          duration: 1500
-        },
-        {
-          id: 'fallback-7',
-          timestamp: new Date().toISOString(),
-          type: 'FileWrite',
-          level: 'DEBUG',
-          component: 'cli',
-          message: 'Writing file /tmp/debug.log',
-          duration: 23
+        if (!existsSync(eventsDir)) {
+          setDebugEvents([]);
+          return;
         }
-      );
-    }
 
-    // Apply filters
-    let filtered = converted;
-    if (filterLevel !== 'all') {
-      filtered = filtered.filter(e => e.level === filterLevel);
-    }
-    if (filterComponent !== 'all') {
-      filtered = filtered.filter(e => e.component === filterComponent);
-    }
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(e =>
-        e.message.toLowerCase().includes(search) ||
-        e.type.toLowerCase().includes(search)
-      );
-    }
+        // Get all date directories
+        const dateDirs = readdirSync(eventsDir)
+          .filter(dir => !dir.startsWith('.'))
+          .sort((a, b) => b.localeCompare(a))
+          .slice(0, 3); // Last 3 days
 
-    setDebugEvents(filtered);
-  }, [events, debugMode, debugLogs, filterLevel, filterComponent, searchTerm]);
+        for (const dateDir of dateDirs) {
+          const datePath = join(eventsDir, dateDir);
+          const files = readdirSync(datePath)
+            .filter(f => f.endsWith('.jsonl'))
+            .slice(-5); // Get last 5 files
 
-  useSafeInput((input, key) => {
-    if (viewMode === 'help') {
-      if (key.escape || input === '?') {
-        setViewMode('list');
-      }
-      return;
-    }
+          files.forEach(file => {
+            const filePath = join(datePath, file);
+            const content = readFileSync(filePath, 'utf-8');
+            const lines = content.trim().split('\n').filter(Boolean);
 
-    if (viewMode === 'filter') {
-      if (key.escape) {
-        setViewMode('list');
-      }
-      // TODO: Implement filter selection
-      return;
-    }
+            lines.forEach(line => {
+              try {
+                const event = JSON.parse(line);
+                // Convert to debug event format
+                events.push({
+                  id: `${event.timestamp}-${Math.random()}`,
+                  timestamp: event.timestamp,
+                  level: event.level || 'INFO',
+                  component: event.toolName || event.eventType || 'System',
+                  type: event.eventType || 'Event',
+                  message: event.message || JSON.stringify(event.arguments || {}).slice(0, 100),
+                  stackTrace: event.error,
+                  duration: event.executionTime
+                });
+              } catch {
+                // Skip invalid JSON
+              }
+            });
+          });
+        }
 
-    if (viewMode === 'search') {
-      if (key.escape) {
-        setSearchTerm('');
-        setViewMode('list');
-      } else if (key.return) {
-        // Apply search
-        setViewMode('list');
-      } else if (key.backspace) {
-        setSearchTerm(prev => prev.slice(0, -1));
-      } else if (input && input.length === 1) {
-        setSearchTerm(prev => prev + input);
-      }
-      return;
-    }
-
-    // List view navigation
-    if (key.downArrow || input === 'j') {
-      setSelectedIndex(prev => Math.min(prev + 1, debugEvents.length - 1));
-    } else if (key.upArrow || input === 'k') {
-      setSelectedIndex(prev => Math.max(prev - 1, 0));
-    } else if (input === 'f') {
-      setViewMode('filter');
-    } else if (input === '/') {
-      setViewMode('search');
-      setSearchTerm('');
-    } else if (input === '?') {
-      setViewMode('help');
-    }
-    // ESC/q handled by FullScreenLayout, not here
-  });
-
-  const renderHelp = () => (
-    <Box flexDirection="column" padding={1}>
-      <Text bold color="cyan">HELP - Keyboard Shortcuts</Text>
-      <Text> </Text>
-      <Text>Navigation:</Text>
-      <Text>  ↑/↓ or j/k  - Navigate events</Text>
-      <Text>  ESC or q    - Back/Exit</Text>
-      <Text> </Text>
-      <Text>Filtering:</Text>
-      <Text>  f           - Open filter menu</Text>
-      <Text>  /           - Search within logs</Text>
-      <Text> </Text>
-      <Text>Other:</Text>
-      <Text>  ?           - Toggle help</Text>
-      <Text> </Text>
-      <Text color="gray">Press ESC or ? to close help</Text>
-    </Box>
-  );
-
-  const renderFilter = () => (
-    <Box flexDirection="column" padding={1}>
-      <Text bold color="cyan">FILTER OPTIONS</Text>
-      <Text> </Text>
-      <Text bold>Log Level:</Text>
-      <Text>  • ALL</Text>
-      <Text>  • ERROR</Text>
-      <Text>  • WARN</Text>
-      <Text>  • INFO</Text>
-      <Text>  • DEBUG</Text>
-      <Text> </Text>
-      <Text bold>Component:</Text>
-      <Text>  • all</Text>
-      <Text>  • hooks</Text>
-      <Text>  • backend</Text>
-      <Text>  • cli</Text>
-      <Text> </Text>
-      <Text color="gray">Press ESC to go back</Text>
-    </Box>
-  );
-
-  const renderSearch = () => (
-    <Box flexDirection="column" padding={1}>
-      <Text bold color="cyan">SEARCH</Text>
-      <Text> </Text>
-      <Text>Search: {searchTerm}_</Text>
-      <Text> </Text>
-      <Text color="gray">Type to search, Enter to apply, ESC to cancel</Text>
-    </Box>
-  );
-
-  const renderList = () => {
-    const getLevelColor = (level: string) => {
-      switch (level) {
-        case 'ERROR': return 'red';
-        case 'WARN': return 'yellow';
-        case 'INFO': return 'cyan';
-        case 'DEBUG': return 'gray';
-        default: return 'white';
+        // Sort by timestamp descending
+        events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setDebugEvents(events);
+      } catch (error) {
+        logger.error('Failed to load debug events', { error });
+        setDebugEvents([]);
+      } finally {
+        setLoading(false);
       }
     };
 
+    loadDebugEvents();
+
+    // Refresh every 5 seconds
+    const interval = setInterval(loadDebugEvents, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Filter events
+  const filteredEvents = debugEvents.filter(event => {
+    if (filterLevel !== 'all' && event.level !== filterLevel) return false;
+    if (filterComponent !== 'all' && event.component !== filterComponent) return false;
+
+    if (appliedSearch) {
+      const searchableContent = [
+        event.message,
+        event.component,
+        event.type,
+        event.level
+      ].join(' ').toLowerCase();
+      if (!searchableContent.includes(appliedSearch.toLowerCase())) return false;
+    }
+
+    return true;
+  });
+
+  // Get unique components for filtering
+  const components = Array.from(new Set(debugEvents.map(e => e.component))).sort();
+
+  useSafeInput((input, key) => {
+    if (searchMode) {
+      if (key.return) {
+        setAppliedSearch(searchQuery);
+        setSearchMode(false);
+        setSelectedIndex(0);
+      } else if (key.escape) {
+        setSearchMode(false);
+        setSearchQuery('');
+      } else if (key.backspace) {
+        setSearchQuery(prev => prev.slice(0, -1));
+      } else if (input && !key.ctrl && !key.meta) {
+        setSearchQuery(prev => prev + input);
+      }
+      return;
+    }
+
+    if (key.escape) {
+      onBack();
+      return;
+    }
+
+    switch (input) {
+      case '/':
+        setSearchMode(true);
+        setSearchQuery('');
+        break;
+      case 'f':
+        // Cycle through filter levels
+        const levels: Array<typeof filterLevel> = ['all', 'DEBUG', 'INFO', 'WARN', 'ERROR'];
+        const currentIndex = levels.indexOf(filterLevel);
+        setFilterLevel(levels[(currentIndex + 1) % levels.length]);
+        break;
+      case 'c':
+        // Cycle through components
+        const allComponents = ['all', ...components];
+        const currentCompIndex = allComponents.indexOf(filterComponent);
+        setFilterComponent(allComponents[(currentCompIndex + 1) % allComponents.length]);
+        break;
+      case 'r':
+        // Clear all filters
+        setFilterLevel('all');
+        setFilterComponent('all');
+        setAppliedSearch('');
+        break;
+    }
+  });
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'ERROR': return theme.status.error;
+      case 'WARN': return theme.status.warning;
+      case 'INFO': return theme.ui.text;
+      case 'DEBUG': return theme.ui.textMuted;
+      default: return theme.ui.textDim;
+    }
+  };
+
+  const renderEvent = (event: DebugEvent, _index: number, isSelected: boolean) => {
+    const textColor = isSelected ? theme.ui.hover : getLevelColor(event.level);
+    const indicator = isSelected ? figures.pointer : ' ';
+    const time = new Date(event.timestamp).toLocaleTimeString();
+
     return (
-      <Box flexDirection="column" flexGrow={1}>
-        {/* Main Content */}
-        <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
-
-        {/* Status bar */}
-        <Box marginBottom={1}>
-          <Text>Total Events: {debugEvents.length}</Text>
-          <Text> | </Text>
-          <Text>Filter: {filterLevel === 'all' ? 'All Levels' : filterLevel}</Text>
-          <Text> | </Text>
-          <Text>Component: {filterComponent === 'all' ? 'All' : filterComponent}</Text>
-        </Box>
-
-        {/* Events list */}
-        <Box flexDirection="column" marginBottom={1}>
-          {debugEvents.length === 0 && (
-            <Text color="gray">No debug events yet. Events will appear here as they occur.</Text>
-          )}
-          {debugEvents.map((event, index) => {
-            const isSelected = index === selectedIndex;
-            const prefix = isSelected ? '❯ ' : '  ';
-            const time = new Date(event.timestamp).toLocaleTimeString();
-
-            return (
-              <Box key={event.id} flexDirection="column">
-                <Text color={isSelected ? 'yellow' : getLevelColor(event.level)}>
-                  {prefix}[{time}] [{event.level}] [{event.component}] {event.type}: {event.message}
-                  {event.duration && ` (${event.duration}ms)`}
-                </Text>
-                {/* Show stack trace for errors */}
-                {event.level === 'ERROR' && event.stackTrace && isSelected && (
-                  <Box marginLeft={4} flexDirection="column">
-                    <Text color="red" dimColor>Stack trace:</Text>
-                    <Text color="red" dimColor>{event.stackTrace}</Text>
-                  </Box>
-                )}
-              </Box>
-            );
-          })}
-        </Box>
-
-        </Box>
+      <Box flexDirection="column">
+        <Text color={textColor}>
+          {indicator} [{time}] [{event.level.padEnd(5)}] [{event.component.substring(0, 15).padEnd(15)}] {event.message.substring(0, 80)}
+          {event.duration ? ` (${event.duration}ms)` : ''}
+        </Text>
+        {isSelected && event.stackTrace && (
+          <Box marginLeft={2}>
+            <Text color={theme.status.error} dimColor>
+              {event.stackTrace.substring(0, 200)}
+            </Text>
+          </Box>
+        )}
       </Box>
     );
   };
 
-  // Choose which view to render
-  if (viewMode === 'help') {
-    return renderHelp();
+  if (loading) {
+    return (
+      <Box justifyContent="center" alignItems="center" flexGrow={1}>
+        <Text color={theme.ui.textMuted}>Loading debug events...</Text>
+      </Box>
+    );
   }
 
-  if (viewMode === 'filter') {
-    return renderFilter();
-  }
+  const availableHeight = process.stdout.rows ? process.stdout.rows - 10 : 20;
 
-  if (viewMode === 'search') {
-    return renderSearch();
-  }
+  return (
+    <Box flexDirection="column" flexGrow={1}>
+      {/* Status bar */}
+      <Box marginBottom={1} paddingX={1}>
+        <Text color={theme.ui.textMuted}>Events: {filteredEvents.length}/{debugEvents.length}</Text>
+        {filterLevel !== 'all' && (
+          <Text color={theme.primary.aqua}> Level: {filterLevel}</Text>
+        )}
+        {filterComponent !== 'all' && (
+          <Text color={theme.primary.aqua}> Component: {filterComponent}</Text>
+        )}
+        {appliedSearch && (
+          <Text color={theme.primary.aqua}> Search: {appliedSearch}</Text>
+        )}
+      </Box>
 
-  return renderList();
+      {/* Search input */}
+      {searchMode && (
+        <Box marginBottom={1} paddingX={1} borderStyle="single" borderColor={theme.primary.aqua}>
+          <Text color={theme.ui.text}>Search: {searchQuery}</Text>
+        </Box>
+      )}
+
+      {/* Column headers */}
+      <Box paddingX={1} marginBottom={1}>
+        <Text color={theme.ui.textMuted} bold>
+          {'  Time       Level  Component        Message'}
+        </Text>
+      </Box>
+
+      {/* Events list */}
+      <VirtualList
+        items={filteredEvents}
+        height={availableHeight}
+        renderItem={renderEvent}
+        onFocus={(_, index) => setSelectedIndex(index)}
+        keyExtractor={(event) => event.id}
+        emptyMessage="No debug events found"
+        showScrollbar={true}
+        enableWrapAround={true}
+        testMode={true}
+        initialIndex={selectedIndex}
+      />
+
+      {/* Help text */}
+      <Box marginTop={1} paddingX={1}>
+        <Text color={theme.ui.textDim}>
+          /: Search | f: Filter Level | c: Filter Component | r: Reset | ESC: Back
+        </Text>
+      </Box>
+    </Box>
+  );
 };

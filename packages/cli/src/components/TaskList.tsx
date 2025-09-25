@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
+import { VirtualList } from './VirtualList';
+import { useTheme } from '../hooks/useTheme';
+import { useSafeInput } from '../hooks/useSafeInput';
 
 export interface Task {
   id: string;
@@ -48,7 +51,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   onTaskSelect,
   selectedTaskId,
   interactive = false,
-  theme,
   spacing = 'normal',
   border = true,
   showTimestamps = false,
@@ -57,7 +59,9 @@ export const TaskList: React.FC<TaskListProps> = ({
   showTags = false
 }) => {
   const [spinnerIndex, setSpinnerIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const spinnerChars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+  const appTheme = useTheme();
 
   // Animate spinner for loading and active tasks
   useEffect(() => {
@@ -154,6 +158,23 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   const processedTasks = sortTasks(filterTasks(tasks));
 
+  // Handle keyboard navigation when interactive
+  useSafeInput((input, key) => {
+    if (!interactive) return;
+
+    if (key.escape) {
+      // Let parent handle escape
+      return;
+    }
+
+    if (key.return && processedTasks.length > 0) {
+      const selectedTask = processedTasks[selectedIndex];
+      if (selectedTask && onTaskSelect) {
+        onTaskSelect(selectedTask.id);
+      }
+    }
+  });
+
   const getTaskCounts = () => {
     return {
       total: tasks.length,
@@ -168,11 +189,11 @@ export const TaskList: React.FC<TaskListProps> = ({
     return new Date(timestamp).toLocaleString();
   };
 
-  const renderTaskItem = (task: Task): JSX.Element => {
-    const isSelected = selectedTaskId === task.id;
+  const renderTaskItem = (task: Task, _index: number, isSelected: boolean) => {
     const prefix = isSelected ? '❯ ' : '  ';
     const statusIcon = getStatusIcon(task);
     const priorityIcon = getPriorityIcon(task.priority);
+    const textColor = isSelected ? appTheme.ui.hover : appTheme.ui.text;
 
     const taskContent = layout === 'minimal'
       ? truncateText(task.content, 30)
@@ -180,10 +201,21 @@ export const TaskList: React.FC<TaskListProps> = ({
       ? truncateText(task.content, 50)
       : task.content;
 
+    // For simple layout, just return a single Text
+    if (layout === 'minimal') {
+      return (
+        <Text color={textColor}>
+          {prefix}{showIds && `#${task.id} `}{priorityIcon} {statusIcon} {taskContent}
+          {task.duration && ` (${formatDuration(task.duration)})`}
+        </Text>
+      );
+    }
+
+    // For complex layouts, we need Box with Text
     return (
-      <Box key={task.id} flexDirection="column" marginBottom={spacing === 'wide' ? 1 : 0}>
+      <Box flexDirection="column" marginBottom={spacing === 'wide' ? 1 : 0}>
         <Box flexDirection="row">
-          <Text color={isSelected ? 'cyan' : 'white'}>
+          <Text color={textColor}>
             {prefix}
             {showIds && `#${task.id} `}
             {priorityIcon} {statusIcon} {taskContent}
@@ -203,33 +235,33 @@ export const TaskList: React.FC<TaskListProps> = ({
         {/* Active form in detailed layout */}
         {layout === 'detailed' && task.status === 'in_progress' && (
           <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text color="gray">{task.activeForm}</Text>
+            <Text color={appTheme.ui.textMuted}>{task.activeForm}</Text>
           </Box>
         )}
 
         {/* Additional details */}
         {showTimestamps && (task.createdAt || task.updatedAt) && (
           <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4} flexDirection="column">
-            {task.createdAt && <Text color="gray">Created: {formatTimestamp(task.createdAt)}</Text>}
-            {task.updatedAt && <Text color="gray">Updated: {formatTimestamp(task.updatedAt)}</Text>}
+            {task.createdAt && <Text color={appTheme.ui.textMuted}>Created: {formatTimestamp(task.createdAt)}</Text>}
+            {task.updatedAt && <Text color={appTheme.ui.textMuted}>Updated: {formatTimestamp(task.updatedAt)}</Text>}
           </Box>
         )}
 
         {showDependencies && task.dependencies && task.dependencies.length > 0 && (
           <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text color="gray">Depends on: {task.dependencies.map(dep => `#${dep}`).join(', ')}</Text>
+            <Text color={appTheme.ui.textMuted}>Depends on: {task.dependencies.map(dep => `#${dep}`).join(', ')}</Text>
           </Box>
         )}
 
         {showAssignees && task.assignee && (
           <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text color="gray">Assigned: {task.assignee}</Text>
+            <Text color={appTheme.ui.textMuted}>Assigned: {task.assignee}</Text>
           </Box>
         )}
 
         {showTags && task.tags && task.tags.length > 0 && (
           <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text color="gray">{task.tags.map(tag => `[${tag}]`).join(' ')}</Text>
+            <Text color={appTheme.ui.textMuted}>{task.tags.map(tag => `[${tag}]`).join(' ')}</Text>
           </Box>
         )}
       </Box>
@@ -274,9 +306,23 @@ export const TaskList: React.FC<TaskListProps> = ({
         </Box>
 
         {/* Task items */}
-        <Box flexDirection="column">
-          {processedTasks.map(renderTaskItem)}
-        </Box>
+        <VirtualList
+          items={processedTasks}
+          height={Math.min(processedTasks.length, 15)}
+          renderItem={renderTaskItem}
+          onSelect={(task) => {
+            if (onTaskSelect) {
+              onTaskSelect(task.id);
+            }
+          }}
+          onFocus={(_, index) => setSelectedIndex(index)}
+          keyExtractor={(task) => task.id}
+          emptyMessage="No tasks found"
+          showScrollbar={true}
+          enableWrapAround={false}
+          testMode={interactive}
+          initialIndex={selectedTaskId ? processedTasks.findIndex(t => t.id === selectedTaskId) : 0}
+        />
 
         {/* Interactive shortcuts */}
         {interactive && (
