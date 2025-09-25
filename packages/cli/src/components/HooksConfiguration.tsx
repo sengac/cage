@@ -199,7 +199,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
         enableWrapAround={true}
         testMode={true}
         initialIndex={selectedHookIndex}
-        heightOffset={11}  // Account for status bar, help text, and other static elements
+        heightOffset={8}  // Account for status bar and other static elements
         dynamicOffset={dynamicOffset}
       />
 
@@ -211,13 +211,6 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
           </Text>
         </Box>
       )}
-
-      {/* Help Text */}
-      <Box marginTop={1} paddingX={1}>
-        <Text color={theme.ui.textDim}>
-          Space: Toggle | a: Enable All | d: Disable All | r: Refresh | v: Verify | /: Search | f: Filter | ESC: Back
-        </Text>
-      </Box>
     </Box>
   );
 };

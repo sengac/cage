@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box } from 'ink';
 import { VirtualList } from './VirtualList';
 import { useStdout } from 'ink';
@@ -64,10 +64,11 @@ export function ResizeAwareList<T>({
   const { stdout } = useStdout();
   const [terminalHeight, setTerminalHeight] = useState(stdout.rows || 24);
 
-  // Update terminal height on resize
+  // Update terminal height on resize and when stdout changes
   useEffect(() => {
     const updateHeight = () => {
-      setTerminalHeight(stdout.rows || 24);
+      const currentHeight = process.stdout.rows || stdout.rows || 24;
+      setTerminalHeight(currentHeight);
     };
 
     // Initial update
@@ -85,8 +86,8 @@ export function ResizeAwareList<T>({
     };
   }, [stdout]);
 
-  // Calculate the actual list height
-  const calculateHeight = () => {
+  // Recalculate height whenever dependencies change
+  const listHeight = useMemo(() => {
     const totalOffset = heightOffset + dynamicOffset;
     let calculatedHeight = Math.max(minHeight, terminalHeight - totalOffset);
 
@@ -99,9 +100,7 @@ export function ResizeAwareList<T>({
     calculatedHeight = Math.min(calculatedHeight, items.length || 1);
 
     return calculatedHeight;
-  };
-
-  const listHeight = calculateHeight();
+  }, [terminalHeight, heightOffset, dynamicOffset, minHeight, maxHeight, items.length]);
 
   // Wrapper for renderItem to ensure proper constraints
   const constrainedRenderItem = (item: T, index: number, isSelected: boolean) => {

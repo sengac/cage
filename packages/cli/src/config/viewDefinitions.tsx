@@ -66,7 +66,7 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Hooks Configuration',
       subtitle: 'Setup & verify hooks',
-      footer: '↑↓ Navigate | Space Toggle | ↵ Action | Tab Switch | / Search | f Filter | ESC Back',
+      footer: 'Space Toggle | a Enable All | d Disable All | r Refresh | v Verify | / Search | f Filter | ESC Back',
       showDefaultFooter: false
     }
   },
@@ -77,7 +77,7 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Real-time Monitor',
       subtitle: 'Stream live events',
-      footer: 'SPACE Pause | ↵ Inspect | F Filter | / Search | ESC Back',
+      footer: 'Space Pause | s Start/Stop | / Filter | c Clear | ↵ View | ESC Back',
       showDefaultFooter: false
     }
   },
@@ -110,7 +110,7 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Debug Console',
       subtitle: 'View debug output',
-      footer: '↑↓/jk Navigate | f Filter | / Search | ? Help | ESC/q Back',
+      footer: '/ Search | f Filter Level | c Filter Component | r Reset | ESC Back',
       showDefaultFooter: false
     }
   },

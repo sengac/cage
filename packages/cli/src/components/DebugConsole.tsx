@@ -37,6 +37,9 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
 
   const theme = useTheme();
 
+  // Dynamic offset for search bar
+  const dynamicOffset = searchMode ? 3 : 0;
+
   // Load debug events from filesystem
   useEffect(() => {
     const loadDebugEvents = () => {
@@ -223,9 +226,6 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     );
   }
 
-  // Dynamic offset for search bar
-  const dynamicOffset = searchMode ? 3 : 0;
-
   return (
     <Box flexDirection="column" flexGrow={1}>
       {/* Status bar */}
@@ -267,16 +267,10 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
         enableWrapAround={true}
         testMode={true}
         initialIndex={selectedIndex}
-        heightOffset={12}  // Account for status bar, column headers, help text
+        heightOffset={14}  // Header(3) + Footer(3) + Padding(2) + Status(2) + Columns(2) + Buffer(2)
         dynamicOffset={dynamicOffset}
       />
 
-      {/* Help text */}
-      <Box marginTop={1} paddingX={1}>
-        <Text color={theme.ui.textDim}>
-          /: Search | f: Filter Level | c: Filter Component | r: Reset | ESC: Back
-        </Text>
-      </Box>
     </Box>
   );
 };

@@ -237,7 +237,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         enableWrapAround={true}
         testMode={true}  // Enable input without focus check
         initialIndex={initialSelectedIndex}
-        heightOffset={10}  // Account for header, footer, column headers
+        heightOffset={12}  // Header(3) + Footer(3) + Padding(2) + Columns(2) + Buffer(2)
         dynamicOffset={dynamicOffset}
       />
     </Box>

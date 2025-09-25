@@ -205,16 +205,10 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
         enableWrapAround={false}
         testMode={true}
         initialIndex={lastSelectedIndex}
-        heightOffset={11}  // Account for status bar, column headers, help text
+        heightOffset={9}  // Account for status bar, column headers
         dynamicOffset={dynamicOffset}
       />
 
-      {/* Help text */}
-      <Box marginTop={1} paddingX={1}>
-        <Text color={theme.ui.textDim}>
-          Space: Pause | s: Start/Stop | /: Filter | c: Clear | ↵: View | ESC: Back
-        </Text>
-      </Box>
     </Box>
   );
 };
