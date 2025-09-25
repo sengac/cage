@@ -3,6 +3,7 @@ import { Box, Text, useFocusManager } from 'ink';
 import { useSafeInput } from '../hooks/useSafeInput';
 import { useTheme } from '../hooks/useTheme';
 import figures from 'figures';
+import { useInputMode } from '../contexts/InputContext';
 
 interface VirtualListProps<T> {
   items: T[];
@@ -35,6 +36,7 @@ export function VirtualList<T>({
   const [scrollOffset, setScrollOffset] = useState(Math.max(0, initialIndex - Math.floor(height / 2)));
   const theme = useTheme();
   const { isFocused } = useFocusManager();
+  const { mode } = useInputMode();
 
   // Reset selection when initialIndex changes
   useEffect(() => {
@@ -64,7 +66,8 @@ export function VirtualList<T>({
 
   useSafeInput(
     (input, key) => {
-      if ((!isFocused && !testMode) || items.length === 0) return;
+      // Only handle input when in normal mode
+      if ((!isFocused && !testMode) || items.length === 0 || mode !== 'normal') return;
 
       if (key.upArrow || input === 'k') {
         setSelectedIndex((prev) => {

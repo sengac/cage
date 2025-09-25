@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Text } from 'ink';
 import { useSafeInput } from '../hooks/useSafeInput';
 import { useTheme } from '../hooks/useTheme';
@@ -7,6 +7,7 @@ import { ResizeAwareList } from './ResizeAwareList';
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { Logger } from '@cage/shared';
+import { useExclusiveInput } from '../contexts/InputContext';
 
 const logger = new Logger({ context: 'DebugConsole' });
 
@@ -36,9 +37,28 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
 
   const theme = useTheme();
+  const { enterExclusiveMode } = useExclusiveInput('debug-console');
+  const releaseFocusRef = useRef<(() => void) | null>(null);
 
   // Dynamic offset for search bar
   const dynamicOffset = searchMode ? 3 : 0;
+
+  // Handle entering/exiting search mode
+  useEffect(() => {
+    if (searchMode) {
+      const release = enterExclusiveMode('search');
+      releaseFocusRef.current = release;
+    } else if (releaseFocusRef.current) {
+      releaseFocusRef.current();
+      releaseFocusRef.current = null;
+    }
+
+    return () => {
+      if (releaseFocusRef.current) {
+        releaseFocusRef.current();
+      }
+    };
+  }, [searchMode, enterExclusiveMode]);
 
   // Load debug events from filesystem
   useEffect(() => {
@@ -131,20 +151,27 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
   const components = Array.from(new Set(debugEvents.map(e => e.component))).sort();
 
   useSafeInput((input, key) => {
+    // Search mode - capture all text input
     if (searchMode) {
       if (key.return) {
         setAppliedSearch(searchQuery);
         setSearchMode(false);
-        setSelectedIndex(0);
-      } else if (key.escape) {
+        return;
+      }
+      if (key.escape) {
         setSearchMode(false);
         setSearchQuery('');
-      } else if (key.backspace) {
-        setSearchQuery(prev => prev.slice(0, -1));
-      } else if (input && !key.ctrl && !key.meta) {
-        setSearchQuery(prev => prev + input);
+        return;
       }
-      return;
+      if (key.backspace) {
+        setSearchQuery(prev => prev.slice(0, -1));
+        return;
+      }
+      if (input && !key.ctrl && !key.meta) {
+        setSearchQuery(prev => prev + input);
+        return;
+      }
+      return; // Block all other input
     }
 
     if (key.escape) {
@@ -152,6 +179,7 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
       return;
     }
 
+    // Normal mode shortcuts
     switch (input) {
       case '/':
         setSearchMode(true);

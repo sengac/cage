@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Box, Text } from 'ink';
 import { useSafeInput } from '../hooks/useSafeInput';
 import { format } from 'date-fns';
@@ -7,6 +7,7 @@ import type { Event } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import { loadRealEvents } from '../utils/real-events';
 import { ResizeAwareList } from './ResizeAwareList';
+import { useExclusiveInput } from '../contexts/InputContext';
 
 interface EventInspectorProps {
   onSelectEvent: (event: Event, index: number) => void;
@@ -27,6 +28,28 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
   const [loading, setLoading] = useState(true);
 
   const theme = useTheme();
+  const { enterExclusiveMode } = useExclusiveInput('event-inspector');
+  const releaseFocusRef = useRef<(() => void) | null>(null);
+
+  // Dynamic offset for search bar
+  const dynamicOffset = searchMode ? 3 : 0;
+
+  // Handle entering/exiting search mode
+  useEffect(() => {
+    if (searchMode) {
+      const release = enterExclusiveMode('search');
+      releaseFocusRef.current = release;
+    } else if (releaseFocusRef.current) {
+      releaseFocusRef.current();
+      releaseFocusRef.current = null;
+    }
+
+    return () => {
+      if (releaseFocusRef.current) {
+        releaseFocusRef.current();
+      }
+    };
+  }, [searchMode, enterExclusiveMode]);
 
   // Load real events on component mount
   useEffect(() => {
@@ -87,31 +110,36 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return filtered;
   }, [realEvents, sortField, sortOrder, appliedSearch]);
 
-  // Handle keyboard shortcuts when not in VirtualList
   useSafeInput((input, key) => {
-    // Handle search mode
+    // Search mode - capture all text input
     if (searchMode) {
       if (key.return) {
         setAppliedSearch(searchQuery);
         setSearchMode(false);
-      } else if (key.escape) {
+        return;
+      }
+      if (key.escape) {
         setSearchMode(false);
         setSearchQuery('');
-      } else if (key.backspace) {
-        setSearchQuery(prev => prev.slice(0, -1));
-      } else if (input && !key.ctrl && !key.meta) {
-        setSearchQuery(prev => prev + input);
+        return;
       }
-      return;
+      if (key.backspace) {
+        setSearchQuery(prev => prev.slice(0, -1));
+        return;
+      }
+      if (input && !key.ctrl && !key.meta) {
+        setSearchQuery(prev => prev + input);
+        return;
+      }
+      return; // Block all other input
     }
 
-    // Handle escape to go back
     if (key.escape) {
       onBack();
       return;
     }
 
-    // Sort commands
+    // Normal mode shortcuts
     switch (input) {
       case '/':
         setSearchMode(true);
@@ -202,9 +230,6 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       </Box>
     );
   }
-
-  // Dynamic offset for search bar
-  const dynamicOffset = searchMode ? 3 : 0;
 
   return (
     <Box flexDirection="column" flexGrow={1}>

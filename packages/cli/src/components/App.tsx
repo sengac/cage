@@ -3,6 +3,7 @@ import { Logo } from './Logo';
 import { FullScreenWrapper } from './FullScreenWrapper';
 import { ViewManager } from './ViewManager';
 import { viewDefinitions } from '../config/viewDefinitions';
+import { InputModeProvider } from '../contexts/InputContext';
 
 interface AppProps {
   showLogo?: boolean;
@@ -30,18 +31,20 @@ export const App: React.FC<AppProps> = ({
   }, [onExit]);
 
   return (
-    <FullScreenWrapper>
-      {/* Show logo first if requested */}
-      {!logoComplete ? (
-        <Logo onComplete={handleLogoComplete} />
-      ) : (
-        // Use ViewManager for all view management
-        <ViewManager
-          views={viewDefinitions}
-          initialView="main"
-          onExit={handleExit}
-        />
-      )}
-    </FullScreenWrapper>
+    <InputModeProvider>
+      <FullScreenWrapper>
+        {/* Show logo first if requested */}
+        {!logoComplete ? (
+          <Logo onComplete={handleLogoComplete} />
+        ) : (
+          // Use ViewManager for all view management
+          <ViewManager
+            views={viewDefinitions}
+            initialView="main"
+            onExit={handleExit}
+          />
+        )}
+      </FullScreenWrapper>
+    </InputModeProvider>
   );
 };
