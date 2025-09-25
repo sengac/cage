@@ -5,7 +5,7 @@ import figures from 'figures';
 import { useTheme } from '../hooks/useTheme';
 import { getRealHooksStatus } from '../utils/real-hooks';
 import type { RealHooksStatus as HooksStatus, Hook } from '../utils/real-hooks';
-import { VirtualList } from './VirtualList';
+import { ResizeAwareList } from './ResizeAwareList';
 
 interface HooksConfigurationProps {
   onBack: () => void;
@@ -128,12 +128,10 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
     const statusColor = hook.enabled ? theme.status.success : theme.status.error;
 
     return (
-      <Box>
-        <Text color={textColor}>
-          {indicator} <Text color={statusColor}>{statusIcon}</Text> {hook.name.padEnd(30)}
-          <Text color={theme.ui.textMuted}>Events: {hook.eventCount || 0}</Text>
-        </Text>
-      </Box>
+      <Text color={textColor}>
+        {indicator} <Text color={statusColor}>{statusIcon}</Text> {hook.name.padEnd(30)}
+        <Text color={theme.ui.textMuted}>Events: {hook.eventCount || 0}</Text>
+      </Text>
     );
   };
 
@@ -163,7 +161,10 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
     );
   }
 
-  const availableHeight = process.stdout.rows ? process.stdout.rows - 10 : 15;
+  // Dynamic offsets
+  const searchOffset = searchMode ? 3 : 0;
+  const operationOffset = operationInProgress ? 2 : 0;
+  const dynamicOffset = searchOffset + operationOffset;
 
   return (
     <Box flexDirection="column" flexGrow={1}>
@@ -188,9 +189,8 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
       )}
 
       {/* Hooks List */}
-      <VirtualList
+      <ResizeAwareList
         items={filteredHooks}
-        height={availableHeight}
         renderItem={renderHook}
         onSelect={(hook, index) => setSelectedHookIndex(index)}
         keyExtractor={(hook) => hook.name}
@@ -199,6 +199,8 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
         enableWrapAround={true}
         testMode={true}
         initialIndex={selectedHookIndex}
+        heightOffset={11}  // Account for status bar, help text, and other static elements
+        dynamicOffset={dynamicOffset}
       />
 
       {/* Operation Status */}

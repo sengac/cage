@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
-import { VirtualList } from './VirtualList';
+import { ResizeAwareList } from './ResizeAwareList';
 import { useTheme } from '../hooks/useTheme';
 import { useSafeInput } from '../hooks/useSafeInput';
 
@@ -201,7 +201,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       ? truncateText(task.content, 50)
       : task.content;
 
-    // For simple layout, just return a single Text
+    // For simple layout, just return Text (ResizeAwareList will wrap it)
     if (layout === 'minimal') {
       return (
         <Text color={textColor}>
@@ -306,9 +306,8 @@ export const TaskList: React.FC<TaskListProps> = ({
         </Box>
 
         {/* Task items */}
-        <VirtualList
+        <ResizeAwareList
           items={processedTasks}
-          height={Math.min(processedTasks.length, 15)}
           renderItem={renderTaskItem}
           onSelect={(task) => {
             if (onTaskSelect) {
@@ -322,6 +321,8 @@ export const TaskList: React.FC<TaskListProps> = ({
           enableWrapAround={false}
           testMode={interactive}
           initialIndex={selectedTaskId ? processedTasks.findIndex(t => t.id === selectedTaskId) : 0}
+          heightOffset={12}  // Account for header, summary, and interactive shortcuts
+          maxHeight={15}  // Limit to 15 items max
         />
 
         {/* Interactive shortcuts */}

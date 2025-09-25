@@ -6,7 +6,7 @@ import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import type { Event } from '../stores/appStore';
-import { VirtualList } from './VirtualList';
+import { ResizeAwareList } from './ResizeAwareList';
 
 interface StreamViewProps {
   onBack: () => void;
@@ -148,7 +148,8 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
     );
   }
 
-  const availableHeight = process.stdout.rows ? process.stdout.rows - 10 : 20;
+  // Dynamic offset for filter input
+  const dynamicOffset = filterMode ? 3 : 0;
 
   return (
     <Box flexDirection="column" flexGrow={1}>
@@ -193,9 +194,8 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
       </Box>
 
       {/* Events list */}
-      <VirtualList
+      <ResizeAwareList
         items={filteredEvents}
-        height={availableHeight}
         renderItem={renderEvent}
         onSelect={handleSelectEvent}
         onFocus={(_, index) => setLastSelectedIndex(index)}
@@ -205,6 +205,8 @@ export const StreamView: React.FC<StreamViewProps> = ({ onBack, onNavigate }) =>
         enableWrapAround={false}
         testMode={true}
         initialIndex={lastSelectedIndex}
+        heightOffset={11}  // Account for status bar, column headers, help text
+        dynamicOffset={dynamicOffset}
       />
 
       {/* Help text */}

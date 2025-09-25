@@ -3,7 +3,7 @@ import { Box, Text } from 'ink';
 import { useSafeInput } from '../hooks/useSafeInput';
 import { useTheme } from '../hooks/useTheme';
 import figures from 'figures';
-import { VirtualList } from './VirtualList';
+import { ResizeAwareList } from './ResizeAwareList';
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { Logger } from '@cage/shared';
@@ -190,20 +190,28 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     const indicator = isSelected ? figures.pointer : ' ';
     const time = new Date(event.timestamp).toLocaleTimeString();
 
-    return (
-      <Box flexDirection="column">
-        <Text color={textColor}>
-          {indicator} [{time}] [{event.level.padEnd(5)}] [{event.component.substring(0, 15).padEnd(15)}] {event.message.substring(0, 80)}
-          {event.duration ? ` (${event.duration}ms)` : ''}
-        </Text>
-        {isSelected && event.stackTrace && (
+    // ResizeAwareList will handle the wrapping, but we need to handle multi-line for stack trace
+    if (isSelected && event.stackTrace) {
+      return (
+        <Box flexDirection="column">
+          <Text color={textColor}>
+            {indicator} [{time}] [{event.level.padEnd(5)}] [{event.component.substring(0, 15).padEnd(15)}] {event.message.substring(0, 80)}
+            {event.duration ? ` (${event.duration}ms)` : ''}
+          </Text>
           <Box marginLeft={2}>
             <Text color={theme.status.error} dimColor>
               {event.stackTrace.substring(0, 200)}
             </Text>
           </Box>
-        )}
-      </Box>
+        </Box>
+      );
+    }
+
+    return (
+      <Text color={textColor}>
+        {indicator} [{time}] [{event.level.padEnd(5)}] [{event.component.substring(0, 15).padEnd(15)}] {event.message.substring(0, 80)}
+        {event.duration ? ` (${event.duration}ms)` : ''}
+      </Text>
     );
   };
 
@@ -215,7 +223,8 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     );
   }
 
-  const availableHeight = process.stdout.rows ? process.stdout.rows - 10 : 20;
+  // Dynamic offset for search bar
+  const dynamicOffset = searchMode ? 3 : 0;
 
   return (
     <Box flexDirection="column" flexGrow={1}>
@@ -248,9 +257,8 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
       </Box>
 
       {/* Events list */}
-      <VirtualList
+      <ResizeAwareList
         items={filteredEvents}
-        height={availableHeight}
         renderItem={renderEvent}
         onFocus={(_, index) => setSelectedIndex(index)}
         keyExtractor={(event) => event.id}
@@ -259,6 +267,8 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
         enableWrapAround={true}
         testMode={true}
         initialIndex={selectedIndex}
+        heightOffset={12}  // Account for status bar, column headers, help text
+        dynamicOffset={dynamicOffset}
       />
 
       {/* Help text */}

@@ -6,7 +6,7 @@ import figures from 'figures';
 import type { Event } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
 import { loadRealEvents } from '../utils/real-events';
-import { VirtualList } from './VirtualList';
+import { ResizeAwareList } from './ResizeAwareList';
 
 interface EventInspectorProps {
   onSelectEvent: (event: Event, index: number) => void;
@@ -177,11 +177,9 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     const desc = formatEventDescription(event).substring(0, 80);
 
     return (
-      <Box width="100%" height={1} overflow="hidden">
-        <Text color={textColor}>
-          {indicator} {time}  {type}  {tool}  {desc}
-        </Text>
-      </Box>
+      <Text color={textColor}>
+        {indicator} {time}  {type}  {tool}  {desc}
+      </Text>
     );
   };
 
@@ -205,13 +203,8 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     );
   }
 
-  // Calculate available height
-  // The component is already inside FullScreenLayout with header/footer
-  // We need to account for: column headers (2 lines), margins (2 lines),
-  // and search bar when visible (3 lines)
-  const baseOffset = 10; // Safe offset for all UI elements
-  const searchOffset = searchMode ? 3 : 0;
-  const availableHeight = process.stdout.rows ? Math.max(5, process.stdout.rows - baseOffset - searchOffset) : 15;
+  // Dynamic offset for search bar
+  const dynamicOffset = searchMode ? 3 : 0;
 
   return (
     <Box flexDirection="column" flexGrow={1}>
@@ -231,10 +224,9 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         </Text>
       </Box>
 
-      {/* Event list using VirtualList */}
-      <VirtualList
+      {/* Event list using ResizeAwareList */}
+      <ResizeAwareList
         items={processedEvents}
-        height={availableHeight}
         renderItem={renderEvent}
         onSelect={(event, index) => {
           onSelectEvent(event, index);
@@ -245,6 +237,8 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         enableWrapAround={true}
         testMode={true}  // Enable input without focus check
         initialIndex={initialSelectedIndex}
+        heightOffset={10}  // Account for header, footer, column headers
+        dynamicOffset={dynamicOffset}
       />
     </Box>
   );
