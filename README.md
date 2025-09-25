@@ -11,8 +11,6 @@ Code Alignment Guard Engine
 
 **A developer productivity tool that enhances AI coding assistants through quality guidance and contextual assistance**
 
-⚠️ **IMPORTANT:** CAGE is a legitimate development tool that uses Claude Code's official Hooks API to help developers write better code. All functionality uses documented, approved interfaces provided by Anthropic.
-
 🌐 **Website**: [https://cage.tools](https://cage.tools)
 📦 **Repository**: [https://github.com/sengac/cage](https://github.com/sengac/cage)
 
