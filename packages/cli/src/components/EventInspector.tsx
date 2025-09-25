@@ -177,9 +177,11 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     const desc = formatEventDescription(event).substring(0, 80);
 
     return (
-      <Text color={textColor}>
-        {indicator} {time}  {type}  {tool}  {desc}
-      </Text>
+      <Box width="100%" height={1} overflow="hidden">
+        <Text color={textColor}>
+          {indicator} {time}  {type}  {tool}  {desc}
+        </Text>
+      </Box>
     );
   };
 
@@ -203,8 +205,13 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     );
   }
 
-  // Calculate available height (subtract header and search bar)
-  const availableHeight = process.stdout.rows ? process.stdout.rows - 8 : 20;
+  // Calculate available height
+  // The component is already inside FullScreenLayout with header/footer
+  // We need to account for: column headers (2 lines), margins (2 lines),
+  // and search bar when visible (3 lines)
+  const baseOffset = 10; // Safe offset for all UI elements
+  const searchOffset = searchMode ? 3 : 0;
+  const availableHeight = process.stdout.rows ? Math.max(5, process.stdout.rows - baseOffset - searchOffset) : 15;
 
   return (
     <Box flexDirection="column" flexGrow={1}>

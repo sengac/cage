@@ -123,12 +123,17 @@ export function VirtualList<T>({
 
   return (
     <Box flexDirection="row" height={height}>
-      <Box flexDirection="column" flexGrow={1}>
+      <Box flexDirection="column" flexGrow={1} width="100%">
         {visibleItems.map((item, visibleIndex) => {
           const actualIndex = scrollOffset + visibleIndex;
           const isSelected = actualIndex === selectedIndex;
           return (
-            <Box key={keyExtractor(item, actualIndex)}>
+            <Box
+              key={keyExtractor(item, actualIndex)}
+              width="100%"
+              height={1}
+              flexShrink={0}
+            >
               {renderItem(item, actualIndex, isSelected)}
             </Box>
           );
