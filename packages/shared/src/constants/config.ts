@@ -11,7 +11,7 @@ export const CONFIG_FILE_NAME = 'cage.config.json';
 export const HOOK_RESPONSE_TIMEOUT = {
   nonBlocking: 100, // milliseconds
   userInput: 60000, // 1 minute
-  llmAnalysis: 30000 // 30 seconds
+  llmAnalysis: 30000, // 30 seconds
 } as const;
 
 export const MAX_EVENT_SIZE = 1048576; // 1MB
@@ -24,7 +24,7 @@ export const SUPPORTED_AGENT_TYPES = [
   'cursor',
   'windsurf',
   'continue',
-  'copilot'
+  'copilot',
 ] as const;
 
-export type SupportedAgentType = typeof SUPPORTED_AGENT_TYPES[number];
+export type SupportedAgentType = (typeof SUPPORTED_AGENT_TYPES)[number];

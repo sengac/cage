@@ -8,13 +8,12 @@ interface StatusBarProps {
   compact?: boolean;
 }
 
-
 export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
   const theme = useTheme();
   const [status, setStatus] = useState<Omit<SystemStatus, 'lastUpdated'>>({
     server: { status: 'stopped' },
     hooks: { installed: false, active: 0, total: 0 },
-    events: { total: 0, today: 0, rate: 0 }
+    events: { total: 0, today: 0, rate: 0 },
   });
   const [loading, setLoading] = useState(true);
   const statusMonitor = getStatusMonitor();
@@ -24,7 +23,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
       setStatus({
         server: fullStatus.server,
         hooks: fullStatus.hooks,
-        events: fullStatus.events
+        events: fullStatus.events,
       });
       setLoading(false);
     };
@@ -33,7 +32,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
       setStatus({
         server: { status: 'error' },
         hooks: { installed: false, active: 0, total: 0 },
-        events: { total: 0, today: 0, rate: 0 }
+        events: { total: 0, today: 0, rate: 0 },
       });
       setLoading(false);
     };
@@ -51,7 +50,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
       handleStatusUpdate(initialStatus);
     } else {
       // Force immediate update for initial load
-      statusMonitor.forceUpdate().then(handleStatusUpdate).catch(handleStatusError);
+      statusMonitor
+        .forceUpdate()
+        .then(handleStatusUpdate)
+        .catch(handleStatusError);
     }
 
     // Cleanup
@@ -64,11 +66,16 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
   const getServerColor = () => {
     if (loading) return theme.ui.textMuted;
     switch (status.server.status) {
-      case 'running': return theme.status.success;
-      case 'stopped': return theme.ui.textMuted;
-      case 'connecting': return theme.status.warning;
-      case 'error': return theme.status.error;
-      default: return theme.ui.textMuted;
+      case 'running':
+        return theme.status.success;
+      case 'stopped':
+        return theme.ui.textMuted;
+      case 'connecting':
+        return theme.status.warning;
+      case 'error':
+        return theme.status.error;
+      default:
+        return theme.ui.textMuted;
     }
   };
 
@@ -130,10 +137,16 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
             {formatNumber(status.events.total)}
           </Text>
           {status.events.today > 0 && (
-            <Text color={theme.ui.textMuted}> ({formatNumber(status.events.today)} today)</Text>
+            <Text color={theme.ui.textMuted}>
+              {' '}
+              ({formatNumber(status.events.today)} today)
+            </Text>
           )}
           {status.events.rate > 0 && (
-            <Text color={theme.status.success} bold> +{status.events.rate}/min</Text>
+            <Text color={theme.status.success} bold>
+              {' '}
+              +{status.events.rate}/min
+            </Text>
           )}
         </Box>
       </Box>
@@ -146,7 +159,9 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
       <Box gap={3}>
         {/* Server Section */}
         <Box flexDirection="column">
-          <Text color={theme.ui.textMuted} dimColor>SERVER</Text>
+          <Text color={theme.ui.textMuted} dimColor>
+            SERVER
+          </Text>
           <Box gap={1}>
             <Text color={getServerColor()}>
               {loading ? 'checking' : status.server.status.toUpperCase()}
@@ -162,7 +177,9 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
 
         {/* Hooks Section */}
         <Box flexDirection="column">
-          <Text color={theme.ui.textMuted} dimColor>HOOKS</Text>
+          <Text color={theme.ui.textMuted} dimColor>
+            HOOKS
+          </Text>
           <Box gap={1}>
             <Text color={getHooksColor()}>
               {status.hooks.active}/{status.hooks.total}
@@ -175,7 +192,9 @@ export const StatusBar: React.FC<StatusBarProps> = ({ compact = false }) => {
 
         {/* Events Section */}
         <Box flexDirection="column">
-          <Text color={theme.ui.textMuted} dimColor>EVENTS</Text>
+          <Text color={theme.ui.textMuted} dimColor>
+            EVENTS
+          </Text>
           <Box gap={1}>
             <Text color={getEventsColor()}>
               {formatNumber(status.events.total)}

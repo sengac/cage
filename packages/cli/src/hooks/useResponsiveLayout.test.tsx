@@ -8,16 +8,20 @@ import {
   ResponsiveBox,
   ResponsiveText,
   useTerminalSize,
-  useBreakpoint
+  useBreakpoint,
 } from './useResponsiveLayout';
-import type { TerminalDimensions, BreakpointSize, ResponsiveLayoutData } from './useResponsiveLayout';
+import type {
+  TerminalDimensions,
+  BreakpointSize,
+  ResponsiveLayoutData,
+} from './useResponsiveLayout';
 
 // Create mock stdout
 const mockStdout = {
   columns: 80,
   rows: 24,
   on: vi.fn(),
-  off: vi.fn()
+  off: vi.fn(),
 };
 
 // Mock ink's useStdout
@@ -25,7 +29,7 @@ vi.mock('ink', async () => {
   const actual = await vi.importActual('ink');
   return {
     ...actual,
-    useStdout: () => ({ stdout: mockStdout })
+    useStdout: () => ({ stdout: mockStdout }),
   };
 });
 
@@ -61,7 +65,7 @@ describe('useResponsiveLayout', () => {
         isMinimumSize: true,
         isSmall: true,
         isMedium: false,
-        isLarge: false
+        isLarge: false,
       });
     });
 
@@ -89,7 +93,10 @@ describe('useResponsiveLayout', () => {
 
       render(<TestComponent />);
 
-      expect(mockStdout.on).toHaveBeenCalledWith('resize', expect.any(Function));
+      expect(mockStdout.on).toHaveBeenCalledWith(
+        'resize',
+        expect.any(Function)
+      );
     });
 
     it('should cleanup resize listener on unmount', () => {
@@ -202,7 +209,7 @@ describe('useResponsiveLayout', () => {
         top: 0,
         right: 1,
         bottom: 0,
-        left: 1
+        left: 1,
       });
     });
 
@@ -254,7 +261,7 @@ describe('useResponsiveLayout', () => {
         showFullMenu: false,
         showCompactMenu: true,
         showStatusBar: true,
-        showTitle: true
+        showTitle: true,
       });
     });
 
@@ -362,7 +369,8 @@ describe('useResponsiveLayout', () => {
 
   describe('ResponsiveText', () => {
     it('should truncate text on small screens', () => {
-      const longText = 'This is a very long text that should be truncated on small screens to fit the terminal width properly';
+      const longText =
+        'This is a very long text that should be truncated on small screens to fit the terminal width properly';
 
       const { lastFrame } = render(
         <ResponsiveLayoutProvider>

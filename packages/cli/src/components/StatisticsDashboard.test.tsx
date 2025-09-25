@@ -18,16 +18,16 @@ describe('StatisticsDashboard', () => {
     mockStatistics = {
       totalEvents: 1547,
       eventsByType: {
-        'PreToolUse': 485,
-        'PostToolUse': 421,
-        'UserPromptSubmit': 298,
-        'SessionStart': 67,
-        'SessionEnd': 65,
-        'Notification': 123,
-        'Stop': 45,
-        'SubagentStop': 28,
-        'PreCompact': 12,
-        'Status': 3,
+        PreToolUse: 485,
+        PostToolUse: 421,
+        UserPromptSubmit: 298,
+        SessionStart: 67,
+        SessionEnd: 65,
+        Notification: 123,
+        Stop: 45,
+        SubagentStop: 28,
+        PreCompact: 12,
+        Status: 3,
       },
       dailyActivity: [
         { date: '2025-09-15', events: 245 },
@@ -37,19 +37,39 @@ describe('StatisticsDashboard', () => {
         { date: '2025-09-19', events: 225 },
       ],
       hourlyDistribution: {
-        '00': 12, '01': 8, '02': 3, '03': 1, '04': 2, '05': 7,
-        '06': 15, '07': 34, '08': 67, '09': 89, '10': 145, '11': 178,
-        '12': 156, '13': 134, '14': 167, '15': 189, '16': 145, '17': 123,
-        '18': 89, '19': 67, '20': 45, '21': 34, '22': 23, '23': 15,
+        '00': 12,
+        '01': 8,
+        '02': 3,
+        '03': 1,
+        '04': 2,
+        '05': 7,
+        '06': 15,
+        '07': 34,
+        '08': 67,
+        '09': 89,
+        '10': 145,
+        '11': 178,
+        '12': 156,
+        '13': 134,
+        '14': 167,
+        '15': 189,
+        '16': 145,
+        '17': 123,
+        '18': 89,
+        '19': 67,
+        '20': 45,
+        '21': 34,
+        '22': 23,
+        '23': 15,
       },
       toolUsageStats: {
-        'Read': 234,
-        'Write': 156,
-        'Edit': 189,
-        'Bash': 167,
-        'Grep': 89,
-        'WebFetch': 45,
-        'Task': 23,
+        Read: 234,
+        Write: 156,
+        Edit: 189,
+        Bash: 167,
+        Grep: 89,
+        WebFetch: 45,
+        Task: 23,
       },
       sessionAnalytics: {
         averageSessionDuration: 1847, // seconds
@@ -73,15 +93,15 @@ describe('StatisticsDashboard', () => {
         weeklyGrowth: 12.5, // percentage
         monthlyGrowth: 45.2,
         toolPopularityChange: {
-          'Read': 5.2,
-          'Edit': -2.1,
-          'Bash': 8.7,
+          Read: 5.2,
+          Edit: -2.1,
+          Bash: 8.7,
         },
       },
     };
 
     // Mock the app store
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         statistics: mockStatistics,
         refreshStatistics: vi.fn(),
@@ -133,7 +153,9 @@ describe('StatisticsDashboard', () => {
 
     describe('When navigating sections', () => {
       it('Then up/down arrows should move between sections', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('\x1B[B'); // Down arrow
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -142,7 +164,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then j/k keys should move between sections', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('j');
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -156,10 +180,17 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should cycle through all sections', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate through all sections
-        const sections = ['Event Summary', 'Activity Timeline', 'Tool Usage', 'Performance'];
+        const sections = [
+          'Event Summary',
+          'Activity Timeline',
+          'Tool Usage',
+          'Performance',
+        ];
 
         for (let i = 0; i < sections.length; i++) {
           if (i > 0) {
@@ -171,7 +202,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should wrap around at boundaries', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Go to last section
         for (let i = 0; i < 3; i++) {
@@ -223,7 +256,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then Enter should show detailed event breakdown', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter key
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -236,7 +271,9 @@ describe('StatisticsDashboard', () => {
 
     describe('When viewing activity timeline section', () => {
       it('Then should navigate to timeline when selected', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('j'); // Move to timeline
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -245,7 +282,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show daily activity chart', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('j'); // Move to timeline
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -256,7 +295,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show hourly distribution', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('j'); // Move to timeline
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -265,7 +306,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show activity trends', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('j'); // Move to timeline
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -275,7 +318,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then Enter should show detailed timeline view', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('j'); // Move to timeline
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -290,7 +335,9 @@ describe('StatisticsDashboard', () => {
 
     describe('When viewing tool usage section', () => {
       it('Then should navigate to tool usage when selected', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to tool usage section
         stdin.write('j'); // Activity Timeline
@@ -302,7 +349,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show top tools by usage', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to tool usage
         stdin.write('j'); // Activity Timeline
@@ -315,15 +364,19 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show tool usage percentages', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // The overview shows percentages in event breakdown
-        expect(lastFrame()).toContain('31.4%');  // PreToolUse percentage
-        expect(lastFrame()).toContain('27.2%');  // PostToolUse percentage
+        expect(lastFrame()).toContain('31.4%'); // PreToolUse percentage
+        expect(lastFrame()).toContain('27.2%'); // PostToolUse percentage
       });
 
       it('Then should show tool popularity trends', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to tool usage
         stdin.write('j'); // Activity Timeline
@@ -337,7 +390,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then Enter should show detailed tool analysis', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to tool usage
         stdin.write('j'); // Activity Timeline
@@ -355,7 +410,9 @@ describe('StatisticsDashboard', () => {
 
     describe('When viewing performance section', () => {
       it('Then should navigate to performance when selected', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to performance section
         for (let i = 0; i < 3; i++) {
@@ -367,7 +424,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show average response times', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to performance
         for (let i = 0; i < 3; i++) {
@@ -379,7 +438,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show fastest and slowest tools', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to performance
         for (let i = 0; i < 3; i++) {
@@ -392,7 +453,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show error rate', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to performance
         for (let i = 0; i < 3; i++) {
@@ -404,7 +467,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show session analytics', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to performance
         for (let i = 0; i < 3; i++) {
@@ -418,7 +483,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then Enter should show detailed performance metrics', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to performance
         for (let i = 0; i < 3; i++) {
@@ -437,15 +504,17 @@ describe('StatisticsDashboard', () => {
     describe('When using refresh functionality', () => {
       it('Then r key should trigger statistics refresh', () => {
         const refreshStatistics = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            statistics: mockStatistics,
-            refreshStatistics,
-            isLoadingStats: false,
-            statsError: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              statistics: mockStatistics,
+              refreshStatistics,
+              isLoadingStats: false,
+              statsError: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin } = render(<StatisticsDashboard onBack={onBack} />);
 
@@ -455,15 +524,17 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show loading spinner during refresh', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            statistics: mockStatistics,
-            refreshStatistics: vi.fn(),
-            isLoadingStats: true,
-            statsError: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              statistics: mockStatistics,
+              refreshStatistics: vi.fn(),
+              isLoadingStats: true,
+              statsError: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<StatisticsDashboard onBack={onBack} />);
 
@@ -479,15 +550,17 @@ describe('StatisticsDashboard', () => {
 
     describe('When handling loading states', () => {
       it('Then should show loading spinner when statistics are loading', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            statistics: null,
-            refreshStatistics: vi.fn(),
-            isLoadingStats: true,
-            statsError: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              statistics: null,
+              refreshStatistics: vi.fn(),
+              isLoadingStats: true,
+              statsError: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<StatisticsDashboard onBack={onBack} />);
 
@@ -495,15 +568,17 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show error message on statistics load failure', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            statistics: null,
-            refreshStatistics: vi.fn(),
-            isLoadingStats: false,
-            statsError: 'Failed to load statistics',
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              statistics: null,
+              refreshStatistics: vi.fn(),
+              isLoadingStats: false,
+              statsError: 'Failed to load statistics',
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<StatisticsDashboard onBack={onBack} />);
 
@@ -512,15 +587,17 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show empty state when no data available', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            statistics: { totalEvents: 0, eventsByType: {} },
-            refreshStatistics: vi.fn(),
-            isLoadingStats: false,
-            statsError: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              statistics: { totalEvents: 0, eventsByType: {} },
+              refreshStatistics: vi.fn(),
+              isLoadingStats: false,
+              statsError: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<StatisticsDashboard onBack={onBack} />);
 
@@ -547,7 +624,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should show help when ? is pressed', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         stdin.write('?');
         rerender(<StatisticsDashboard onBack={onBack} />);
@@ -587,7 +666,9 @@ describe('StatisticsDashboard', () => {
 
     describe('When showing detailed views', () => {
       it('Then should return to overview from detail view with Escape', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Enter detail view
         stdin.write('\r'); // Enter key
@@ -602,7 +683,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should navigate within detail views', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Enter detail view
         stdin.write('\r'); // Enter key
@@ -618,19 +701,23 @@ describe('StatisticsDashboard', () => {
 
     describe('When handling data updates', () => {
       it('Then should update display when statistics change', () => {
-        const { rerender, lastFrame } = render(<StatisticsDashboard onBack={onBack} />);
+        const { rerender, lastFrame } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Update mock data
         mockStatistics.totalEvents = 2000;
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            statistics: mockStatistics,
-            refreshStatistics: vi.fn(),
-            isLoadingStats: false,
-            statsError: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              statistics: mockStatistics,
+              refreshStatistics: vi.fn(),
+              isLoadingStats: false,
+              statsError: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         rerender(<StatisticsDashboard onBack={onBack} />);
 
@@ -638,7 +725,9 @@ describe('StatisticsDashboard', () => {
       });
 
       it('Then should maintain navigation state during updates', () => {
-        const { stdin, lastFrame, rerender } = render(<StatisticsDashboard onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StatisticsDashboard onBack={onBack} />
+        );
 
         // Navigate to a section
         stdin.write('j');

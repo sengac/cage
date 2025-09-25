@@ -53,26 +53,26 @@ export interface ThemeColors {
 export const darkColors: ThemeColors = {
   name: 'Dark Aqua',
   primary: {
-    light: '#7FDBFF',  // Light aqua
-    main: '#01B4C6',   // Aqua-blue
-    dark: '#007A8C',   // Deep aqua
+    light: '#7FDBFF', // Light aqua
+    main: '#01B4C6', // Aqua-blue
+    dark: '#007A8C', // Deep aqua
   },
   accent: {
-    light: '#FFB3BA',  // Light coral
-    main: '#FF6B6B',   // Coral
-    dark: '#EE5A6F',   // Deep coral
+    light: '#FFB3BA', // Light coral
+    main: '#FF6B6B', // Coral
+    dark: '#EE5A6F', // Deep coral
   },
   secondary: {
-    blue: '#4ECDC4',   // Turquoise
-    teal: '#00A8B5',   // Teal
-    green: '#52D1A4',  // Sea green
+    blue: '#4ECDC4', // Turquoise
+    teal: '#00A8B5', // Teal
+    green: '#52D1A4', // Sea green
   },
-  tertiary: '#9B59B6',  // Soft purple
+  tertiary: '#9B59B6', // Soft purple
   status: {
-    success: '#52D1A4',  // Sea green
-    warning: '#F4D03F',  // Golden yellow
-    error: '#FF6B6B',    // Coral red
-    info: '#4ECDC4',     // Turquoise
+    success: '#52D1A4', // Sea green
+    warning: '#F4D03F', // Golden yellow
+    error: '#FF6B6B', // Coral red
+    info: '#4ECDC4', // Turquoise
   },
   ui: {
     background: null,
@@ -97,7 +97,7 @@ export const darkColors: ThemeColors = {
     operator: '#FFB3BA',
     variable: '#7FDBFF',
     bracket: '#4A90A4',
-  }
+  },
 };
 
 // Light theme colors
@@ -148,7 +148,7 @@ export const lightColors: ThemeColors = {
     operator: '#EA580C',
     variable: '#0891B2',
     bracket: '#64748B',
-  }
+  },
 };
 
 // High contrast theme colors
@@ -199,7 +199,7 @@ export const highContrastColors: ThemeColors = {
     operator: '#FFFFFF',
     variable: '#0000FF',
     bracket: '#FFFFFF',
-  }
+  },
 };
 
 export const themeColors = {

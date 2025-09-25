@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'fs';
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  unlinkSync,
+  readdirSync,
+  statSync,
+} from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { stopServer, getServerStatus, ServerStatus } from './server-management';
@@ -48,7 +55,9 @@ describe('Server Management Commands', () => {
         // Then
         expect(result.success).toBe(true);
         expect(result.message).toContain('Cage server stopped');
-        expect(execSync).toHaveBeenCalledWith('kill -TERM 12345', { stdio: 'ignore' });
+        expect(execSync).toHaveBeenCalledWith('kill -TERM 12345', {
+          stdio: 'ignore',
+        });
       });
     });
 
@@ -93,7 +102,9 @@ describe('Server Management Commands', () => {
         // Then
         expect(result.success).toBe(true);
         expect(result.message).toContain('forcefully stopped');
-        expect(execSync).toHaveBeenCalledWith('kill -KILL 12345', { stdio: 'ignore' });
+        expect(execSync).toHaveBeenCalledWith('kill -KILL 12345', {
+          stdio: 'ignore',
+        });
       });
     });
   });
@@ -104,7 +115,7 @@ describe('Server Management Commands', () => {
         // Given server is running
         vi.mocked(existsSync).mockReturnValue(true);
         vi.mocked(readFileSync).mockReturnValue('12345');
-        vi.mocked(execSync).mockImplementation((cmd) => {
+        vi.mocked(execSync).mockImplementation(cmd => {
           if (cmd === 'kill -0 12345') return ''; // Process exists
           if (cmd.includes('lsof')) return 'node 12345'; // Port in use
           if (cmd.includes('ps')) return '12345 node 10:30'; // Process info
@@ -144,19 +155,22 @@ describe('Server Management Commands', () => {
         // Given hooks are installed
         const mockSettings = {
           hooks: {
-            PreToolUse: { '*': '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs' },
+            PreToolUse: {
+              '*': '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
+            },
             PostToolUse: {
-              'Edit|MultiEdit|Write': '$CLAUDE_PROJECT_DIR/.claude/hooks/cli-app/quality-check.js',
-              '*': '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs'
-            }
-          }
+              'Edit|MultiEdit|Write':
+                '$CLAUDE_PROJECT_DIR/.claude/hooks/cli-app/quality-check.js',
+              '*': '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
+            },
+          },
         };
 
-        vi.mocked(existsSync).mockImplementation((path) => {
+        vi.mocked(existsSync).mockImplementation(path => {
           if (path.includes('settings.json')) return true;
           return false;
         });
-        vi.mocked(readFileSync).mockImplementation((path) => {
+        vi.mocked(readFileSync).mockImplementation(path => {
           if (path.includes('settings.json')) {
             return JSON.stringify(mockSettings);
           }
@@ -176,7 +190,7 @@ describe('Server Management Commands', () => {
     describe('AC-6: Status shows hooks not installed', () => {
       it('should show hooks not installed', async () => {
         // Given no hooks are installed
-        vi.mocked(existsSync).mockImplementation((path) => {
+        vi.mocked(existsSync).mockImplementation(path => {
           if (path.includes('settings.json')) return false;
           return false;
         });
@@ -193,14 +207,14 @@ describe('Server Management Commands', () => {
     describe('AC-7: Status shows events information', () => {
       it('should show event statistics', async () => {
         // Given events have been captured
-        vi.mocked(existsSync).mockImplementation((path) => {
+        vi.mocked(existsSync).mockImplementation(path => {
           if (path.includes('.cage/events')) return true;
           if (path.includes('2025-09-18/events.jsonl')) return true;
           return false;
         });
 
         // Mock directory reading
-        vi.mocked(readdirSync).mockImplementation((path) => {
+        vi.mocked(readdirSync).mockImplementation(path => {
           if (path.includes('.cage/events')) {
             return ['2025-09-18'];
           }
@@ -208,12 +222,12 @@ describe('Server Management Commands', () => {
         });
 
         // Mock stat to identify directories
-        vi.mocked(statSync).mockImplementation((path) => ({
-          isDirectory: () => path.includes('2025-09-18')
+        vi.mocked(statSync).mockImplementation(path => ({
+          isDirectory: () => path.includes('2025-09-18'),
         }));
 
         // Mock file reading
-        vi.mocked(readFileSync).mockImplementation((path) => {
+        vi.mocked(readFileSync).mockImplementation(path => {
           if (path.includes('events.jsonl')) {
             return `{"timestamp":"2025-09-18T11:23:34.626Z","eventType":"PreToolUse"}
 {"timestamp":"2025-09-18T11:24:13.689Z","eventType":"PostToolUse"}`;
@@ -233,7 +247,7 @@ describe('Server Management Commands', () => {
     describe('AC-8: Status shows no events', () => {
       it('should handle no events captured', async () => {
         // Given no events exist
-        vi.mocked(existsSync).mockImplementation((path) => {
+        vi.mocked(existsSync).mockImplementation(path => {
           if (path.includes('events')) return false;
           return false;
         });
@@ -250,11 +264,11 @@ describe('Server Management Commands', () => {
     describe('AC-9: Status shows offline logs', () => {
       it('should show offline log information', async () => {
         // Given offline logs exist
-        vi.mocked(existsSync).mockImplementation((path) => {
+        vi.mocked(existsSync).mockImplementation(path => {
           if (path.includes('hooks-offline.log')) return true;
           return false;
         });
-        vi.mocked(readFileSync).mockImplementation((path) => {
+        vi.mocked(readFileSync).mockImplementation(path => {
           if (path.includes('hooks-offline.log')) {
             return `{"error":"fetch failed","timestamp":"2025-09-18T11:23:34"}
 {"error":"connection refused","timestamp":"2025-09-18T11:24:00"}`;
@@ -347,14 +361,14 @@ describe('Server Management Commands', () => {
         describe('When getServerStatus is called', () => {
           it('Then it should calculate uptime as milliseconds since server start', async () => {
             // Given: A server started 5 minutes ago
-            const startTime = Date.now() - (5 * 60 * 1000); // 5 minutes ago
+            const startTime = Date.now() - 5 * 60 * 1000; // 5 minutes ago
             const pidFileContent = JSON.stringify({
               pid: 12345,
-              startTime: startTime
+              startTime: startTime,
             });
 
             vi.mocked(existsSync).mockReturnValue(true);
-            vi.mocked(readFileSync).mockImplementation((path) => {
+            vi.mocked(readFileSync).mockImplementation(path => {
               if (path.includes('server.pid')) {
                 return pidFileContent;
               }
@@ -391,7 +405,7 @@ describe('Server Management Commands', () => {
           it('Then it should handle gracefully and return undefined uptime', async () => {
             // Given: Legacy PID file with just the PID number
             vi.mocked(existsSync).mockReturnValue(true);
-            vi.mocked(readFileSync).mockImplementation((path) => {
+            vi.mocked(readFileSync).mockImplementation(path => {
               if (path.includes('server.pid')) {
                 return '12345';
               }
@@ -440,11 +454,11 @@ describe('Server Management Commands', () => {
             const startTime = Date.now();
             const pidFileContent = JSON.stringify({
               pid: 12345,
-              startTime: startTime
+              startTime: startTime,
             });
 
             vi.mocked(existsSync).mockReturnValue(true);
-            vi.mocked(readFileSync).mockImplementation((path) => {
+            vi.mocked(readFileSync).mockImplementation(path => {
               if (path.includes('server.pid')) {
                 return pidFileContent;
               }

@@ -2,16 +2,13 @@ import { describe, it, expect } from 'vitest';
 import * as z from 'zod';
 
 // These imports will work after implementing config.ts
-import {
-  CageConfigSchema,
-  type CageConfig
-} from './config';
+import { CageConfigSchema, type CageConfig } from './config';
 
 describe('Configuration Types', () => {
   describe('CageConfigSchema', () => {
     it('should validate a minimal config with just port', () => {
       const config = {
-        port: 3790
+        port: 3790,
       };
 
       const result = CageConfigSchema.safeParse(config);
@@ -31,7 +28,7 @@ describe('Configuration Types', () => {
         maxEventSize: 1048576, // 1MB
         enableMetrics: true,
         enableOfflineMode: true,
-        offlineLogPath: '.cage/hooks-offline.log'
+        offlineLogPath: '.cage/hooks-offline.log',
       };
 
       const result = CageConfigSchema.safeParse(config);
@@ -46,7 +43,7 @@ describe('Configuration Types', () => {
 
     it('should provide defaults for optional fields', () => {
       const config = {
-        port: 3790
+        port: 3790,
       };
 
       const result = CageConfigSchema.safeParse(config);
@@ -60,7 +57,7 @@ describe('Configuration Types', () => {
 
     it('should reject invalid port number', () => {
       const config = {
-        port: -1
+        port: -1,
       };
 
       const result = CageConfigSchema.safeParse(config);
@@ -70,7 +67,7 @@ describe('Configuration Types', () => {
     it('should reject invalid log level', () => {
       const config = {
         port: 3790,
-        logLevel: 'invalid'
+        logLevel: 'invalid',
       };
 
       const result = CageConfigSchema.safeParse(config);
@@ -81,7 +78,7 @@ describe('Configuration Types', () => {
       const config = {
         port: 3790,
         env: 'development',
-        debug: true
+        debug: true,
       };
 
       const result = CageConfigSchema.safeParse(config);

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'http';
 import { AppModule } from '../../src/app.module';
@@ -20,7 +20,7 @@ describe('Feature: Real-time Event Streaming', () => {
 
     // Set global prefix like in main.ts
     app.setGlobalPrefix('api', {
-      exclude: ['/health']
+      exclude: ['/health'],
     });
     await app.init();
     httpServer = app.getHttpServer();

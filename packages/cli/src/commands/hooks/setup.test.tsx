@@ -25,12 +25,15 @@ describe('HooksSetupCommand', () => {
     process.chdir(testDir);
 
     // Create cage.config.json
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      port: 3790,
-      host: 'localhost',
-      enabled: true,
-      logLevel: 'info'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        port: 3790,
+        host: 'localhost',
+        enabled: true,
+        logLevel: 'info',
+      })
+    );
 
     // Create .cage directory
     await mkdir(join(testDir, '.cage'), { recursive: true });
@@ -45,20 +48,35 @@ describe('HooksSetupCommand', () => {
       maxEventSize: 1048576,
       enableMetrics: false,
       enableOfflineMode: true,
-      offlineLogPath: '.cage/hooks-offline.log'
+      offlineLogPath: '.cage/hooks-offline.log',
     });
 
-    vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(async (port) => {
-      // Simulate creating local .claude directory and settings
-      const claudeDir = join(testDir, '.claude');
-      await mkdir(claudeDir, { recursive: true });
-      await writeFile(join(claudeDir, 'settings.json'), JSON.stringify({
-        hooks: {
-          PreToolUse: [{ matcher: '*', hooks: [{ type: 'command', command: 'hook.mjs' }] }],
-          PostToolUse: [{ matcher: '*', hooks: [{ type: 'command', command: 'hook.mjs' }] }]
-        }
-      }));
-    });
+    vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(
+      async port => {
+        // Simulate creating local .claude directory and settings
+        const claudeDir = join(testDir, '.claude');
+        await mkdir(claudeDir, { recursive: true });
+        await writeFile(
+          join(claudeDir, 'settings.json'),
+          JSON.stringify({
+            hooks: {
+              PreToolUse: [
+                {
+                  matcher: '*',
+                  hooks: [{ type: 'command', command: 'hook.mjs' }],
+                },
+              ],
+              PostToolUse: [
+                {
+                  matcher: '*',
+                  hooks: [{ type: 'command', command: 'hook.mjs' }],
+                },
+              ],
+            },
+          })
+        );
+      }
+    );
 
     vi.mocked(hooksInstaller.getLocalClaudeSettingsPath).mockReturnValue(
       join(testDir, '.claude', 'settings.json')
@@ -92,7 +110,9 @@ describe('HooksSetupCommand', () => {
       expect(component!.lastFrame()).toContain('Hooks configured successfully');
 
       // Verify local .claude directory was used
-      expect(vi.mocked(hooksInstaller.installHooksLocally)).toHaveBeenCalledWith(3790);
+      expect(
+        vi.mocked(hooksInstaller.installHooksLocally)
+      ).toHaveBeenCalledWith(3790);
 
       // Verify settings file was created
       expect(existsSync(join(testDir, '.claude', 'settings.json'))).toBe(true);
@@ -166,16 +186,20 @@ describe('HooksSetupCommand', () => {
 
     it('should show loading spinner while installing hooks', async () => {
       // Setup - delay the mock to see loading state
-      vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
-      });
+      vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(
+        async () => {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+      );
 
       // When
       const component = render(<HooksSetupCommand />);
 
       // Then - check initial loading state (may be checking config first)
       const frame = component.lastFrame();
-      expect(frame).toMatch(/Checking Cage configuration|Installing Claude Code hooks/);
+      expect(frame).toMatch(
+        /Checking Cage configuration|Installing Claude Code hooks/
+      );
     });
   });
 });

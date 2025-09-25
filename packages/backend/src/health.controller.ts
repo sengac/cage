@@ -13,16 +13,17 @@ export class HealthController {
   @Get()
   @ApiOperation({
     summary: 'Health check endpoint',
-    description: 'Comprehensive health check including system resources, dependencies, and service status'
+    description:
+      'Comprehensive health check including system resources, dependencies, and service status',
   })
   @ApiResponse({
     status: 200,
     description: 'Service is healthy',
-    type: HealthResponseDto
+    type: HealthResponseDto,
   })
   @ApiResponse({
     status: 503,
-    description: 'Service is unhealthy or degraded'
+    description: 'Service is unhealthy or degraded',
   })
   health(): HealthResponseDto {
     const startTime = Date.now();
@@ -32,9 +33,12 @@ export class HealthController {
 
     // Check memory usage
     const memoryUsage = process.memoryUsage();
-    const heapUsedPercentage = (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
+    const heapUsedPercentage =
+      (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
     if (heapUsedPercentage > 80) {
-      warnings.push(`High memory usage: ${heapUsedPercentage.toFixed(1)}% of heap used`);
+      warnings.push(
+        `High memory usage: ${heapUsedPercentage.toFixed(1)}% of heap used`
+      );
     }
 
     // Check file system
@@ -87,23 +91,23 @@ export class HealthController {
         heapTotal: memoryUsage.heapTotal,
         heapUsed: memoryUsage.heapUsed,
         external: memoryUsage.external,
-        arrayBuffers: memoryUsage.arrayBuffers
+        arrayBuffers: memoryUsage.arrayBuffers,
       },
       fileSystem: {
         status: fileSystemStatus,
         eventsDir,
         writable: isWritable,
         availableSpace: 0, // Would need additional OS-specific logic
-        eventFiles
+        eventFiles,
       },
       dependencies: {
         claudeHooks: 'checking', // Would need to check actual hook installation
         activeHooks: 9, // All 9 hook types are supported
-        queueSize: 0 // No queue in current implementation
+        queueSize: 0, // No queue in current implementation
       },
       responseTime,
       warnings,
-      errors
+      errors,
     };
   }
 }

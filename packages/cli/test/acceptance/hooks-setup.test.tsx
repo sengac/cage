@@ -36,17 +36,20 @@ describe('Feature: Claude Code Hook Configuration', () => {
     vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     // Create cage config
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      port: 3790,
-      host: 'localhost',
-      enabled: true,
-      logLevel: 'info',
-      eventsDir: '.cage/events',
-      maxEventSize: 1048576,
-      enableMetrics: false,
-      enableOfflineMode: true,
-      offlineLogPath: '.cage/hooks-offline.log'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        port: 3790,
+        host: 'localhost',
+        enabled: true,
+        logLevel: 'info',
+        eventsDir: '.cage/events',
+        maxEventSize: 1048576,
+        enableMetrics: false,
+        enableOfflineMode: true,
+        offlineLogPath: '.cage/hooks-offline.log',
+      })
+    );
 
     // Create .cage directory
     await mkdir(join(testDir, '.cage'), { recursive: true });
@@ -68,7 +71,7 @@ describe('Feature: Claude Code Hook Configuration', () => {
         maxEventSize: 1048576,
         enableMetrics: false,
         enableOfflineMode: true,
-        offlineLogPath: '.cage/hooks-offline.log'
+        offlineLogPath: '.cage/hooks-offline.log',
       };
     });
 
@@ -78,48 +81,65 @@ describe('Feature: Claude Code Hook Configuration', () => {
     vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     // Mock the local hooks installer functions
-    vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(async (port) => {
-      console.log('🔍 Mock installHooksLocally called with port:', port);
+    vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(
+      async port => {
+        console.log('🔍 Mock installHooksLocally called with port:', port);
 
-      // Simulate what the real installHooksLocally does - create local settings
-      const settings = {
-        hooks: {
-          PreToolUse: [{
-            matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: `\$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs`,
-              timeout: 180
-            }]
-          }],
-          PostToolUse: [{
-            matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: `\$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs`,
-              timeout: 180
-            }]
-          }]
-          // Add other hooks as needed
-        }
-      };
+        // Simulate what the real installHooksLocally does - create local settings
+        const settings = {
+          hooks: {
+            PreToolUse: [
+              {
+                matcher: '*',
+                hooks: [
+                  {
+                    type: 'command',
+                    command: `\$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs`,
+                    timeout: 180,
+                  },
+                ],
+              },
+            ],
+            PostToolUse: [
+              {
+                matcher: '*',
+                hooks: [
+                  {
+                    type: 'command',
+                    command: `\$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs`,
+                    timeout: 180,
+                  },
+                ],
+              },
+            ],
+            // Add other hooks as needed
+          },
+        };
 
-      // Create the local .claude directory and settings
-      await mkdir(join(testDir, '.claude'), { recursive: true });
-      await writeFile(join(testDir, '.claude', 'settings.json'), JSON.stringify(settings, null, 2));
-      return;
-    });
+        // Create the local .claude directory and settings
+        await mkdir(join(testDir, '.claude'), { recursive: true });
+        await writeFile(
+          join(testDir, '.claude', 'settings.json'),
+          JSON.stringify(settings, null, 2)
+        );
+        return;
+      }
+    );
 
-    vi.mocked(hooksInstaller.getLocalClaudeSettingsPath).mockReturnValue(join(testDir, '.claude', 'settings.json'));
+    vi.mocked(hooksInstaller.getLocalClaudeSettingsPath).mockReturnValue(
+      join(testDir, '.claude', 'settings.json')
+    );
 
     // Mock the local hooks installer functions
     vi.mocked(hooksInstaller.loadLocalClaudeSettings).mockResolvedValue({});
-    vi.mocked(hooksInstaller.saveLocalClaudeSettings).mockImplementation(async (settings) => {
-      console.log('🔍 Mock saveLocalClaudeSettings called with:', settings);
-      const settingsPath = join(testDir, '.claude', 'settings.json');
-      await writeFile(settingsPath, JSON.stringify(settings, null, 2));
-      console.log('🔍 Settings file written to:', settingsPath);
-    });
+    vi.mocked(hooksInstaller.saveLocalClaudeSettings).mockImplementation(
+      async settings => {
+        console.log('🔍 Mock saveLocalClaudeSettings called with:', settings);
+        const settingsPath = join(testDir, '.claude', 'settings.json');
+        await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+        console.log('🔍 Settings file written to:', settingsPath);
+      }
+    );
   });
 
   afterEach(async () => {
@@ -135,7 +155,9 @@ describe('Feature: Claude Code Hook Configuration', () => {
       // Given - Cage is initialized (in beforeEach)
 
       // Mock process.exit to prevent it from actually exiting the test
-      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+      const exitSpy = vi
+        .spyOn(process, 'exit')
+        .mockImplementation(() => undefined as never);
 
       // When
       let component: ReturnType<typeof render>;
@@ -170,26 +192,39 @@ describe('Feature: Claude Code Hook Configuration', () => {
       // Given - hooks are configured in local .claude directory
       const settingsPath = join(testDir, '.claude', 'settings.json');
       await mkdir(dirname(settingsPath), { recursive: true });
-      await writeFile(settingsPath, JSON.stringify({
-        hooks: {
-          PreToolUse: [{
-            matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
-              timeout: 180
-            }]
-          }],
-          PostToolUse: [{
-            matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
-              timeout: 180
-            }]
-          }]
-        }
-      }));
+      await writeFile(
+        settingsPath,
+        JSON.stringify({
+          hooks: {
+            PreToolUse: [
+              {
+                matcher: '*',
+                hooks: [
+                  {
+                    type: 'command',
+                    command:
+                      '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
+                    timeout: 180,
+                  },
+                ],
+              },
+            ],
+            PostToolUse: [
+              {
+                matcher: '*',
+                hooks: [
+                  {
+                    type: 'command',
+                    command:
+                      '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
+                    timeout: 180,
+                  },
+                ],
+              },
+            ],
+          },
+        })
+      );
 
       // Set up mocks for this specific test
       vi.mocked(configUtils.isCageInitialized).mockReturnValue(true);
@@ -204,42 +239,53 @@ describe('Feature: Claude Code Hook Configuration', () => {
           maxEventSize: 1048576,
           enableMetrics: false,
           enableOfflineMode: true,
-          offlineLogPath: '.cage/hooks-offline.log'
+          offlineLogPath: '.cage/hooks-offline.log',
         };
       });
 
       vi.mocked(hooksInstaller.loadLocalClaudeSettings).mockResolvedValue({
         hooks: {
-          PreToolUse: [{
-            matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
-              timeout: 180
-            }]
-          }],
-          PostToolUse: [{
-            matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
-              timeout: 180
-            }]
-          }]
-        }
+          PreToolUse: [
+            {
+              matcher: '*',
+              hooks: [
+                {
+                  type: 'command',
+                  command:
+                    '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
+                  timeout: 180,
+                },
+              ],
+            },
+          ],
+          PostToolUse: [
+            {
+              matcher: '*',
+              hooks: [
+                {
+                  type: 'command',
+                  command:
+                    '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
+                  timeout: 180,
+                },
+              ],
+            },
+          ],
+        },
       });
 
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({
         PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
         PostToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
-        UserPromptSubmit: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/userpromptsubmit.mjs',
+        UserPromptSubmit:
+          '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/userpromptsubmit.mjs',
         Notification: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/notification.mjs',
         Stop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/stop.mjs',
         SubagentStop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/subagentstop.mjs',
         SessionStart: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/sessionstart.mjs',
         SessionEnd: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/sessionend.mjs',
         PreCompact: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/precompact.mjs',
-        Status: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/status.mjs'
+        Status: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/status.mjs',
       });
 
       // When

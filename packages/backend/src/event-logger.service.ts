@@ -32,7 +32,12 @@ export class EventLoggerService {
     await writeFile(logPath, logEntry, { flag: 'a' });
   }
 
-  async getEventsList(page: number, limit: number, date?: string, sessionId?: string): Promise<{
+  async getEventsList(
+    page: number,
+    limit: number,
+    date?: string,
+    sessionId?: string
+  ): Promise<{
     events: unknown[];
     total: number;
     pagination: {
@@ -47,7 +52,7 @@ export class EventLoggerService {
       return {
         events: [],
         total: 0,
-        pagination: { page, limit, total: 0 }
+        pagination: { page, limit, total: 0 },
       };
     }
 
@@ -72,7 +77,10 @@ export class EventLoggerService {
 
         if (existsSync(logPath)) {
           const content = await readFile(logPath, 'utf-8');
-          const lines = content.trim().split('\n').filter(line => line.trim());
+          const lines = content
+            .trim()
+            .split('\n')
+            .filter(line => line.trim());
 
           for (const line of lines) {
             try {
@@ -108,15 +116,15 @@ export class EventLoggerService {
         pagination: {
           page,
           limit,
-          total: allEvents.length
-        }
+          total: allEvents.length,
+        },
       };
     } catch (error) {
       console.error('Error in getEventsList:', error);
       return {
         events: [],
         total: 0,
-        pagination: { page, limit, total: 0 }
+        pagination: { page, limit, total: 0 },
       };
     }
   }
@@ -139,7 +147,7 @@ export class EventLoggerService {
         byToolName: {},
         byEventType: {},
         uniqueSessions: 0,
-        dateRange: { from: '', to: '' }
+        dateRange: { from: '', to: '' },
       };
     }
 
@@ -160,7 +168,10 @@ export class EventLoggerService {
 
         if (existsSync(logPath)) {
           const content = await readFile(logPath, 'utf-8');
-          const lines = content.trim().split('\n').filter(line => line.trim());
+          const lines = content
+            .trim()
+            .split('\n')
+            .filter(line => line.trim());
 
           for (const line of lines) {
             try {
@@ -221,9 +232,9 @@ export class EventLoggerService {
         byEventType,
         uniqueSessions: sessionIds.size,
         dateRange: {
-          from: earliestDate || (date || ''),
-          to: latestDate || (date || '')
-        }
+          from: earliestDate || date || '',
+          to: latestDate || date || '',
+        },
       };
     } catch {
       return {
@@ -231,7 +242,7 @@ export class EventLoggerService {
         byToolName: {},
         byEventType: {},
         uniqueSessions: 0,
-        dateRange: { from: '', to: '' }
+        dateRange: { from: '', to: '' },
       };
     }
   }
@@ -256,7 +267,10 @@ export class EventLoggerService {
 
         if (existsSync(logPath)) {
           const content = await readFile(logPath, 'utf-8');
-          const lines = content.trim().split('\n').filter(line => line.trim());
+          const lines = content
+            .trim()
+            .split('\n')
+            .filter(line => line.trim());
 
           // Parse each line and add to events array
           for (const line of lines) {

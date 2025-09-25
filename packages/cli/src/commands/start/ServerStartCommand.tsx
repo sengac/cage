@@ -21,7 +21,7 @@ interface ServerState {
 export function ServerStartCommand({ port }: ServerProps): JSX.Element {
   const [state, setState] = useState<ServerState>({
     status: 'checking',
-    message: 'Checking CAGE configuration...'
+    message: 'Checking CAGE configuration...',
   });
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
           setState({
             status: 'error',
             message: 'CAGE is not initialized',
-            error: 'Please run "cage init" first'
+            error: 'Please run "cage init" first',
           });
           return;
         }
@@ -46,7 +46,7 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
           setState({
             status: 'error',
             message: 'Server is already running',
-            error: `PID: ${runningCheck.pid}, Port: ${serverPort}. Use "cage stop" to stop it first.`
+            error: `PID: ${runningCheck.pid}, Port: ${serverPort}. Use "cage stop" to stop it first.`,
           });
           return;
         }
@@ -54,7 +54,7 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
         // Update status to starting
         setState({
           status: 'starting',
-          message: `Starting server on port ${serverPort}...`
+          message: `Starting server on port ${serverPort}...`,
         });
 
         // Actually start the server
@@ -65,21 +65,20 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
             status: 'running',
             message: 'CAGE backend server is running',
             port: serverPort,
-            pid: result.pid
+            pid: result.pid,
           });
         } else {
           setState({
             status: 'error',
             message: 'Failed to start server',
-            error: result.message
+            error: result.message,
           });
         }
-
       } catch (err) {
         setState({
           status: 'error',
           message: 'Failed to start server',
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: err instanceof Error ? err.message : 'Unknown error',
         });
       }
     };
@@ -114,7 +113,7 @@ export function ServerStartCommand({ port }: ServerProps): JSX.Element {
           '',
           'Server is running in the background.',
           'Use "cage status" to check server status',
-          'Use "cage stop" to stop the server'
+          'Use "cage stop" to stop the server',
         ].filter(Boolean)}
       />
 

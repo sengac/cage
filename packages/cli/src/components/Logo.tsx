@@ -11,8 +11,12 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
   const [displayedChars, setDisplayedChars] = useState(0);
   const [showTagline, setShowTagline] = useState(false);
   const [slideOut, setSlideOut] = useState(false);
-  const [slidPositions, setSlidPositions] = useState<number[]>(new Array(8).fill(0));
-  const [scrambledText, setScrambledText] = useState('Code Alignment Guard Engine');
+  const [slidPositions, setSlidPositions] = useState<number[]>(
+    new Array(8).fill(0)
+  );
+  const [scrambledText, setScrambledText] = useState(
+    'Code Alignment Guard Engine'
+  );
   const [isScrambling, setIsScrambling] = useState(false);
   const [hideAll, setHideAll] = useState(false);
   const [shimmerPosition, setShimmerPosition] = useState(-1);
@@ -24,7 +28,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     '██║     ',
     '██║     ',
     '╚██████╗',
-    ' ╚═════╝'
+    ' ╚═════╝',
   ];
 
   const letterA = [
@@ -33,7 +37,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     '███████║',
     '██╔══██║',
     '██║  ██║',
-    '╚═╝  ╚═╝'
+    '╚═╝  ╚═╝',
   ];
 
   const letterG = [
@@ -42,7 +46,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     '██║  ███╗',
     '██║   ██║',
     '╚██████╔╝',
-    ' ╚═════╝ '
+    ' ╚═════╝ ',
   ];
 
   const letterE = [
@@ -51,18 +55,22 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     '█████╗  ',
     '██╔══╝  ',
     '███████╗',
-    '╚══════╝'
+    '╚══════╝',
   ];
 
   const letters = [letterC, letterA, letterG, letterE];
 
-  const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const chars =
+    '!@#$%^&*()_+-=[]{}|;:,.<>?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   const scrambleText = (original: string) => {
-    return original.split('').map(char => {
-      if (char === ' ' || char === '•') return char;
-      return chars[Math.floor(Math.random() * chars.length)];
-    }).join('');
+    return original
+      .split('')
+      .map(char => {
+        if (char === ' ' || char === '•') return char;
+        return chars[Math.floor(Math.random() * chars.length)];
+      })
+      .join('');
   };
 
   useEffect(() => {
@@ -95,7 +103,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       const stepDuration = shimmerDuration / shimmerSteps;
 
       for (let i = 0; i <= shimmerSteps; i++) {
-        setShimmerPosition(i / shimmerSteps * 1.3); // Extend to 1.3 to ensure it goes fully off screen
+        setShimmerPosition((i / shimmerSteps) * 1.3); // Extend to 1.3 to ensure it goes fully off screen
         await new Promise(resolve => setTimeout(resolve, stepDuration));
       }
 
@@ -108,8 +116,8 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       // Tagline (line 7) stays in place and only scrambles
       const animateSlide = async () => {
         for (let step = 0; step < 3; step++) {
-          const topIndex = step;        // 0, 1, 2
-          const bottomIndex = 5 - step;  // 5, 4, 3
+          const topIndex = step; // 0, 1, 2
+          const bottomIndex = 5 - step; // 5, 4, 3
 
           // Start sliding both lines simultaneously
           const slideInterval = setInterval(() => {
@@ -145,7 +153,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
       // Run slide animation and scrambling simultaneously
       await Promise.all([
         animateSlide(),
-        new Promise(resolve => setTimeout(resolve, 500)) // Scramble for 500ms during slide
+        new Promise(resolve => setTimeout(resolve, 500)), // Scramble for 500ms during slide
       ]);
 
       clearInterval(scrambleInterval);
@@ -194,7 +202,9 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
     // Calculate the shimmer window (affects ~30% of the total width)
     const lineLength = line.length;
     const shimmerWidth = Math.floor(lineLength * 0.3);
-    const shimmerCenter = Math.floor(shimmerPosition * (lineLength + shimmerWidth)) - Math.floor(shimmerWidth / 2);
+    const shimmerCenter =
+      Math.floor(shimmerPosition * (lineLength + shimmerWidth)) -
+      Math.floor(shimmerWidth / 2);
 
     // Split the line into characters and apply shimmer gradient to the appropriate section
     const chars = line.split('');
@@ -202,7 +212,7 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
 
     for (let i = 0; i < chars.length; i++) {
       const distance = Math.abs(i - shimmerCenter);
-      const intensity = Math.max(0, 1 - (distance / (shimmerWidth / 2)));
+      const intensity = Math.max(0, 1 - distance / (shimmerWidth / 2));
 
       if (intensity > 0 && chars[i] !== ' ') {
         // Apply shimmer effect based on intensity
@@ -246,13 +256,11 @@ export const Logo: React.FC<LogoProps> = ({ onComplete, skipDelay }) => {
         );
       })}
 
-      {showTagline && (
-        <Box key="spacer" width="100%" height={1} />
-      )}
+      {showTagline && <Box key="spacer" width="100%" height={1} />}
 
       {showTagline && (
         <Box key="tagline" width="100%" justifyContent="center">
-          <Text color={isScrambling ? "#FF0000" : "#4ECDC4"}>
+          <Text color={isScrambling ? '#FF0000' : '#4ECDC4'}>
             {isScrambling ? scrambledText : 'Code Alignment Guard Engine'}
           </Text>
         </Box>

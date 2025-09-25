@@ -6,6 +6,9 @@ import { DebugConsole } from '../DebugConsole';
  * DebugConsoleView - wraps the existing DebugConsole component
  * Integrates with the new ViewManager system
  */
-export const DebugConsoleView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
+export const DebugConsoleView: React.FC<ViewProps> = ({
+  onBack,
+  onNavigate,
+}) => {
   return <DebugConsole onBack={onBack} />;
 };

@@ -7,7 +7,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 export interface LoggerOptions {
@@ -38,7 +38,7 @@ export class Logger {
     return new Logger({
       level: this.level,
       context: fullContext,
-      silent: this.silent
+      silent: this.silent,
     });
   }
 
@@ -64,8 +64,8 @@ export class Logger {
             error: {
               message: obj.error.message,
               name: obj.error.name,
-              stack: obj.error.stack
-            }
+              stack: obj.error.stack,
+            },
           };
           dataPart = ` ${JSON.stringify(errorData)}`;
         } else {

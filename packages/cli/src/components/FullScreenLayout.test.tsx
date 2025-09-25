@@ -13,10 +13,10 @@ vi.mock('ink', async () => {
       stdout: {
         rows: 24,
         columns: 80,
-        write: vi.fn()
-      }
+        write: vi.fn(),
+      },
     }),
-    useInput: vi.fn()
+    useInput: vi.fn(),
   };
 });
 
@@ -28,20 +28,20 @@ vi.mock('../hooks/useTheme', () => ({
       text: '#ffffff',
       textMuted: '#888888',
       textDim: '#666666',
-      hover: '#00ff00'
+      hover: '#00ff00',
     },
     secondary: {
-      blue: '#0088ff'
+      blue: '#0088ff',
     },
     primary: {
-      aqua: '#00ffff'
+      aqua: '#00ffff',
     },
     status: {
       success: '#00ff00',
       error: '#ff0000',
-      warning: '#ffff00'
-    }
-  })
+      warning: '#ffff00',
+    },
+  }),
 }));
 
 describe('FullScreenLayout', () => {
@@ -82,10 +82,7 @@ describe('FullScreenLayout', () => {
 
     it('Given a terminal size When layout renders Then it should adapt to terminal dimensions', () => {
       const { lastFrame } = render(
-        <FullScreenLayout
-          title="Test View"
-          onBack={mockOnBack}
-        >
+        <FullScreenLayout title="Test View" onBack={mockOnBack}>
           <Text>Content</Text>
         </FullScreenLayout>
       );
@@ -100,13 +97,11 @@ describe('FullScreenLayout', () => {
     it('Given the layout component When it mounts Then it should clear the terminal screen', () => {
       const writeSpyFn = vi.fn();
       const originalWrite = process.stdout.write;
-      process.stdout.write = writeSpyFn as unknown as typeof process.stdout.write;
+      process.stdout.write =
+        writeSpyFn as unknown as typeof process.stdout.write;
 
       render(
-        <FullScreenLayout
-          title="Test"
-          onBack={mockOnBack}
-        >
+        <FullScreenLayout title="Test" onBack={mockOnBack}>
           <Text>Content</Text>
         </FullScreenLayout>
       );
@@ -171,10 +166,7 @@ describe('FullScreenLayout', () => {
   describe('Scenario: Content area fills available space', () => {
     it('Given content in FullScreenLayout When rendered Then content area should use flexGrow', () => {
       const { lastFrame } = render(
-        <FullScreenLayout
-          title="Test"
-          onBack={mockOnBack}
-        >
+        <FullScreenLayout title="Test" onBack={mockOnBack}>
           <Text>Main Content Area</Text>
         </FullScreenLayout>
       );
@@ -196,10 +188,7 @@ describe('FullScreenLayout', () => {
   describe('Scenario: Navigate with Escape key', () => {
     it('Given user is in a sub-view When pressing Escape Then should call onBack', async () => {
       render(
-        <FullScreenLayout
-          title="Test View"
-          onBack={mockOnBack}
-        >
+        <FullScreenLayout title="Test View" onBack={mockOnBack}>
           <Text>Content</Text>
         </FullScreenLayout>
       );
@@ -222,10 +211,7 @@ describe('FullScreenLayout', () => {
       mockOnBack.mockClear();
 
       render(
-        <FullScreenLayout
-          title="Test View"
-          onBack={mockOnBack}
-        >
+        <FullScreenLayout title="Test View" onBack={mockOnBack}>
           <Text>Content</Text>
         </FullScreenLayout>
       );

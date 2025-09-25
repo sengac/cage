@@ -8,7 +8,10 @@ import { createServer } from 'http';
 import type { Server } from 'http';
 import type { IncomingMessage, ServerResponse } from 'http';
 
-const HOOK_HANDLER_PATH = join(process.cwd(), 'packages/hooks/dist/cage-hook-handler.js');
+const HOOK_HANDLER_PATH = join(
+  process.cwd(),
+  'packages/hooks/dist/cage-hook-handler.js'
+);
 
 // Mock server response interface
 interface MockResponse {
@@ -22,7 +25,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
   let originalCwd: string;
   let testServer: Server;
   let testPort: number;
-  let mockResponses: Map<string, MockResponse> = new Map();
+  const mockResponses: Map<string, MockResponse> = new Map();
 
   // Helper to create a clean mock server
   const createMockServer = () => {
@@ -55,7 +58,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
 
     // Create and start test server on dynamic port
     testServer = createMockServer();
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       testServer.listen(0, () => {
         const address = testServer.address();
         testPort = typeof address === 'object' && address ? address.port : 3790;
@@ -64,9 +67,12 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     });
 
     // Create cage config with dynamic port
-    await writeFile('cage.config.json', JSON.stringify({
-      port: testPort
-    }));
+    await writeFile(
+      'cage.config.json',
+      JSON.stringify({
+        port: testPort,
+      })
+    );
   });
 
   afterEach(async () => {
@@ -74,7 +80,7 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     await rm(testDir, { recursive: true, force: true });
 
     if (testServer) {
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         testServer.close(() => resolve());
       });
     }
@@ -84,21 +90,21 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     it('should receive JSON from stdin and forward to backend', async () => {
       // Set up mock response for successful case
       mockResponses.set('/api/claude/hooks/pre-tool-use', {
-        body: { success: true }
+        body: { success: true },
       });
 
       const hookData = {
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
-        sessionId: 'test-session'
+        sessionId: 'test-session',
       };
 
       const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       // Send data to stdin
@@ -106,8 +112,8 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
       handler.stdin.end();
 
       // Wait for handler to complete
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => {
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => {
           resolve(code || 0);
         });
       });
@@ -121,13 +127,13 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     it('should log to file when backend is unreachable', async () => {
       // Set up mock to simulate network error
       mockResponses.set('/api/claude/hooks/post-tool-use', {
-        error: true
+        error: true,
       });
 
       const hookData = {
         toolName: 'Write',
         arguments: { file_path: '/test.txt' },
-        sessionId: 'test-session'
+        sessionId: 'test-session',
       };
 
       // Create .cage directory
@@ -137,15 +143,15 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       handler.stdin.write(JSON.stringify(hookData));
       handler.stdin.end();
 
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => resolve(code || 0));
       });
 
       // Should not block Claude (exit 0)
@@ -168,28 +174,28 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
         body: {
           success: false,
           block: true,
-          message: 'Operation not allowed'
-        }
+          message: 'Operation not allowed',
+        },
       });
 
       const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       handler.stdin.write(JSON.stringify({ toolName: 'Delete' }));
       handler.stdin.end();
 
       let stderr = '';
-      handler.stderr.on('data', (data) => {
+      handler.stderr.on('data', data => {
         stderr += data.toString();
       });
 
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => resolve(code || 0));
       });
 
       // Exit code 2 blocks Claude
@@ -204,28 +210,28 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
       mockResponses.set('/api/claude/hooks/user-prompt-submit', {
         body: {
           success: true,
-          output: 'Additional context: Project uses TypeScript'
-        }
+          output: 'Additional context: Project uses TypeScript',
+        },
       });
 
       const handler = spawn('node', [HOOK_HANDLER_PATH, 'user-prompt-submit'], {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       handler.stdin.write(JSON.stringify({ prompt: 'Help me write code' }));
       handler.stdin.end();
 
       let stdout = '';
-      handler.stdout.on('data', (data) => {
+      handler.stdout.on('data', data => {
         stdout += data.toString();
       });
 
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => resolve(code || 0));
       });
 
       expect(exitCode).toBe(0);
@@ -237,23 +243,23 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     it('should handle malformed JSON input gracefully', async () => {
       // Set up mock response for successful case
       mockResponses.set('/api/claude/hooks/pre-tool-use', {
-        body: { success: true }
+        body: { success: true },
       });
 
       const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       // Send malformed JSON
       handler.stdin.write('this is not valid json');
       handler.stdin.end();
 
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => resolve(code || 0));
       });
 
       // Should not block Claude Code even with malformed data
@@ -263,22 +269,22 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
     it('should handle empty input gracefully', async () => {
       // Set up mock response for successful case
       mockResponses.set('/api/claude/hooks/pre-tool-use', {
-        body: { success: true }
+        body: { success: true },
       });
 
       const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       // Send empty input
       handler.stdin.end();
 
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => resolve(code || 0));
       });
 
       // Should not block Claude Code with empty input
@@ -289,22 +295,22 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
       // Set up mock response for 400 error case
       mockResponses.set('/api/claude/hooks/pre-tool-use', {
         status: 400,
-        body: { error: 'Bad Request' }
+        body: { error: 'Bad Request' },
       });
 
       const handler = spawn('node', [HOOK_HANDLER_PATH, 'pre-tool-use'], {
         env: {
           ...process.env,
           TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
-        }
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       });
 
       handler.stdin.write(JSON.stringify({ toolName: 'Read' }));
       handler.stdin.end();
 
-      const exitCode = await new Promise<number>((resolve) => {
-        handler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        handler.on('exit', code => resolve(code || 0));
       });
 
       // Should log error but not block Claude Code

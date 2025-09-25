@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { mkdtemp, rm, writeFile, readFile, mkdir, access, readdir } from 'fs/promises';
+import {
+  mkdtemp,
+  rm,
+  writeFile,
+  readFile,
+  mkdir,
+  access,
+  readdir,
+} from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { existsSync } from 'fs';
@@ -11,7 +19,7 @@ import {
   saveLocalClaudeSettings,
   installHooksLocally,
   uninstallHooksLocally,
-  getInstalledHooksLocally
+  getInstalledHooksLocally,
 } from '../../src/utils/hooks-installer.js';
 
 describe('Feature: Configure Claude Code hooks in local project', () => {
@@ -24,17 +32,20 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
     process.chdir(testDir);
 
     // Create cage.config.json to simulate initialized project
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      port: 3790,
-      host: 'localhost',
-      enabled: true,
-      logLevel: 'info',
-      eventsDir: '.cage/events',
-      maxEventSize: 1048576,
-      enableMetrics: false,
-      enableOfflineMode: true,
-      offlineLogPath: '.cage/hooks-offline.log'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        port: 3790,
+        host: 'localhost',
+        enabled: true,
+        logLevel: 'info',
+        eventsDir: '.cage/events',
+        maxEventSize: 1048576,
+        enableMetrics: false,
+        enableOfflineMode: true,
+        offlineLogPath: '.cage/hooks-offline.log',
+      })
+    );
 
     // Create .cage directory
     await mkdir(join(testDir, '.cage'), { recursive: true });
@@ -101,15 +112,19 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       const existingSettings = {
         customField: 'should be preserved',
         hooks: {
-          CustomHook: [{
-            matcher: 'custom',
-            hooks: [{
-              type: 'command',
-              command: 'custom-command.js',
-              timeout: 60
-            }]
-          }]
-        }
+          CustomHook: [
+            {
+              matcher: 'custom',
+              hooks: [
+                {
+                  type: 'command',
+                  command: 'custom-command.js',
+                  timeout: 60,
+                },
+              ],
+            },
+          ],
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -120,12 +135,16 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       await installHooksLocally(3790);
 
       // Then - Verify backup was created
-      expect(existsSync(join(testDir, '.claude', 'settings.json.backup'))).toBe(true);
+      expect(existsSync(join(testDir, '.claude', 'settings.json.backup'))).toBe(
+        true
+      );
 
       // Verify original settings are preserved
       const updatedSettings = await loadLocalClaudeSettings();
       expect(updatedSettings.customField).toBe('should be preserved');
-      expect(updatedSettings.hooks?.CustomHook).toEqual(existingSettings.hooks.CustomHook);
+      expect(updatedSettings.hooks?.CustomHook).toEqual(
+        existingSettings.hooks.CustomHook
+      );
 
       // Verify Cage hooks were added
       expect(updatedSettings.hooks?.PreToolUse).toBeDefined();
@@ -142,11 +161,19 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       const installedHooks = await getInstalledHooksLocally();
 
       // Then - Verify all expected hooks are reported
-      expect(installedHooks.PreToolUse).toContain('.claude/hooks/cage/pretooluse.mjs');
-      expect(installedHooks.PostToolUse).toContain('.claude/hooks/cage/posttooluse.mjs');
-      expect(installedHooks.UserPromptSubmit).toContain('.claude/hooks/cage/userpromptsubmit.mjs');
+      expect(installedHooks.PreToolUse).toContain(
+        '.claude/hooks/cage/pretooluse.mjs'
+      );
+      expect(installedHooks.PostToolUse).toContain(
+        '.claude/hooks/cage/posttooluse.mjs'
+      );
+      expect(installedHooks.UserPromptSubmit).toContain(
+        '.claude/hooks/cage/userpromptsubmit.mjs'
+      );
       expect(installedHooks.Stop).toContain('.claude/hooks/cage/stop.mjs');
-      expect(installedHooks.SubagentStop).toContain('.claude/hooks/cage/subagentstop.mjs');
+      expect(installedHooks.SubagentStop).toContain(
+        '.claude/hooks/cage/subagentstop.mjs'
+      );
 
       // Verify hook scripts actually exist
       const hooksDir = join(testDir, '.claude', 'hooks', 'cage');
@@ -154,7 +181,9 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       expect(existsSync(join(hooksDir, 'posttooluse.mjs'))).toBe(true);
 
       // Verify scripts are executable
-      await expect(access(join(hooksDir, 'pretooluse.mjs'), constants.X_OK)).resolves.toBeUndefined();
+      await expect(
+        access(join(hooksDir, 'pretooluse.mjs'), constants.X_OK)
+      ).resolves.toBeUndefined();
     });
   });
 
@@ -173,23 +202,27 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
           ...existingHooks,
           {
             matcher: 'custom',
-            hooks: [{
-              type: 'command',
-              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/hook.js',
-              timeout: 60
-            }]
-          }
+            hooks: [
+              {
+                type: 'command',
+                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/hook.js',
+                timeout: 60,
+              },
+            ],
+          },
         ];
       } else {
         settings.hooks.PostToolUse = [
           {
             matcher: 'custom',
-            hooks: [{
-              type: 'command',
-              command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/hook.js',
-              timeout: 60
-            }]
-          }
+            hooks: [
+              {
+                type: 'command',
+                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/hook.js',
+                timeout: 60,
+              },
+            ],
+          },
         ];
       }
       await saveLocalClaudeSettings(settings);
@@ -203,9 +236,10 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
 
       // Verify custom hooks are preserved
       const finalSettings = await loadLocalClaudeSettings();
-      const customHooks = (finalSettings.hooks?.PostToolUse as unknown[])?.filter(
-        (h: { hooks?: Array<{ command?: string }> }) =>
-          h.hooks?.[0]?.command?.includes('custom')
+      const customHooks = (
+        finalSettings.hooks?.PostToolUse as unknown[]
+      )?.filter((h: { hooks?: Array<{ command?: string }> }) =>
+        h.hooks?.[0]?.command?.includes('custom')
       );
       expect(customHooks?.length).toBe(1);
     });
@@ -225,7 +259,13 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       await installHooksLocally(3790);
 
       // Then - Verify the hook handler exists
-      const handlerPath = join(testDir, '.claude', 'hooks', 'cage', 'cage-hook-handler.js');
+      const handlerPath = join(
+        testDir,
+        '.claude',
+        'hooks',
+        'cage',
+        'cage-hook-handler.js'
+      );
       expect(existsSync(handlerPath)).toBe(true);
 
       // Verify wrapper scripts exist and reference the handler
@@ -239,7 +279,10 @@ describe('Feature: Configure Claude Code hooks in local project', () => {
       expect(wrapperScripts).toContain('posttooluse.mjs');
 
       // Verify wrapper script content references the real handler
-      const scriptContent = await readFile(join(hooksDir, 'pretooluse.mjs'), 'utf-8');
+      const scriptContent = await readFile(
+        join(hooksDir, 'pretooluse.mjs'),
+        'utf-8'
+      );
       expect(scriptContent).toContain('cage-hook-handler.js');
       expect(scriptContent).toContain('spawn');
       expect(scriptContent).toContain("'PreToolUse'");

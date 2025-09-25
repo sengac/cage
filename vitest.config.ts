@@ -8,7 +8,7 @@ export default defineConfig({
     hookTimeout: 30000, // 30 seconds for setup/teardown hooks
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html']
-    }
-  }
+      reporter: ['text', 'json', 'html'],
+    },
+  },
 });

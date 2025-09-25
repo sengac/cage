@@ -38,7 +38,7 @@ export function EventsStatsCommand(): JSX.Element {
   const [state, setState] = useState<StatsState>({
     status: 'loading',
     message: 'Calculating statistics...',
-    stats: null
+    stats: null,
   });
 
   useEffect(() => {
@@ -50,18 +50,21 @@ export function EventsStatsCommand(): JSX.Element {
             status: 'error',
             message: 'CAGE is not initialized',
             error: 'Please run "cage init" first',
-            stats: null
+            stats: null,
           });
           return;
         }
 
-        const eventsDir = join(process.cwd(), config.eventsDir || '.cage/events');
+        const eventsDir = join(
+          process.cwd(),
+          config.eventsDir || '.cage/events'
+        );
 
         if (!existsSync(eventsDir)) {
           setState({
             status: 'done',
             message: 'No events found',
-            stats: null
+            stats: null,
           });
           return;
         }
@@ -79,7 +82,10 @@ export function EventsStatsCommand(): JSX.Element {
             for (const file of eventFiles) {
               const filePath = join(datePath, file);
               const content = await readFile(filePath, 'utf-8');
-              const lines = content.trim().split('\n').filter(line => line.trim());
+              const lines = content
+                .trim()
+                .split('\n')
+                .filter(line => line.trim());
 
               for (const line of lines) {
                 try {
@@ -100,7 +106,7 @@ export function EventsStatsCommand(): JSX.Element {
           setState({
             status: 'done',
             message: 'No events found',
-            stats: null
+            stats: null,
           });
           return;
         }
@@ -129,25 +135,25 @@ export function EventsStatsCommand(): JSX.Element {
           eventTypes,
           toolUsage,
           sessionsCount: sessions.size,
-          averageEventsPerSession: Math.round((allEvents.length / sessions.size) * 100) / 100,
+          averageEventsPerSession:
+            Math.round((allEvents.length / sessions.size) * 100) / 100,
           dateRange: {
             earliest: new Date(Math.min(...timestamps)).toISOString(),
-            latest: new Date(Math.max(...timestamps)).toISOString()
-          }
+            latest: new Date(Math.max(...timestamps)).toISOString(),
+          },
         };
 
         setState({
           status: 'done',
           message: 'Event Statistics',
-          stats
+          stats,
         });
-
       } catch (err) {
         setState({
           status: 'error',
           message: 'Failed to calculate statistics',
           error: err instanceof Error ? err.message : 'Unknown error',
-          stats: null
+          stats: null,
         });
       }
     };
@@ -170,8 +176,9 @@ export function EventsStatsCommand(): JSX.Element {
   const { stats } = state;
 
   // Sort event types and tools by count
-  const sortedEventTypes = Object.entries(stats.eventTypes)
-    .sort(([, a], [, b]) => b - a);
+  const sortedEventTypes = Object.entries(stats.eventTypes).sort(
+    ([, a], [, b]) => b - a
+  );
 
   const sortedTools = Object.entries(stats.toolUsage)
     .sort(([, a], [, b]) => b - a)
@@ -179,7 +186,9 @@ export function EventsStatsCommand(): JSX.Element {
 
   return (
     <Box flexDirection="column">
-      <Text bold color="cyan">{state.message}</Text>
+      <Text bold color="cyan">
+        {state.message}
+      </Text>
 
       <Box marginTop={1} flexDirection="column">
         <Text>Total events: {stats.totalEvents}</Text>
@@ -189,14 +198,20 @@ export function EventsStatsCommand(): JSX.Element {
 
       <Box marginTop={1} flexDirection="column">
         <Text>Date range:</Text>
-        <Text>  From: {new Date(stats.dateRange.earliest).toLocaleString()}</Text>
-        <Text>  To: {new Date(stats.dateRange.latest).toLocaleString()}</Text>
+        <Text>
+          {' '}
+          From: {new Date(stats.dateRange.earliest).toLocaleString()}
+        </Text>
+        <Text> To: {new Date(stats.dateRange.latest).toLocaleString()}</Text>
       </Box>
 
       <Box marginTop={1} flexDirection="column">
         <Text bold>Total events by type:</Text>
         {sortedEventTypes.map(([type, count]) => (
-          <Text key={type}>  {type}: {count}</Text>
+          <Text key={type}>
+            {' '}
+            {type}: {count}
+          </Text>
         ))}
       </Box>
 
@@ -204,7 +219,10 @@ export function EventsStatsCommand(): JSX.Element {
         <Box marginTop={1} flexDirection="column">
           <Text bold>Most frequently used tools:</Text>
           {sortedTools.map(([tool, count]) => (
-            <Text key={tool}>  {tool}: {count}</Text>
+            <Text key={tool}>
+              {' '}
+              {tool}: {count}
+            </Text>
           ))}
         </Box>
       )}

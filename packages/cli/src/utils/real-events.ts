@@ -44,7 +44,10 @@ export async function loadRealEvents(): Promise<Event[]> {
         for (const file of eventFiles) {
           const filePath = join(datePath, file);
           const content = await readFile(filePath, 'utf-8');
-          const lines = content.trim().split('\n').filter(line => line.trim());
+          const lines = content
+            .trim()
+            .split('\n')
+            .filter(line => line.trim());
 
           for (const line of lines) {
             try {
@@ -76,7 +79,10 @@ export async function loadRealEvents(): Promise<Event[]> {
     }
 
     // Sort events by timestamp (most recent first)
-    allEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    allEvents.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
 
     return allEvents;
   } catch (error) {
@@ -93,9 +99,13 @@ export async function getEventsCounts(): Promise<{
   try {
     const events = await loadRealEvents();
     const today = new Date().toISOString().split('T')[0];
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
 
-    const todayEvents = events.filter(e => e.timestamp.startsWith(today)).length;
+    const todayEvents = events.filter(e =>
+      e.timestamp.startsWith(today)
+    ).length;
     const weekEvents = events.filter(e => e.timestamp >= oneWeekAgo).length;
 
     return {

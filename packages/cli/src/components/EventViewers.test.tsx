@@ -107,10 +107,7 @@ const user: Person = {
 
     it('should handle empty content gracefully', () => {
       const { lastFrame } = render(
-        <FileViewer
-          filename="empty.txt"
-          content=""
-        />
+        <FileViewer filename="empty.txt" content="" />
       );
 
       const output = lastFrame();
@@ -119,7 +116,10 @@ const user: Person = {
     });
 
     it('should truncate long files with pagination info', () => {
-      const longContent = Array(100).fill(0).map((_, i) => `Line ${i + 1}`).join('\n');
+      const longContent = Array(100)
+        .fill(0)
+        .map((_, i) => `Line ${i + 1}`)
+        .join('\n');
 
       const { lastFrame } = render(
         <FileViewer
@@ -166,10 +166,7 @@ const user: Person = {
  Line 3`;
 
       const { lastFrame } = render(
-        <DiffViewer
-          diff={diff}
-          filename="file.txt"
-        />
+        <DiffViewer diff={diff} filename="file.txt" />
       );
 
       const output = lastFrame();
@@ -187,10 +184,7 @@ const user: Person = {
 +Added line 2`;
 
       const { lastFrame } = render(
-        <DiffViewer
-          diff={diff}
-          showColors={true}
-        />
+        <DiffViewer diff={diff} showColors={true} />
       );
 
       const output = lastFrame();
@@ -205,10 +199,7 @@ const user: Person = {
 -Removed line 2`;
 
       const { lastFrame } = render(
-        <DiffViewer
-          diff={diff}
-          showColors={true}
-        />
+        <DiffViewer diff={diff} showColors={true} />
       );
 
       const output = lastFrame();
@@ -222,10 +213,7 @@ const user: Person = {
 +New content`;
 
       const { lastFrame } = render(
-        <DiffViewer
-          diff={diff}
-          viewMode="side-by-side"
-        />
+        <DiffViewer diff={diff} viewMode="side-by-side" />
       );
 
       const output = lastFrame();
@@ -243,12 +231,7 @@ const user: Person = {
  Line 5
 +Line 6 added`;
 
-      const { lastFrame } = render(
-        <DiffViewer
-          diff={diff}
-          showStats={true}
-        />
-      );
+      const { lastFrame } = render(<DiffViewer diff={diff} showStats={true} />);
 
       const output = lastFrame();
       expect(output).toContain('3 additions');
@@ -259,10 +242,7 @@ const user: Person = {
       const binaryDiff = 'Binary files a/image.png and b/image.png differ';
 
       const { lastFrame } = render(
-        <DiffViewer
-          diff={binaryDiff}
-          filename="image.png"
-        />
+        <DiffViewer diff={binaryDiff} filename="image.png" />
       );
 
       const output = lastFrame();
@@ -285,10 +265,7 @@ diff --git a/file2.txt b/file2.txt
 +new2`;
 
       const { lastFrame } = render(
-        <DiffViewer
-          diff={multiDiff}
-          showFileList={true}
-        />
+        <DiffViewer diff={multiDiff} showFileList={true} />
       );
 
       const output = lastFrame();
@@ -310,12 +287,10 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
 -rw-r--r--  1 user  staff  100 Jan  1 00:00 file1.txt
 -rw-r--r--  1 user  staff  200 Jan  1 00:00 file2.txt`,
         exitCode: 0,
-        timestamp: '2025-01-01T00:00:00Z'
+        timestamp: '2025-01-01T00:00:00Z',
       };
 
-      const { lastFrame } = render(
-        <CommandOutputViewer event={bashEvent} />
-      );
+      const { lastFrame } = render(<CommandOutputViewer event={bashEvent} />);
 
       const output = lastFrame();
       expect(output).toContain('$ ls -la');
@@ -333,12 +308,10 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
         output: '',
         error: 'cat: nonexistent.txt: No such file or directory',
         exitCode: 1,
-        timestamp: '2025-01-01T00:00:00Z'
+        timestamp: '2025-01-01T00:00:00Z',
       };
 
-      const { lastFrame } = render(
-        <CommandOutputViewer event={bashEvent} />
-      );
+      const { lastFrame } = render(<CommandOutputViewer event={bashEvent} />);
 
       const output = lastFrame();
       expect(output).toContain('$ cat nonexistent.txt');
@@ -353,14 +326,11 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
         command: 'echo \'{"key": "value", "array": [1, 2, 3]}\'',
         output: '{"key": "value", "array": [1, 2, 3]}',
         exitCode: 0,
-        timestamp: '2025-01-01T00:00:00Z'
+        timestamp: '2025-01-01T00:00:00Z',
       };
 
       const { lastFrame } = render(
-        <CommandOutputViewer
-          event={bashEvent}
-          formatJson={true}
-        />
+        <CommandOutputViewer event={bashEvent} formatJson={true} />
       );
 
       const output = lastFrame();
@@ -379,14 +349,11 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
         output: '',
         exitCode: 0,
         timestamp: '2025-01-01T00:00:00Z',
-        duration: 2000
+        duration: 2000,
       };
 
       const { lastFrame } = render(
-        <CommandOutputViewer
-          event={bashEvent}
-          showTiming={true}
-        />
+        <CommandOutputViewer event={bashEvent} showTiming={true} />
       );
 
       const output = lastFrame();
@@ -401,14 +368,11 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
         command: 'ls --color',
         output: '\x1b[34mblue-dir\x1b[0m\n\x1b[32mgreen-file\x1b[0m',
         exitCode: 0,
-        timestamp: '2025-01-01T00:00:00Z'
+        timestamp: '2025-01-01T00:00:00Z',
       };
 
       const { lastFrame } = render(
-        <CommandOutputViewer
-          event={bashEvent}
-          stripAnsi={false}
-        />
+        <CommandOutputViewer event={bashEvent} stripAnsi={false} />
       );
 
       const output = lastFrame();
@@ -417,7 +381,10 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
     });
 
     it('should truncate long output with expand option', () => {
-      const longOutput = Array(100).fill(0).map((_, i) => `Line ${i + 1}`).join('\n');
+      const longOutput = Array(100)
+        .fill(0)
+        .map((_, i) => `Line ${i + 1}`)
+        .join('\n');
 
       const bashEvent: BashEvent = {
         id: '6',
@@ -425,7 +392,7 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
         command: 'cat large-file.txt',
         output: longOutput,
         exitCode: 0,
-        timestamp: '2025-01-01T00:00:00Z'
+        timestamp: '2025-01-01T00:00:00Z',
       };
 
       const { lastFrame } = render(
@@ -451,14 +418,11 @@ drwxr-xr-x  3 user  staff   96 Jan  1 00:00 ..
         output: '/Users/test/project',
         exitCode: 0,
         timestamp: '2025-01-01T00:00:00Z',
-        workingDirectory: '/Users/test/project'
+        workingDirectory: '/Users/test/project',
       };
 
       const { lastFrame } = render(
-        <CommandOutputViewer
-          event={bashEvent}
-          showWorkingDir={true}
-        />
+        <CommandOutputViewer event={bashEvent} showWorkingDir={true} />
       );
 
       const output = lastFrame();

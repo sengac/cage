@@ -14,7 +14,9 @@ interface FullScreenWrapperProps {
  * - Consistent centering for all content
  * - Responsive to terminal resize events
  */
-export const FullScreenWrapper: React.FC<FullScreenWrapperProps> = ({ children }) => {
+export const FullScreenWrapper: React.FC<FullScreenWrapperProps> = ({
+  children,
+}) => {
   // Use the responsive hook that handles resize events
   const dimensions = useTerminalSize();
 

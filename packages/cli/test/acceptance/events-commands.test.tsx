@@ -19,11 +19,14 @@ describe('Feature: CLI Event Monitoring', () => {
     process.chdir(testDir);
 
     // Create cage config
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      version: '1.0.0',
-      port: 3790,
-      eventsDir: '.cage/events'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        version: '1.0.0',
+        port: 3790,
+        eventsDir: '.cage/events',
+      })
+    );
 
     // Create .cage directory with sample events
     const cageDir = join(testDir, '.cage');
@@ -32,10 +35,30 @@ describe('Feature: CLI Event Monitoring', () => {
 
     // Create sample event log
     const events = [
-      { timestamp: '2025-01-15T10:00:00Z', eventType: 'pre-tool-use', toolName: 'Read', sessionId: 'session-1' },
-      { timestamp: '2025-01-15T10:00:01Z', eventType: 'post-tool-use', toolName: 'Read', sessionId: 'session-1' },
-      { timestamp: '2025-01-15T10:00:02Z', eventType: 'pre-tool-use', toolName: 'Write', sessionId: 'session-1' },
-      { timestamp: '2025-01-15T10:00:03Z', eventType: 'post-tool-use', toolName: 'Write', sessionId: 'session-1' },
+      {
+        timestamp: '2025-01-15T10:00:00Z',
+        eventType: 'pre-tool-use',
+        toolName: 'Read',
+        sessionId: 'session-1',
+      },
+      {
+        timestamp: '2025-01-15T10:00:01Z',
+        eventType: 'post-tool-use',
+        toolName: 'Read',
+        sessionId: 'session-1',
+      },
+      {
+        timestamp: '2025-01-15T10:00:02Z',
+        eventType: 'pre-tool-use',
+        toolName: 'Write',
+        sessionId: 'session-1',
+      },
+      {
+        timestamp: '2025-01-15T10:00:03Z',
+        eventType: 'post-tool-use',
+        toolName: 'Write',
+        sessionId: 'session-1',
+      },
     ];
 
     const jsonl = events.map(e => JSON.stringify(e)).join('\n');
@@ -53,9 +76,12 @@ describe('Feature: CLI Event Monitoring', () => {
       const { lastFrame } = render(<EventsTailCommand count={10} />);
 
       // Wait for component to process events
-      await vi.waitFor(() => {
-        expect(lastFrame()).toContain('2025-01-15');
-      }, { timeout: 1000 });
+      await vi.waitFor(
+        () => {
+          expect(lastFrame()).toContain('2025-01-15');
+        },
+        { timeout: 1000 }
+      );
 
       // Then
       expect(lastFrame()).toContain('2025-01-15T10:00:00Z');
@@ -69,9 +95,12 @@ describe('Feature: CLI Event Monitoring', () => {
       const { lastFrame } = render(<EventsTailCommand count={2} />);
 
       // Wait for component to process events
-      await vi.waitFor(() => {
-        expect(lastFrame()).toContain('2025-01-15');
-      }, { timeout: 1000 });
+      await vi.waitFor(
+        () => {
+          expect(lastFrame()).toContain('2025-01-15');
+        },
+        { timeout: 1000 }
+      );
 
       // Then - should show the last 2 events
       expect(lastFrame()).toContain('2025-01-15T10:00:02Z');
@@ -85,7 +114,7 @@ describe('Feature: CLI Event Monitoring', () => {
       const mockEventSource = {
         addEventListener: vi.fn(),
         close: vi.fn(),
-        readyState: 1 // OPEN
+        readyState: 1, // OPEN
       };
 
       // @ts-ignore - mocking global
@@ -117,14 +146,16 @@ describe('Feature: CLI Event Monitoring', () => {
         },
         set onerror(handler: (e: Event) => void) {
           // no-op for this test
-        }
+        },
       };
 
       // @ts-ignore - mocking global
       global.EventSource = vi.fn(() => mockEventSource);
 
       // When
-      const { lastFrame, rerender } = render(<EventsStreamCommand filter="PreToolUse" />);
+      const { lastFrame, rerender } = render(
+        <EventsStreamCommand filter="PreToolUse" />
+      );
 
       // Wait a bit for the connection to "open"
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -143,9 +174,12 @@ describe('Feature: CLI Event Monitoring', () => {
       );
 
       // Wait for component to load events
-      await vi.waitFor(() => {
-        expect(lastFrame()).toContain('Events from');
-      }, { timeout: 1000 });
+      await vi.waitFor(
+        () => {
+          expect(lastFrame()).toContain('Events from');
+        },
+        { timeout: 1000 }
+      );
 
       // Then
       expect(lastFrame()).toContain('Events from 2025-01-15');
@@ -161,9 +195,12 @@ describe('Feature: CLI Event Monitoring', () => {
       const { lastFrame } = render(<EventsStatsCommand />);
 
       // Wait for component to calculate stats
-      await vi.waitFor(() => {
-        expect(lastFrame()).toContain('Event Statistics');
-      }, { timeout: 1000 });
+      await vi.waitFor(
+        () => {
+          expect(lastFrame()).toContain('Event Statistics');
+        },
+        { timeout: 1000 }
+      );
 
       // Then
       expect(lastFrame()).toContain('Total events: 4');

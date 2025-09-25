@@ -10,7 +10,11 @@ describe('VirtualList', () => {
     name: `Item ${i + 1}`,
   }));
 
-  const renderItem = (item: typeof mockItems[0], _index: number, isSelected: boolean) => (
+  const renderItem = (
+    item: (typeof mockItems)[0],
+    _index: number,
+    isSelected: boolean
+  ) => (
     <Text color={isSelected ? 'blue' : 'white'}>
       {isSelected ? '>' : ' '} {item.name}
     </Text>
@@ -23,11 +27,7 @@ describe('VirtualList', () => {
   describe('Rendering', () => {
     it('should render visible items within height limit', () => {
       const { lastFrame } = render(
-        <VirtualList
-          items={mockItems}
-          height={5}
-          renderItem={renderItem}
-        />
+        <VirtualList items={mockItems} height={5} renderItem={renderItem} />
       );
 
       const frame = lastFrame();
@@ -363,7 +363,9 @@ describe('VirtualList', () => {
   describe('useVirtualListState hook', () => {
     it('should manage list state externally', async () => {
       const items = mockItems.slice(0, 5);
-      let hookResult: ReturnType<typeof useVirtualListState<typeof items[0]>> | null = null;
+      let hookResult: ReturnType<
+        typeof useVirtualListState<(typeof items)[0]>
+      > | null = null;
 
       function TestComponent() {
         hookResult = useVirtualListState(items);
@@ -386,7 +388,9 @@ describe('VirtualList', () => {
 
     it('should reset state', async () => {
       const items = mockItems.slice(0, 5);
-      let hookResult: ReturnType<typeof useVirtualListState<typeof items[0]>> | null = null;
+      let hookResult: ReturnType<
+        typeof useVirtualListState<(typeof items)[0]>
+      > | null = null;
 
       function TestComponent() {
         hookResult = useVirtualListState(items, 1);
@@ -433,7 +437,7 @@ function renderHook<T>(hookFn: () => T) {
     result: {
       get current() {
         return results[renderCount - 1];
-      }
+      },
     },
     rerender: () => {
       utils.rerender(<TestComponent />);

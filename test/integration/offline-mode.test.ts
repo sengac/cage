@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach,
+} from 'vitest';
 import { spawn, ChildProcess } from 'child_process';
 import { mkdtemp, rm, writeFile, readFile, mkdir, readdir } from 'fs/promises';
 import { existsSync } from 'fs';
@@ -28,10 +36,13 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     process.chdir(testDir);
 
     // Create cage config pointing to unavailable backend
-    await writeFile('cage.config.json', JSON.stringify({
-      port: backendPort,
-      logLevel: 'info'
-    }));
+    await writeFile(
+      'cage.config.json',
+      JSON.stringify({
+        port: backendPort,
+        logLevel: 'info',
+      })
+    );
 
     // Create .cage directory structure
     await mkdir('.cage', { recursive: true });
@@ -74,10 +85,14 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
       'notification',
       'pre-compact',
       'stop',
-      'subagent-stop'
+      'subagent-stop',
     ];
 
-    const results: Array<{ hookType: string; exitCode: number; responseTime: number }> = [];
+    const results: Array<{
+      hookType: string;
+      exitCode: number;
+      responseTime: number;
+    }> = [];
 
     for (const hookType of hookTypes) {
       const payload = createOfflineTestPayload(hookType, sessionId);
@@ -104,7 +119,9 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
 
     // Assert: All hooks should respond quickly (within 5 seconds)
     results.forEach(({ hookType, responseTime }) => {
-      expect(responseTime, `${hookType} should respond quickly`).toBeLessThan(5000);
+      expect(responseTime, `${hookType} should respond quickly`).toBeLessThan(
+        5000
+      );
     });
 
     // Wait longer for all offline logs to be flushed to disk
@@ -115,10 +132,15 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     expect(existsSync(offlineLogPath)).toBe(true);
 
     const offlineLogContent = await readFile(offlineLogPath, 'utf-8');
-    console.log(`Offline log has ${offlineLogContent.split('\n').filter(l => l.trim()).length} entries`);
+    console.log(
+      `Offline log has ${offlineLogContent.split('\n').filter(l => l.trim()).length} entries`
+    );
 
     // Parse log entries first to debug (format: "timestamp [hook-type] message")
-    const logLines = offlineLogContent.trim().split('\n').filter(line => line.trim());
+    const logLines = offlineLogContent
+      .trim()
+      .split('\n')
+      .filter(line => line.trim());
     const loggedHookTypes = new Set<string>();
 
     logLines.forEach(line => {
@@ -132,7 +154,10 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     });
 
     console.log('Logged hook types:', Array.from(loggedHookTypes));
-    console.log('Missing hook types:', hookTypes.filter(h => !loggedHookTypes.has(h)));
+    console.log(
+      'Missing hook types:',
+      hookTypes.filter(h => !loggedHookTypes.has(h))
+    );
 
     // Should contain entries for all hook types (kebab-case in logs)
     hookTypes.forEach(hookType => {
@@ -148,7 +173,9 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     // Verify each log line has the expected format: "timestamp [hook-type] error-message"
     logLines.forEach(line => {
       // Format: "2025-09-19T08:44:04.054Z [hook-type] Failed to connect to Cage backend: error"
-      expect(line).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z \[[\w-]+\] Failed to connect to Cage backend:/);
+      expect(line).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z \[[\w-]+\] Failed to connect to Cage backend:/
+      );
       expect(line).toContain('fetch failed');
     });
   });
@@ -169,12 +196,15 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
         arguments: { file_path: `/rapid-test-${i}.txt` },
         sessionId,
         timestamp: new Date().toISOString(),
-        eventIndex: i
+        eventIndex: i,
       };
 
       const promise = (async () => {
         const startTime = Date.now();
-        const exitCode = await triggerHookAndGetExitCode('pre-tool-use', payload);
+        const exitCode = await triggerHookAndGetExitCode(
+          'pre-tool-use',
+          payload
+        );
         const responseTime = Date.now() - startTime;
         return { exitCode, responseTime };
       })();
@@ -190,11 +220,16 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     // Wait for all hooks to complete
     const results = await Promise.all(promises);
 
-    const avgResponseTime = results.reduce((sum, r) => sum + r.responseTime, 0) / results.length;
+    const avgResponseTime =
+      results.reduce((sum, r) => sum + r.responseTime, 0) / results.length;
     const maxActualResponseTime = Math.max(...results.map(r => r.responseTime));
-    const slowHooks = results.filter(r => r.responseTime > maxResponseTime).length;
+    const slowHooks = results.filter(
+      r => r.responseTime > maxResponseTime
+    ).length;
 
-    console.log(`Average offline response time: ${avgResponseTime.toFixed(2)}ms`);
+    console.log(
+      `Average offline response time: ${avgResponseTime.toFixed(2)}ms`
+    );
     console.log(`Max offline response time: ${maxActualResponseTime}ms`);
     console.log(`Slow hooks: ${slowHooks}/${totalHooks}`);
 
@@ -212,7 +247,10 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     expect(existsSync(offlineLogPath)).toBe(true);
 
     const offlineLogContent = await readFile(offlineLogPath, 'utf-8');
-    const logLines = offlineLogContent.trim().split('\n').filter(line => line.trim());
+    const logLines = offlineLogContent
+      .trim()
+      .split('\n')
+      .filter(line => line.trim());
     expect(logLines).toHaveLength(totalHooks);
   });
 
@@ -226,10 +264,13 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
       toolName: 'Read',
       arguments: { file_path: '/offline-test.txt' },
       sessionId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    const offlineExitCode = await triggerHookAndGetExitCode('pre-tool-use', offlinePayload);
+    const offlineExitCode = await triggerHookAndGetExitCode(
+      'pre-tool-use',
+      offlinePayload
+    );
     expect(offlineExitCode).toBe(0);
 
     // Wait for offline log to be written
@@ -245,16 +286,18 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
     // Phase 2: Start backend server
     console.log('Phase 2: Starting backend server');
 
-    const backendProcess = spawn('node', [
-      join(originalCwd, 'packages/backend/dist/main.js')
-    ], {
-      env: {
-        ...process.env,
-        PORT: backendPort.toString(),
-        TEST_BASE_DIR: testDir
-      },
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
+    const backendProcess = spawn(
+      'node',
+      [join(originalCwd, 'packages/backend/dist/main.js')],
+      {
+        env: {
+          ...process.env,
+          PORT: backendPort.toString(),
+          TEST_BASE_DIR: testDir,
+        },
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }
+    );
 
     // Wait for backend to be ready
     await new Promise<void>((resolve, reject) => {
@@ -263,8 +306,10 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
       }, 10000);
 
       if (backendProcess.stdout) {
-        backendProcess.stdout.on('data', (data) => {
-          if (data.toString().includes('Nest application successfully started')) {
+        backendProcess.stdout.on('data', data => {
+          if (
+            data.toString().includes('Nest application successfully started')
+          ) {
             clearTimeout(timeout);
             resolve();
           }
@@ -281,17 +326,22 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
       result: { success: true },
       executionTime: 150, // Required for post-tool-use
       sessionId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    const onlineExitCode = await triggerHookAndGetExitCode('post-tool-use', onlinePayload);
+    const onlineExitCode = await triggerHookAndGetExitCode(
+      'post-tool-use',
+      onlinePayload
+    );
     expect(onlineExitCode).toBe(0);
 
     // Wait for event to be processed
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Verify online event was logged to backend
-    const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}`);
+    const response = await fetch(
+      `http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}`
+    );
     expect(response.ok).toBe(true);
 
     const { events } = await response.json();
@@ -318,10 +368,13 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
   // The other offline tests already verify offline behavior comprehensively
 
   // Helper functions
-  function createOfflineTestPayload(hookType: string, sessionId: string): Record<string, unknown> {
+  function createOfflineTestPayload(
+    hookType: string,
+    sessionId: string
+  ): Record<string, unknown> {
     const basePayload = {
       sessionId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     switch (hookType) {
@@ -329,7 +382,7 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
         return {
           ...basePayload,
           toolName: 'Read',
-          arguments: { file_path: `/offline-${hookType}.txt` }
+          arguments: { file_path: `/offline-${hookType}.txt` },
         };
 
       case 'post-tool-use':
@@ -338,40 +391,40 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
           toolName: 'Read',
           arguments: { file_path: `/offline-${hookType}.txt` },
           result: { content: 'test content' },
-          executionTime: 100  // Required field for post-tool-use
+          executionTime: 100, // Required field for post-tool-use
         };
 
       case 'user-prompt-submit':
         return {
           ...basePayload,
-          prompt: 'Test offline prompt'
+          prompt: 'Test offline prompt',
         };
 
       case 'session-start':
       case 'session-end':
         return {
           ...basePayload,
-          metadata: { offline: true }
+          metadata: { offline: true },
         };
 
       case 'notification':
         return {
           ...basePayload,
           level: 'info',
-          message: 'Test offline notification'
+          message: 'Test offline notification',
         };
 
       case 'pre-compact':
         return {
           ...basePayload,
-          type: 'pre-compact'
+          type: 'pre-compact',
         };
 
       case 'stop':
         return {
           ...basePayload,
           reason: 'test-stop',
-          type: 'stop'
+          type: 'stop',
         };
 
       case 'subagent-stop':
@@ -379,36 +432,40 @@ describe('Integration: Offline Mode', { concurrent: false }, () => {
           ...basePayload,
           subagentId: 'test-subagent-123',
           parentSessionId: 'parent-session-456',
-          type: 'subagent-stop'
+          type: 'subagent-stop',
         };
 
       default:
         return {
           ...basePayload,
-          type: hookType
+          type: hookType,
         };
     }
   }
 
-  async function triggerHookAndGetExitCode(hookType: string, payload: Record<string, unknown>): Promise<number> {
-    const hookHandler = spawn('node', [
-      join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
-      hookType
-    ], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: testDir,
-      env: {
-        ...process.env,
-        TEST_BASE_DIR: testDir,
-        CLAUDE_PROJECT_DIR: testDir
+  async function triggerHookAndGetExitCode(
+    hookType: string,
+    payload: Record<string, unknown>
+  ): Promise<number> {
+    const hookHandler = spawn(
+      'node',
+      [join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'), hookType],
+      {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: testDir,
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir,
+        },
       }
-    });
+    );
 
     hookHandler.stdin.write(JSON.stringify(payload));
     hookHandler.stdin.end();
 
-    return new Promise<number>((resolve) => {
-      hookHandler.on('exit', (code) => resolve(code || 0));
+    return new Promise<number>(resolve => {
+      hookHandler.on('exit', code => resolve(code || 0));
 
       // Force timeout after 10 seconds to prevent hanging
       setTimeout(() => {

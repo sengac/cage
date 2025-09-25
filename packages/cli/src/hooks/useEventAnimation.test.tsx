@@ -5,10 +5,10 @@ import { Text, Box } from 'ink';
 import { useEventAnimation } from './useEventAnimation';
 
 // Mock requestAnimationFrame
-global.requestAnimationFrame = vi.fn((callback) => {
+global.requestAnimationFrame = vi.fn(callback => {
   return setTimeout(callback, 0) as any;
 });
-global.cancelAnimationFrame = vi.fn((id) => {
+global.cancelAnimationFrame = vi.fn(id => {
   clearTimeout(id);
 });
 
@@ -28,7 +28,7 @@ describe('useEventAnimation', () => {
       const TestComponent = () => {
         const { isNew, highlightClass } = useEventAnimation({
           eventId: 'event-1',
-          isNewEvent: true
+          isNewEvent: true,
         });
 
         return (
@@ -48,7 +48,7 @@ describe('useEventAnimation', () => {
         const { isNew, highlightClass } = useEventAnimation({
           eventId: 'event-2',
           isNewEvent: true,
-          duration: 1000
+          duration: 1000,
         });
 
         return <Text>New: {isNew ? 'yes' : 'no'}</Text>;
@@ -69,7 +69,7 @@ describe('useEventAnimation', () => {
         const { highlightClass } = useEventAnimation({
           eventId: 'event-3',
           isNewEvent: true,
-          customClass: 'pulse-green'
+          customClass: 'pulse-green',
         });
 
         return <Text>Class: {highlightClass}</Text>;
@@ -86,7 +86,7 @@ describe('useEventAnimation', () => {
         const { opacity } = useEventAnimation({
           eventId: 'event-4',
           isNewEvent: true,
-          animationType: 'fadeIn'
+          animationType: 'fadeIn',
         });
 
         return <Text>Opacity: {opacity}</Text>;
@@ -105,7 +105,7 @@ describe('useEventAnimation', () => {
           eventId: 'event-5',
           isNewEvent: true,
           animationType: 'fadeIn',
-          duration: 500
+          duration: 500,
         });
 
         return <Text>Opacity: {opacity}</Text>;
@@ -128,7 +128,7 @@ describe('useEventAnimation', () => {
           eventId: 'event-6',
           isNewEvent: true,
           animationType: 'slideIn',
-          direction: 'left'
+          direction: 'left',
         });
 
         useEffect(() => {
@@ -160,7 +160,7 @@ describe('useEventAnimation', () => {
           isNewEvent: true,
           animationType: 'slideIn',
           direction: 'left',
-          duration: 300
+          duration: 300,
         });
 
         return <Text>Offset: {offsetX}</Text>;
@@ -182,7 +182,7 @@ describe('useEventAnimation', () => {
         const { isPulsing } = useEventAnimation({
           eventId: 'event-8',
           isNewEvent: true,
-          animationType: 'pulse'
+          animationType: 'pulse',
         });
 
         useEffect(() => {
@@ -219,7 +219,7 @@ describe('useEventAnimation', () => {
           isNewEvent: true,
           animationType: 'pulse',
           pulseRepeat: 3,
-          pulseDuration: 200
+          pulseDuration: 200,
         });
 
         return <Text>Pulses: {pulseCount}</Text>;
@@ -248,7 +248,7 @@ describe('useEventAnimation', () => {
           isNewEvent: true,
           animationType: ['fadeIn', 'slideIn'],
           duration: 400,
-          direction: 'left'
+          direction: 'left',
         });
 
         useEffect(() => {
@@ -287,7 +287,7 @@ describe('useEventAnimation', () => {
         useEventAnimation({
           eventId: 'event-11',
           isNewEvent: true,
-          onAnimationStart: onStart
+          onAnimationStart: onStart,
         });
 
         return <Text>Animating</Text>;
@@ -305,7 +305,7 @@ describe('useEventAnimation', () => {
           eventId: 'event-12',
           isNewEvent: true,
           duration: 500,
-          onAnimationComplete: onComplete
+          onAnimationComplete: onComplete,
         });
 
         return <Text>Animating</Text>;
@@ -326,7 +326,7 @@ describe('useEventAnimation', () => {
         const { isAnimating } = useEventAnimation({
           eventId: 'event-13',
           isNewEvent: true,
-          disabled: true
+          disabled: true,
         });
 
         return <Text>Animating: {isAnimating ? 'yes' : 'no'}</Text>;
@@ -341,7 +341,7 @@ describe('useEventAnimation', () => {
         useEventAnimation({
           eventId: 'event-14',
           isNewEvent: true,
-          duration: 1000
+          duration: 1000,
         });
 
         return <Text>Test</Text>;

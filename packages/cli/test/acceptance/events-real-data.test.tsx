@@ -33,10 +33,13 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
       port: 3790,
       host: 'localhost',
       eventsDir: '.cage/events',
-      logLevel: 'info'
+      logLevel: 'info',
     };
 
-    writeFileSync(join(testDir, 'cage.config.json'), JSON.stringify(cageConfig, null, 2));
+    writeFileSync(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify(cageConfig, null, 2)
+    );
 
     // Create .cage directory structure
     mkdirSync(join(testDir, '.cage', 'events'), { recursive: true });
@@ -68,7 +71,7 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
           eventType: 'PreToolUse',
           toolName: 'Read',
           arguments: { file_path: '/test1.txt' },
-          sessionId: 'session-abc-123'
+          sessionId: 'session-abc-123',
         },
         {
           id: nanoid(),
@@ -76,7 +79,7 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
           eventType: 'PostToolUse',
           toolName: 'Read',
           result: { content: 'file content' },
-          sessionId: 'session-abc-123'
+          sessionId: 'session-abc-123',
         },
         {
           id: nanoid(),
@@ -84,7 +87,7 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
           eventType: 'PreToolUse',
           toolName: 'Write',
           arguments: { file_path: '/test2.txt', content: 'hello world' },
-          sessionId: 'session-def-456'
+          sessionId: 'session-def-456',
         },
         {
           id: nanoid(),
@@ -92,18 +95,20 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
           eventType: 'PostToolUse',
           toolName: 'Write',
           result: { success: true },
-          sessionId: 'session-def-456'
+          sessionId: 'session-def-456',
         },
         {
           id: nanoid(),
           timestamp: new Date(baseTime.getTime() + 120000).toISOString(),
           eventType: 'UserPromptSubmit',
           prompt: 'Please help me with this task',
-          sessionId: 'session-def-456'
-        }
+          sessionId: 'session-def-456',
+        },
       ];
 
-      const eventLines = testEvents.map(event => JSON.stringify(event)).join('\n');
+      const eventLines = testEvents
+        .map(event => JSON.stringify(event))
+        .join('\n');
       writeFileSync(join(eventsDir, 'events.jsonl'), eventLines);
 
       // WHEN: cage events list is executed
@@ -152,15 +157,17 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
       const todayDir = new Date().toISOString().split('T')[0];
 
       // Create events for yesterday
-      mkdirSync(join(testDir, '.cage', 'events', yesterdayDir), { recursive: true });
+      mkdirSync(join(testDir, '.cage', 'events', yesterdayDir), {
+        recursive: true,
+      });
       const oldEvents = [
         {
           id: nanoid(),
           timestamp: yesterday.toISOString(),
           eventType: 'PreToolUse',
           toolName: 'Read',
-          sessionId: 'old-session'
-        }
+          sessionId: 'old-session',
+        },
       ];
       writeFileSync(
         join(testDir, '.cage', 'events', yesterdayDir, 'events.jsonl'),
@@ -168,7 +175,9 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
       );
 
       // Create events for today (more recent)
-      mkdirSync(join(testDir, '.cage', 'events', todayDir), { recursive: true });
+      mkdirSync(join(testDir, '.cage', 'events', todayDir), {
+        recursive: true,
+      });
       const today = new Date();
       today.setHours(11, 0, 0, 0);
       const recentEvents = [
@@ -177,15 +186,15 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
           timestamp: new Date(today).toISOString(),
           eventType: 'PostToolUse',
           toolName: 'Write',
-          sessionId: 'recent-session-1'
+          sessionId: 'recent-session-1',
         },
         {
           id: nanoid(),
           timestamp: new Date(today.getTime() + 60000).toISOString(),
           eventType: 'PreToolUse',
           toolName: 'Edit',
-          sessionId: 'recent-session-2'
-        }
+          sessionId: 'recent-session-2',
+        },
       ];
       writeFileSync(
         join(testDir, '.cage', 'events', todayDir, 'events.jsonl'),
@@ -215,7 +224,7 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
       let eventSourceUrl = '';
 
       // @ts-ignore - mocking global
-      global.EventSource = vi.fn().mockImplementation(function(url) {
+      global.EventSource = vi.fn().mockImplementation(function (url) {
         eventSourceCreated = true;
         eventSourceUrl = url.toString();
 
@@ -227,7 +236,7 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
           close: vi.fn(),
           addEventListener: vi.fn(),
           removeEventListener: vi.fn(),
-          readyState: 0 // CONNECTING
+          readyState: 0, // CONNECTING
         };
       });
 
@@ -266,13 +275,22 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
       // GIVEN: Custom events directory in config
       const customConfig = {
         ...cageConfig,
-        eventsDir: 'custom/events/path'
+        eventsDir: 'custom/events/path',
       };
-      writeFileSync(join(testDir, 'cage.config.json'), JSON.stringify(customConfig, null, 2));
+      writeFileSync(
+        join(testDir, 'cage.config.json'),
+        JSON.stringify(customConfig, null, 2)
+      );
 
       // Create events in custom location
       const todayDir = new Date().toISOString().split('T')[0];
-      const customEventsDir = join(testDir, 'custom', 'events', 'path', todayDir);
+      const customEventsDir = join(
+        testDir,
+        'custom',
+        'events',
+        'path',
+        todayDir
+      );
       mkdirSync(customEventsDir, { recursive: true });
 
       const testEvent = {
@@ -280,7 +298,7 @@ describe('CLI Events Commands with Real Data - Given-When-Then', () => {
         timestamp: new Date().toISOString(),
         eventType: 'PreToolUse',
         toolName: 'Read',
-        sessionId: 'custom-path-test'
+        sessionId: 'custom-path-test',
       };
 
       writeFileSync(

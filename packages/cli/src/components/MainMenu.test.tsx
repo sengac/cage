@@ -16,7 +16,7 @@ describe('MainMenu', () => {
     navigate = vi.fn();
 
     // Mock the store implementation
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         navigate,
         serverStatus: 'stopped',
@@ -88,7 +88,9 @@ describe('MainMenu', () => {
 
     describe('When pressing arrow keys', () => {
       it('Then down arrow should move selection down', async () => {
-        const { stdin, lastFrame, rerender } = render(<MainMenu onExit={onExit} />);
+        const { stdin, lastFrame, rerender } = render(
+          <MainMenu onExit={onExit} />
+        );
 
         // Press down arrow
         stdin.write('\u001B[B');
@@ -101,7 +103,9 @@ describe('MainMenu', () => {
       });
 
       it('Then up arrow should move selection up', () => {
-        const { stdin, lastFrame, rerender } = render(<MainMenu onExit={onExit} />);
+        const { stdin, lastFrame, rerender } = render(
+          <MainMenu onExit={onExit} />
+        );
 
         // Move down first
         stdin.write('\u001B[B');
@@ -115,7 +119,9 @@ describe('MainMenu', () => {
       });
 
       it('Then j/k keys should navigate', () => {
-        const { stdin, lastFrame, rerender } = render(<MainMenu onExit={onExit} />);
+        const { stdin, lastFrame, rerender } = render(
+          <MainMenu onExit={onExit} />
+        );
 
         // j moves down
         stdin.write('j');
@@ -129,7 +135,9 @@ describe('MainMenu', () => {
       });
 
       it('Then should wrap around at boundaries', () => {
-        const { stdin, lastFrame, rerender } = render(<MainMenu onExit={onExit} />);
+        const { stdin, lastFrame, rerender } = render(
+          <MainMenu onExit={onExit} />
+        );
 
         // Go up from first item should wrap to last
         stdin.write('\u001B[A');
@@ -196,13 +204,15 @@ describe('MainMenu', () => {
 
     describe('When server status changes', () => {
       it('Then should show running status', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            navigate,
-            serverStatus: 'running',
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              navigate,
+              serverStatus: 'running',
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<MainMenu onExit={onExit} />);
 
@@ -210,13 +220,15 @@ describe('MainMenu', () => {
       });
 
       it('Then should show error status', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            navigate,
-            serverStatus: 'error',
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              navigate,
+              serverStatus: 'error',
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<MainMenu onExit={onExit} />);
 

@@ -14,7 +14,9 @@ describe('FileViewer', () => {
 
     it('should display filename when provided', () => {
       const content = 'const x = 1;';
-      const { lastFrame } = render(<FileViewer content={content} filename="test.js" />);
+      const { lastFrame } = render(
+        <FileViewer content={content} filename="test.js" />
+      );
 
       expect(lastFrame()).toContain('test.js');
       expect(lastFrame()).toContain('const x = 1;');
@@ -34,7 +36,9 @@ describe('FileViewer', () => {
 
     it('should hide line numbers when disabled', () => {
       const content = 'test line';
-      const { lastFrame } = render(<FileViewer content={content} showLineNumbers={false} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} showLineNumbers={false} />
+      );
 
       const frame = lastFrame();
       expect(frame).toContain('test line');
@@ -48,8 +52,12 @@ describe('FileViewer', () => {
     });
 
     it('should handle null and undefined content', () => {
-      const { lastFrame: frame1 } = render(<FileViewer content={null as any} />);
-      const { lastFrame: frame2 } = render(<FileViewer content={undefined as any} />);
+      const { lastFrame: frame1 } = render(
+        <FileViewer content={null as any} />
+      );
+      const { lastFrame: frame2 } = render(
+        <FileViewer content={undefined as any} />
+      );
 
       expect(frame1()).toContain('No content');
       expect(frame2()).toContain('No content');
@@ -75,7 +83,9 @@ describe('FileViewer', () => {
   describe('Syntax Highlighting', () => {
     it('should apply syntax highlighting when enabled', () => {
       const content = 'const x = 1;\nfunction test() { return x; }';
-      const { lastFrame } = render(<FileViewer content={content} syntax={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} syntax={true} />
+      );
 
       expect(lastFrame()).toContain('const');
       expect(lastFrame()).toContain('function');
@@ -84,7 +94,9 @@ describe('FileViewer', () => {
 
     it('should auto-detect language from filename', () => {
       const content = 'def test():\n    return True';
-      const { lastFrame } = render(<FileViewer content={content} filename="test.py" syntax={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} filename="test.py" syntax={true} />
+      );
 
       expect(lastFrame()).toContain('def');
       expect(lastFrame()).toContain('return');
@@ -93,7 +105,9 @@ describe('FileViewer', () => {
 
     it('should use explicit language setting', () => {
       const content = 'function test() {}';
-      const { lastFrame } = render(<FileViewer content={content} language="javascript" syntax={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} language="javascript" syntax={true} />
+      );
 
       expect(lastFrame()).toContain('function');
       expect(lastFrame()).toContain('test');
@@ -101,15 +115,21 @@ describe('FileViewer', () => {
 
     it('should work without syntax highlighting', () => {
       const content = 'const x = 1;';
-      const { lastFrame } = render(<FileViewer content={content} syntax={false} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} syntax={false} />
+      );
 
       expect(lastFrame()).toContain('const x = 1;');
     });
 
     it('should support different themes', () => {
       const content = 'const x = 1;';
-      const { lastFrame: dark } = render(<FileViewer content={content} syntax={true} theme="dark" />);
-      const { lastFrame: light } = render(<FileViewer content={content} syntax={true} theme="light" />);
+      const { lastFrame: dark } = render(
+        <FileViewer content={content} syntax={true} theme="dark" />
+      );
+      const { lastFrame: light } = render(
+        <FileViewer content={content} syntax={true} theme="light" />
+      );
 
       expect(dark()).toContain('const x = 1;');
       expect(light()).toContain('const x = 1;');
@@ -119,7 +139,9 @@ describe('FileViewer', () => {
   describe('Line Highlighting', () => {
     it('should highlight specific lines', () => {
       const content = 'line 1\nline 2\nline 3';
-      const { lastFrame } = render(<FileViewer content={content} highlightLines={[2]} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} highlightLines={[2]} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('line 2');
@@ -128,7 +150,9 @@ describe('FileViewer', () => {
 
     it('should highlight multiple lines', () => {
       const content = 'line 1\nline 2\nline 3\nline 4';
-      const { lastFrame } = render(<FileViewer content={content} highlightLines={[1, 3]} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} highlightLines={[1, 3]} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('line 2');
@@ -138,7 +162,9 @@ describe('FileViewer', () => {
 
     it('should highlight line ranges', () => {
       const content = 'line 1\nline 2\nline 3\nline 4\nline 5';
-      const { lastFrame } = render(<FileViewer content={content} highlightRange={{ start: 2, end: 4 }} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} highlightRange={{ start: 2, end: 4 }} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('line 2');
@@ -149,7 +175,9 @@ describe('FileViewer', () => {
 
     it('should highlight current line', () => {
       const content = 'line 1\nline 2\nline 3';
-      const { lastFrame } = render(<FileViewer content={content} currentLine={2} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} currentLine={2} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('line 2');
@@ -158,7 +186,9 @@ describe('FileViewer', () => {
 
     it('should show cursor indicator', () => {
       const content = 'line 1\nline 2\nline 3';
-      const { lastFrame } = render(<FileViewer content={content} currentLine={2} showCursor={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} currentLine={2} showCursor={true} />
+      );
 
       expect(lastFrame()).toContain('line 2');
       expect(lastFrame()).toContain('>');
@@ -168,7 +198,9 @@ describe('FileViewer', () => {
   describe('Search Functionality', () => {
     it('should highlight search matches', () => {
       const content = 'function test() {\n  const test = 1;\n  return test;\n}';
-      const { lastFrame } = render(<FileViewer content={content} searchTerm="test" />);
+      const { lastFrame } = render(
+        <FileViewer content={content} searchTerm="test" />
+      );
 
       expect(lastFrame()).toContain('function');
       expect(lastFrame()).toContain('test');
@@ -178,7 +210,9 @@ describe('FileViewer', () => {
 
     it('should show match count', () => {
       const content = 'test one\ntest two\ntest three';
-      const { lastFrame } = render(<FileViewer content={content} searchTerm="test" showMatchCount={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} searchTerm="test" showMatchCount={true} />
+      );
 
       expect(lastFrame()).toContain('test one');
       expect(lastFrame()).toContain('test two');
@@ -188,7 +222,9 @@ describe('FileViewer', () => {
 
     it('should highlight current match', () => {
       const content = 'test one\ntest two\ntest three';
-      const { lastFrame } = render(<FileViewer content={content} searchTerm="test" currentMatch={2} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} searchTerm="test" currentMatch={2} />
+      );
 
       expect(lastFrame()).toContain('test one');
       expect(lastFrame()).toContain('test two');
@@ -197,7 +233,13 @@ describe('FileViewer', () => {
 
     it('should handle case-insensitive search', () => {
       const content = 'Test ONE\ntest TWO\nTEST three';
-      const { lastFrame } = render(<FileViewer content={content} searchTerm="test" caseInsensitive={true} />);
+      const { lastFrame } = render(
+        <FileViewer
+          content={content}
+          searchTerm="test"
+          caseInsensitive={true}
+        />
+      );
 
       expect(lastFrame()).toContain('Test ONE');
       expect(lastFrame()).toContain('test TWO');
@@ -206,7 +248,9 @@ describe('FileViewer', () => {
 
     it('should handle regex search', () => {
       const content = 'function test() {}\nconst test = 1;\ntest.call()';
-      const { lastFrame } = render(<FileViewer content={content} searchTerm="test\\(" regex={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} searchTerm="test\\(" regex={true} />
+      );
 
       expect(lastFrame()).toContain('function test()');
       expect(lastFrame()).toContain('const test = 1');
@@ -218,7 +262,9 @@ describe('FileViewer', () => {
     it('should show scrollbar for long files', () => {
       const lines = Array.from({ length: 100 }, (_, i) => `line ${i + 1}`);
       const content = lines.join('\n');
-      const { lastFrame } = render(<FileViewer content={content} showScrollbar={true} height={10} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} showScrollbar={true} height={10} />
+      );
 
       expect(lastFrame()).toContain('line 1');
     });
@@ -226,7 +272,9 @@ describe('FileViewer', () => {
     it('should handle viewport navigation', () => {
       const lines = Array.from({ length: 50 }, (_, i) => `line ${i + 1}`);
       const content = lines.join('\n');
-      const { lastFrame } = render(<FileViewer content={content} viewportStart={10} viewportSize={5} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} viewportStart={10} viewportSize={5} />
+      );
 
       expect(lastFrame()).toContain('line 11');
       expect(lastFrame()).toContain('line 12');
@@ -237,7 +285,9 @@ describe('FileViewer', () => {
 
     it('should show navigation hints', () => {
       const content = 'test content';
-      const { lastFrame } = render(<FileViewer content={content} showNavigationHints={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} showNavigationHints={true} />
+      );
 
       expect(lastFrame()).toContain('test content');
     });
@@ -245,7 +295,9 @@ describe('FileViewer', () => {
     it('should indicate truncated content', () => {
       const lines = Array.from({ length: 100 }, (_, i) => `line ${i + 1}`);
       const content = lines.join('\n');
-      const { lastFrame } = render(<FileViewer content={content} maxLines={10} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} maxLines={10} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('... 90 more lines');
@@ -254,7 +306,9 @@ describe('FileViewer', () => {
     it('should support jump to line', () => {
       const lines = Array.from({ length: 100 }, (_, i) => `line ${i + 1}`);
       const content = lines.join('\n');
-      const { lastFrame } = render(<FileViewer content={content} jumpToLine={50} viewportSize={5} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} jumpToLine={50} viewportSize={5} />
+      );
 
       expect(lastFrame()).toContain('line 50');
     });
@@ -263,7 +317,9 @@ describe('FileViewer', () => {
   describe('File Metadata', () => {
     it('should display file path', () => {
       const content = 'test content';
-      const { lastFrame } = render(<FileViewer content={content} filepath="/path/to/file.js" />);
+      const { lastFrame } = render(
+        <FileViewer content={content} filepath="/path/to/file.js" />
+      );
 
       expect(lastFrame()).toContain('/path/to/file.js');
       expect(lastFrame()).toContain('test content');
@@ -271,7 +327,9 @@ describe('FileViewer', () => {
 
     it('should display file size', () => {
       const content = 'test content';
-      const { lastFrame } = render(<FileViewer content={content} showFileSize={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} showFileSize={true} />
+      );
 
       expect(lastFrame()).toContain('test content');
       expect(lastFrame()).toContain('bytes');
@@ -279,7 +337,9 @@ describe('FileViewer', () => {
 
     it('should display line count', () => {
       const content = 'line 1\nline 2\nline 3';
-      const { lastFrame } = render(<FileViewer content={content} showLineCount={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} showLineCount={true} />
+      );
 
       expect(lastFrame()).toContain('3 lines');
       expect(lastFrame()).toContain('line 1');
@@ -287,7 +347,9 @@ describe('FileViewer', () => {
 
     it('should display encoding', () => {
       const content = 'test content';
-      const { lastFrame } = render(<FileViewer content={content} encoding="UTF-8" showEncoding={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} encoding="UTF-8" showEncoding={true} />
+      );
 
       expect(lastFrame()).toContain('UTF-8');
       expect(lastFrame()).toContain('test content');
@@ -295,7 +357,9 @@ describe('FileViewer', () => {
 
     it('should display modified indicator', () => {
       const content = 'test content';
-      const { lastFrame } = render(<FileViewer content={content} modified={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} modified={true} />
+      );
 
       expect(lastFrame()).toContain('test content');
       expect(lastFrame()).toContain('Modified');
@@ -306,7 +370,9 @@ describe('FileViewer', () => {
     it('should support line selection', () => {
       const content = 'line 1\nline 2\nline 3';
       const onLineSelect = vi.fn();
-      const { lastFrame } = render(<FileViewer content={content} onLineSelect={onLineSelect} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} onLineSelect={onLineSelect} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('line 2');
@@ -316,7 +382,9 @@ describe('FileViewer', () => {
     it('should support copy functionality', () => {
       const content = 'test content';
       const onCopy = vi.fn();
-      const { lastFrame } = render(<FileViewer content={content} onCopy={onCopy} showCopyButton={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} onCopy={onCopy} showCopyButton={true} />
+      );
 
       expect(lastFrame()).toContain('test content');
       expect(lastFrame()).toContain('Copy');
@@ -324,7 +392,9 @@ describe('FileViewer', () => {
 
     it('should support line folding', () => {
       const content = 'function test() {\n  const x = 1;\n  return x;\n}';
-      const { lastFrame } = render(<FileViewer content={content} foldable={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} foldable={true} />
+      );
 
       expect(lastFrame()).toContain('function test()');
       expect(lastFrame()).toContain('return x;');
@@ -332,7 +402,13 @@ describe('FileViewer', () => {
 
     it('should show fold indicators', () => {
       const content = 'function test() {\n  return true;\n}';
-      const { lastFrame } = render(<FileViewer content={content} foldable={true} showFoldIndicators={true} />);
+      const { lastFrame } = render(
+        <FileViewer
+          content={content}
+          foldable={true}
+          showFoldIndicators={true}
+        />
+      );
 
       expect(lastFrame()).toContain('function test()');
       expect(lastFrame()).toContain('▼');
@@ -341,7 +417,9 @@ describe('FileViewer', () => {
     it('should support minimap', () => {
       const lines = Array.from({ length: 100 }, (_, i) => `line ${i + 1}`);
       const content = lines.join('\n');
-      const { lastFrame } = render(<FileViewer content={content} showMinimap={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} showMinimap={true} />
+      );
 
       expect(lastFrame()).toContain('line 1');
     });
@@ -350,7 +428,9 @@ describe('FileViewer', () => {
   describe('Special Content Types', () => {
     it('should handle JSON files', () => {
       const content = '{\n  "name": "test",\n  "value": 123\n}';
-      const { lastFrame } = render(<FileViewer content={content} filename="data.json" />);
+      const { lastFrame } = render(
+        <FileViewer content={content} filename="data.json" />
+      );
 
       expect(lastFrame()).toContain('"name"');
       expect(lastFrame()).toContain('"test"');
@@ -359,7 +439,9 @@ describe('FileViewer', () => {
 
     it('should handle markdown files', () => {
       const content = '# Header\n\nParagraph text\n\n- List item';
-      const { lastFrame } = render(<FileViewer content={content} filename="README.md" />);
+      const { lastFrame } = render(
+        <FileViewer content={content} filename="README.md" />
+      );
 
       expect(lastFrame()).toContain('# Header');
       expect(lastFrame()).toContain('Paragraph text');
@@ -367,7 +449,9 @@ describe('FileViewer', () => {
     });
 
     it('should handle binary file indication', () => {
-      const { lastFrame } = render(<FileViewer content="" filename="image.png" binary={true} />);
+      const { lastFrame } = render(
+        <FileViewer content="" filename="image.png" binary={true} />
+      );
 
       expect(lastFrame()).toContain('Binary file');
       expect(lastFrame()).toContain('image.png');
@@ -375,14 +459,18 @@ describe('FileViewer', () => {
 
     it('should handle very long lines', () => {
       const content = 'a'.repeat(500);
-      const { lastFrame } = render(<FileViewer content={content} wrapLines={false} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} wrapLines={false} />
+      );
 
       expect(lastFrame()).toContain('a');
     });
 
     it('should wrap long lines when enabled', () => {
       const content = 'a'.repeat(500);
-      const { lastFrame } = render(<FileViewer content={content} wrapLines={true} maxWidth={80} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} wrapLines={true} maxWidth={80} />
+      );
 
       expect(lastFrame()).toContain('a');
     });
@@ -398,7 +486,9 @@ describe('FileViewer', () => {
           return numbers.map(n => n * 2);
         }
       `;
-      const { lastFrame } = render(<FileViewer content={content} syntax={true} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} syntax={true} />
+      );
 
       expect(lastFrame()).toContain('function');
       expect(lastFrame()).toContain('const');
@@ -408,13 +498,16 @@ describe('FileViewer', () => {
     it('should virtualize very large files', () => {
       const lines = Array.from({ length: 10000 }, (_, i) => `line ${i + 1}`);
       const content = lines.join('\n');
-      const { lastFrame } = render(<FileViewer content={content} virtualize={true} viewportSize={50} />);
+      const { lastFrame } = render(
+        <FileViewer content={content} virtualize={true} viewportSize={50} />
+      );
 
       expect(lastFrame()).toContain('line 1');
     });
 
     it('should handle unicode content', () => {
-      const content = '🚀 const emoji = "😀";\n// 中文注释\nconst text = "Hello 世界";';
+      const content =
+        '🚀 const emoji = "😀";\n// 中文注释\nconst text = "Hello 世界";';
       const { lastFrame } = render(<FileViewer content={content} />);
 
       expect(lastFrame()).toContain('🚀');
@@ -433,7 +526,9 @@ describe('FileViewer', () => {
     });
 
     it('should indicate read errors', () => {
-      const { lastFrame } = render(<FileViewer content="" error="Permission denied" />);
+      const { lastFrame } = render(
+        <FileViewer content="" error="Permission denied" />
+      );
 
       expect(lastFrame()).toContain('Error');
       expect(lastFrame()).toContain('Permission denied');

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'http';
 import { AppModule } from '../../src/app.module';
@@ -25,7 +25,7 @@ describe('Feature: Events Stats API Endpoint', () => {
 
     // Set global prefix like in main.ts
     app.setGlobalPrefix('api', {
-      exclude: ['/health']
+      exclude: ['/health'],
     });
 
     await app.init();
@@ -43,32 +43,32 @@ describe('Feature: Events Stats API Endpoint', () => {
         sessionId: 'test-session-stats-1',
         timestamp: '2025-01-15T10:00:00Z',
         toolName: 'Read',
-        arguments: { file: 'test1.js' }
+        arguments: { file: 'test1.js' },
       },
       {
         sessionId: 'test-session-stats-1',
         timestamp: '2025-01-15T10:01:00Z',
         toolName: 'Read',
-        arguments: { file: 'test2.js' }
+        arguments: { file: 'test2.js' },
       },
       {
         sessionId: 'test-session-stats-2',
         timestamp: '2025-01-15T10:02:00Z',
         toolName: 'Write',
-        arguments: { file: 'test3.js' }
+        arguments: { file: 'test3.js' },
       },
       {
         sessionId: 'test-session-stats-2',
         timestamp: '2025-01-15T10:03:00Z',
         toolName: 'Edit',
-        arguments: { file: 'test4.js' }
+        arguments: { file: 'test4.js' },
       },
       {
         sessionId: 'test-session-stats-3',
         timestamp: '2025-01-15T10:04:00Z',
         toolName: 'Edit',
-        arguments: { file: 'test5.js' }
-      }
+        arguments: { file: 'test5.js' },
+      },
     ];
 
     // Create events through the PreToolUse endpoint to generate logs

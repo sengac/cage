@@ -51,14 +51,18 @@ describe('DiffViewer', () => {
 
     it('should handle identical code', () => {
       const code = 'const x = 1;';
-      const { lastFrame } = render(<DiffViewer oldCode={code} newCode={code} />);
+      const { lastFrame } = render(
+        <DiffViewer oldCode={code} newCode={code} />
+      );
 
       expect(lastFrame()).toContain('No differences found');
     });
 
     it('should handle null and undefined inputs', () => {
       const { lastFrame: frame1 } = render(<DiffViewer diff={null as any} />);
-      const { lastFrame: frame2 } = render(<DiffViewer oldCode={null as any} newCode={undefined as any} />);
+      const { lastFrame: frame2 } = render(
+        <DiffViewer oldCode={null as any} newCode={undefined as any} />
+      );
 
       expect(frame1()).toBeDefined();
       expect(frame2()).toBeDefined();
@@ -74,7 +78,9 @@ describe('DiffViewer', () => {
 -const y = 2;
 +const y = 3;
 +const z = 4;`;
-      const { lastFrame } = render(<DiffViewer diff={diff} showHeaders={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} showHeaders={true} />
+      );
 
       expect(lastFrame()).toContain('src/file.ts');
       expect(lastFrame()).toContain('const x = 1;');
@@ -142,7 +148,9 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -function test() { return true; }
 +function test() { return false; }`;
-      const { lastFrame } = render(<DiffViewer diff={diff} highlightSyntax={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} highlightSyntax={true} />
+      );
 
       expect(lastFrame()).toContain('function');
       expect(lastFrame()).toContain('test');
@@ -157,7 +165,9 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -def test(): return True
 +def test(): return False`;
-      const { lastFrame } = render(<DiffViewer diff={diff} highlightSyntax={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} highlightSyntax={true} />
+      );
 
       expect(lastFrame()).toContain('def');
       expect(lastFrame()).toContain('test');
@@ -185,7 +195,9 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -const x = 1;
 +const x = 2;`;
-      const { lastFrame } = render(<DiffViewer diff={diff} highlightSyntax={false} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} highlightSyntax={false} />
+      );
 
       expect(lastFrame()).toContain('const x = 1;');
       expect(lastFrame()).toContain('const x = 2;');
@@ -197,7 +209,11 @@ index 1234567..abcdefg 100644
       const oldCode = 'line 1\nline 2\nline 3';
       const newCode = 'line 1\nmodified line 2\nline 3';
       const { lastFrame } = render(
-        <DiffViewer oldCode={oldCode} newCode={newCode} showLineNumbers={true} />
+        <DiffViewer
+          oldCode={oldCode}
+          newCode={newCode}
+          showLineNumbers={true}
+        />
       );
 
       expect(lastFrame()).toContain('1');
@@ -215,7 +231,9 @@ index 1234567..abcdefg 100644
 -line 9
 +modified line 9
 +new line 10`;
-      const { lastFrame } = render(<DiffViewer diff={diff} showLineNumbers={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} showLineNumbers={true} />
+      );
 
       expect(lastFrame()).toContain('8');
       expect(lastFrame()).toContain('9');
@@ -228,7 +246,9 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -old line
 +new line`;
-      const { lastFrame } = render(<DiffViewer diff={diff} showLineNumbers={false} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} showLineNumbers={false} />
+      );
 
       const frame = lastFrame();
       expect(frame).toContain('old line');
@@ -268,8 +288,12 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -old line
 +new line`;
-      const { lastFrame: darkFrame } = render(<DiffViewer diff={diff} theme="dark" />);
-      const { lastFrame: lightFrame } = render(<DiffViewer diff={diff} theme="light" />);
+      const { lastFrame: darkFrame } = render(
+        <DiffViewer diff={diff} theme="dark" />
+      );
+      const { lastFrame: lightFrame } = render(
+        <DiffViewer diff={diff} theme="light" />
+      );
 
       expect(darkFrame()).toContain('- old line');
       expect(darkFrame()).toContain('+ new line');
@@ -283,7 +307,9 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -old line
 +new line`;
-      const { lastFrame } = render(<DiffViewer diff={diff} theme="high-contrast" />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} theme="high-contrast" />
+      );
 
       expect(lastFrame()).toContain('- old line');
       expect(lastFrame()).toContain('+ new line');
@@ -422,7 +448,9 @@ index 1234567..abcdefg 100644
  context line
 -old line
 +new line`;
-      const { lastFrame } = render(<DiffViewer diff={diff} expandContext={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} expandContext={true} />
+      );
 
       expect(lastFrame()).toContain('context line');
       expect(lastFrame()).toContain('old line');
@@ -454,7 +482,11 @@ index 1234567..abcdefg 100644
 +modified line 5`;
       const onChunkSelect = vi.fn();
       const { lastFrame } = render(
-        <DiffViewer diff={diff} onChunkSelect={onChunkSelect} interactive={true} />
+        <DiffViewer
+          diff={diff}
+          onChunkSelect={onChunkSelect}
+          interactive={true}
+        />
       );
 
       expect(lastFrame()).toContain('modified line 1');
@@ -501,7 +533,9 @@ index 1234567..abcdefg 100644
 @@ -1,2 +1,2 @@
 -old line
 +new line`;
-      const { lastFrame } = render(<DiffViewer diff={diff} showNavigationHints={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} showNavigationHints={true} />
+      );
 
       expect(lastFrame()).toContain('old line');
       expect(lastFrame()).toContain('new line');
@@ -519,7 +553,9 @@ index 1234567..abcdefg 100644
 +new line 3
  line 4
  line 5`;
-      const { lastFrame } = render(<DiffViewer diff={diff} collapsible={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} collapsible={true} />
+      );
 
       expect(lastFrame()).toContain('line 1');
       expect(lastFrame()).toContain('old line 3');
@@ -536,21 +572,28 @@ index 1234567..abcdefg 100644
 +new line
  line 4
  line 5`;
-      const { lastFrame } = render(<DiffViewer diff={diff} showFoldIndicators={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} showFoldIndicators={true} />
+      );
 
       expect(lastFrame()).toContain('old line');
       expect(lastFrame()).toContain('new line');
     });
 
     it('should handle large unchanged sections', () => {
-      const largeContext = Array.from({ length: 100 }, (_, i) => ` unchanged line ${i + 1}`).join('\n');
+      const largeContext = Array.from(
+        { length: 100 },
+        (_, i) => ` unchanged line ${i + 1}`
+      ).join('\n');
       const diff = `--- file.js
 +++ file.js
 @@ -1,102 +1,102 @@
 ${largeContext}
 -changed line
 +modified line`;
-      const { lastFrame } = render(<DiffViewer diff={diff} collapseUnchanged={true} />);
+      const { lastFrame } = render(
+        <DiffViewer diff={diff} collapseUnchanged={true} />
+      );
 
       expect(lastFrame()).toContain('changed line');
       expect(lastFrame()).toContain('modified line');

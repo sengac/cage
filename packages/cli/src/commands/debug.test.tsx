@@ -5,7 +5,12 @@ import { parseArgs } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { DebugMode, parseDebugFlag, appendDebugLog, logDebugError } from './debug';
+import {
+  DebugMode,
+  parseDebugFlag,
+  appendDebugLog,
+  logDebugError,
+} from './debug';
 import type { DebugModeProps, DebugStore } from './debug';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,15 +18,15 @@ const __dirname = path.dirname(__filename);
 
 // Mock dependencies
 vi.mock('../components/App', () => ({
-  App: vi.fn(() => null)
+  App: vi.fn(() => null),
 }));
 
 vi.mock('../stores/useStore', () => ({
   useDebugStore: vi.fn(() => ({
     enableDebugMode: vi.fn(),
     setLogFile: vi.fn(),
-    addDebugLog: vi.fn()
-  }))
+    addDebugLog: vi.fn(),
+  })),
 }));
 
 vi.mock('fs/promises');
@@ -99,7 +104,7 @@ describe('Debug Mode', () => {
     it('should create .cage directory if it does not exist', async () => {
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: path.join(process.cwd(), '.cage', 'debug.log')
+        logFile: path.join(process.cwd(), '.cage', 'debug.log'),
       };
 
       render(<DebugMode {...props} />);
@@ -128,7 +133,7 @@ describe('Debug Mode', () => {
     it('should include timestamp in log entries', async () => {
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: path.join(process.cwd(), '.cage', 'debug.log')
+        logFile: path.join(process.cwd(), '.cage', 'debug.log'),
       };
 
       render(<DebugMode {...props} />);
@@ -139,18 +144,24 @@ describe('Debug Mode', () => {
       const call = mockFs.appendFile.mock.calls[0];
       const logContent = call[1] as string;
 
-      expect(logContent).toMatch(/\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]/);
+      expect(logContent).toMatch(
+        /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]/
+      );
     });
 
     it('should handle log file write errors gracefully', async () => {
-      mockFs.appendFile = vi.fn().mockRejectedValue(new Error('Permission denied'));
+      mockFs.appendFile = vi
+        .fn()
+        .mockRejectedValue(new Error('Permission denied'));
 
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: path.join(process.cwd(), '.cage', 'debug.log')
+        logFile: path.join(process.cwd(), '.cage', 'debug.log'),
       };
 
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       await appendDebugLog(props.logFile, 'Test message');
 
@@ -166,16 +177,15 @@ describe('Debug Mode', () => {
       const customPath = '/custom/logs/debug.log';
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: customPath
+        logFile: customPath,
       };
 
       render(<DebugMode {...props} />);
 
       await vi.waitFor(() => {
-        expect(mockFs.mkdir).toHaveBeenCalledWith(
-          '/custom/logs',
-          { recursive: true }
-        );
+        expect(mockFs.mkdir).toHaveBeenCalledWith('/custom/logs', {
+          recursive: true,
+        });
       });
     });
   });
@@ -184,7 +194,7 @@ describe('Debug Mode', () => {
     it('should launch App with debug panel when debug mode enabled', () => {
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: path.join(process.cwd(), '.cage', 'debug.log')
+        logFile: path.join(process.cwd(), '.cage', 'debug.log'),
       };
 
       const result = render(<DebugMode {...props} />);
@@ -195,7 +205,7 @@ describe('Debug Mode', () => {
 
     it('should launch App without debug panel when debug mode disabled', () => {
       const props: DebugModeProps = {
-        debugMode: false
+        debugMode: false,
       };
 
       const result = render(<DebugMode {...props} />);
@@ -208,7 +218,7 @@ describe('Debug Mode', () => {
       const props: DebugModeProps = {
         debugMode: true,
         logFile: path.join(process.cwd(), '.cage', 'debug.log'),
-        remainingArgs: ['start', 'server']
+        remainingArgs: ['start', 'server'],
       };
 
       const result = render(<DebugMode {...props} />);
@@ -224,14 +234,14 @@ describe('Debug Mode', () => {
       const mockStore = {
         enableDebugMode: vi.fn(),
         setLogFile: vi.fn(),
-        addDebugLog: vi.fn()
+        addDebugLog: vi.fn(),
       };
 
       vi.mocked(useDebugStore).mockReturnValue(mockStore);
 
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: '/custom/debug.log'
+        logFile: '/custom/debug.log',
       };
 
       render(<DebugMode {...props} />);
@@ -245,13 +255,13 @@ describe('Debug Mode', () => {
       const mockStore = {
         enableDebugMode: vi.fn(),
         setLogFile: vi.fn(),
-        addDebugLog: vi.fn()
+        addDebugLog: vi.fn(),
       };
 
       vi.mocked(useDebugStore).mockReturnValue(mockStore);
 
       const props: DebugModeProps = {
-        debugMode: false
+        debugMode: false,
       };
 
       render(<DebugMode {...props} />);
@@ -264,41 +274,47 @@ describe('Debug Mode', () => {
     it('should log application startup in debug mode', async () => {
       const props: DebugModeProps = {
         debugMode: true,
-        logFile: path.join(process.cwd(), '.cage', 'debug.log')
+        logFile: path.join(process.cwd(), '.cage', 'debug.log'),
       };
 
       render(<DebugMode {...props} />);
 
-      await vi.waitFor(() => {
-        expect(mockFs.appendFile).toHaveBeenCalledWith(
-          props.logFile,
-          expect.stringContaining('Debug mode activated'),
-          'utf8'
-        );
-      }, { timeout: 100 });
+      await vi.waitFor(
+        () => {
+          expect(mockFs.appendFile).toHaveBeenCalledWith(
+            props.logFile,
+            expect.stringContaining('Debug mode activated'),
+            'utf8'
+          );
+        },
+        { timeout: 100 }
+      );
     });
 
     it('should log command execution in debug mode', async () => {
       const props: DebugModeProps = {
         debugMode: true,
         logFile: path.join(process.cwd(), '.cage', 'debug.log'),
-        remainingArgs: ['start']
+        remainingArgs: ['start'],
       };
 
       render(<DebugMode {...props} />);
 
-      await vi.waitFor(() => {
-        expect(mockFs.appendFile).toHaveBeenCalledWith(
-          props.logFile,
-          expect.stringContaining('Command: start'),
-          'utf8'
-        );
-      }, { timeout: 100 });
+      await vi.waitFor(
+        () => {
+          expect(mockFs.appendFile).toHaveBeenCalledWith(
+            props.logFile,
+            expect.stringContaining('Command: start'),
+            'utf8'
+          );
+        },
+        { timeout: 100 }
+      );
     });
 
     it('should not create log file when debug mode is disabled', async () => {
       const props: DebugModeProps = {
-        debugMode: false
+        debugMode: false,
       };
 
       render(<DebugMode {...props} />);
@@ -373,25 +389,28 @@ describe('Debug Mode', () => {
       const props: DebugModeProps = {
         debugMode: true,
         logFile: path.join(process.cwd(), '.cage', 'debug.log'),
-        enablePerformanceMonitoring: true
+        enablePerformanceMonitoring: true,
       };
 
       render(<DebugMode {...props} />);
 
-      await vi.waitFor(() => {
-        expect(mockFs.appendFile).toHaveBeenCalledWith(
-          props.logFile,
-          expect.stringContaining('[PERF]'),
-          'utf8'
-        );
-      }, { timeout: 100 });
+      await vi.waitFor(
+        () => {
+          expect(mockFs.appendFile).toHaveBeenCalledWith(
+            props.logFile,
+            expect.stringContaining('[PERF]'),
+            'utf8'
+          );
+        },
+        { timeout: 100 }
+      );
     });
 
     it('should track command execution time', async () => {
       const props: DebugModeProps = {
         debugMode: true,
         logFile: path.join(process.cwd(), '.cage', 'debug.log'),
-        remainingArgs: ['start']
+        remainingArgs: ['start'],
       };
 
       const { unmount } = render(<DebugMode {...props} />);

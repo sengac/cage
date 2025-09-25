@@ -16,7 +16,7 @@ MockEventSource.OPEN = 1;
 MockEventSource.CLOSED = 2;
 
 // Mock implementation
-MockEventSource.mockImplementation(function(url: string) {
+MockEventSource.mockImplementation(function (url: string) {
   // Create the instance
   const instance = {
     url,
@@ -37,26 +37,29 @@ MockEventSource.mockImplementation(function(url: string) {
     eventListeners: new Map<string, Set<EventListener>>(),
 
     // Methods
-    close: vi.fn(function() {
+    close: vi.fn(function () {
       instance.readyState = MockEventSource.CLOSED;
       instance.eventListeners.clear();
     }),
 
-    addEventListener: vi.fn(function(type: string, listener: EventListener) {
+    addEventListener: vi.fn(function (type: string, listener: EventListener) {
       if (!instance.eventListeners.has(type)) {
         instance.eventListeners.set(type, new Set());
       }
       instance.eventListeners.get(type)!.add(listener);
     }),
 
-    removeEventListener: vi.fn(function(type: string, listener: EventListener) {
+    removeEventListener: vi.fn(function (
+      type: string,
+      listener: EventListener
+    ) {
       const listeners = instance.eventListeners.get(type);
       if (listeners) {
         listeners.delete(listener);
       }
     }),
 
-    dispatchEvent: vi.fn(function(event: Event) {
+    dispatchEvent: vi.fn(function (event: Event) {
       // Call event listeners
       const listeners = instance.eventListeners.get(event.type);
       if (listeners) {
@@ -76,23 +79,23 @@ MockEventSource.mockImplementation(function(url: string) {
     }),
 
     // Helper methods for testing
-    simulateOpen: function() {
+    simulateOpen: function () {
       instance.readyState = MockEventSource.OPEN;
       const event = new Event('open');
       instance.dispatchEvent(event);
     },
 
-    simulateMessage: function(data: unknown) {
+    simulateMessage: function (data: unknown) {
       if (instance.readyState !== MockEventSource.OPEN) {
         throw new Error('Cannot send message on closed connection');
       }
       const event = new MessageEvent('message', {
-        data: typeof data === 'string' ? data : JSON.stringify(data)
+        data: typeof data === 'string' ? data : JSON.stringify(data),
       });
       instance.dispatchEvent(event);
     },
 
-    simulateError: function(closeConnection = true) {
+    simulateError: function (closeConnection = true) {
       if (closeConnection) {
         instance.readyState = MockEventSource.CLOSED;
       }
@@ -100,15 +103,15 @@ MockEventSource.mockImplementation(function(url: string) {
       instance.dispatchEvent(event);
     },
 
-    simulateCustomEvent: function(eventType: string, data: unknown) {
+    simulateCustomEvent: function (eventType: string, data: unknown) {
       if (instance.readyState !== MockEventSource.OPEN) {
         throw new Error('Cannot send event on closed connection');
       }
       const event = new MessageEvent(eventType, {
-        data: typeof data === 'string' ? data : JSON.stringify(data)
+        data: typeof data === 'string' ? data : JSON.stringify(data),
       });
       instance.dispatchEvent(event);
-    }
+    },
   };
 
   // Track the instance

@@ -6,6 +6,9 @@ import { ServerManager } from '../ServerManager';
  * ServerManagerView - wraps the existing ServerManager component
  * Integrates with the new ViewManager system
  */
-export const ServerManagerView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
+export const ServerManagerView: React.FC<ViewProps> = ({
+  onBack,
+  onNavigate,
+}) => {
   return <ServerManager onBack={onBack} />;
 };

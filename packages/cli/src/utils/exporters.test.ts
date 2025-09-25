@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('fs', () => ({
   existsSync: vi.fn(),
   mkdirSync: vi.fn(),
-  writeFileSync: vi.fn()
+  writeFileSync: vi.fn(),
 }));
 
 // Mock path module
@@ -17,7 +17,7 @@ vi.mock('path', () => ({
     const lastDot = p.lastIndexOf('.');
     return lastDot > 0 ? p.substring(lastDot) : '';
   }),
-  resolve: vi.fn((...paths: string[]) => paths.join('/'))
+  resolve: vi.fn((...paths: string[]) => paths.join('/')),
 }));
 
 import {
@@ -31,8 +31,8 @@ import {
   validateExportPath,
   exportEvents,
   exportConfig,
-  ExportOptions,
-  ExportFormat
+  type ExportOptions,
+  type ExportFormat,
 } from './exporters';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -105,7 +105,7 @@ describe('exporters', () => {
     it('should export array of objects as CSV', () => {
       const data = [
         { name: 'Alice', age: 30 },
-        { name: 'Bob', age: 25 }
+        { name: 'Bob', age: 25 },
       ];
       const result = exportToCSV(data);
 
@@ -115,7 +115,7 @@ describe('exporters', () => {
     it('should handle custom headers', () => {
       const data = [
         { name: 'Alice', age: 30 },
-        { name: 'Bob', age: 25 }
+        { name: 'Bob', age: 25 },
       ];
       const result = exportToCSV(data, ['Name', 'Age']);
 
@@ -123,45 +123,35 @@ describe('exporters', () => {
     });
 
     it('should handle custom delimiter', () => {
-      const data = [
-        { name: 'Alice', age: 30 }
-      ];
+      const data = [{ name: 'Alice', age: 30 }];
       const result = exportToCSV(data, undefined, ';');
 
       expect(result).toBe('name;age\n"Alice";30');
     });
 
     it('should escape quotes in values', () => {
-      const data = [
-        { name: 'Alice "Ally" Smith', age: 30 }
-      ];
+      const data = [{ name: 'Alice "Ally" Smith', age: 30 }];
       const result = exportToCSV(data);
 
       expect(result).toBe('name,age\n"Alice ""Ally"" Smith",30');
     });
 
     it('should handle values with commas', () => {
-      const data = [
-        { name: 'Smith, Alice', age: 30 }
-      ];
+      const data = [{ name: 'Smith, Alice', age: 30 }];
       const result = exportToCSV(data);
 
       expect(result).toBe('name,age\n"Smith, Alice",30');
     });
 
     it('should handle values with newlines', () => {
-      const data = [
-        { name: 'Alice\nSmith', age: 30 }
-      ];
+      const data = [{ name: 'Alice\nSmith', age: 30 }];
       const result = exportToCSV(data);
 
       expect(result).toBe('name,age\n"Alice\nSmith",30');
     });
 
     it('should handle null and undefined values', () => {
-      const data = [
-        { name: null, age: undefined, city: 'NYC' }
-      ];
+      const data = [{ name: null, age: undefined, city: 'NYC' }];
       const result = exportToCSV(data);
 
       expect(result).toBe('name,age,city\n"","","NYC"');
@@ -174,18 +164,14 @@ describe('exporters', () => {
     });
 
     it('should handle nested objects', () => {
-      const data = [
-        { name: 'Alice', address: { city: 'NYC' } }
-      ];
+      const data = [{ name: 'Alice', address: { city: 'NYC' } }];
       const result = exportToCSV(data);
 
       expect(result).toBe('name,address\n"Alice","[object Object]"');
     });
 
     it('should handle arrays in values', () => {
-      const data = [
-        { name: 'Alice', tags: ['a', 'b'] }
-      ];
+      const data = [{ name: 'Alice', tags: ['a', 'b'] }];
       const result = exportToCSV(data);
 
       expect(result).toBe('name,tags\n"Alice","a,b"');
@@ -204,7 +190,7 @@ describe('exporters', () => {
     it('should handle arrays of objects', () => {
       const data = [
         { name: 'Alice', age: 30 },
-        { name: 'Bob', age: 25 }
+        { name: 'Bob', age: 25 },
       ];
       const result = exportToText(data);
 
@@ -217,7 +203,8 @@ describe('exporters', () => {
 
     it('should handle custom templates', () => {
       const data = { name: 'test', value: 123 };
-      const template = (obj: { name: string; value: number }) => `Name: ${obj.name}, Value: ${obj.value}`;
+      const template = (obj: { name: string; value: number }) =>
+        `Name: ${obj.name}, Value: ${obj.value}`;
       const result = exportToText(data, template);
 
       expect(result).toBe('Name: test, Value: 123');
@@ -239,8 +226,8 @@ describe('exporters', () => {
       const data = {
         name: 'test',
         nested: {
-          value: 123
-        }
+          value: 123,
+        },
       };
       const result = exportToText(data);
 
@@ -266,13 +253,13 @@ describe('exporters', () => {
 
     beforeEach(() => {
       mockClipboard = {
-        writeText: vi.fn().mockResolvedValue(undefined)
+        writeText: vi.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(global, 'navigator', {
         value: {
-          clipboard: mockClipboard
+          clipboard: mockClipboard,
         },
-        writable: true
+        writable: true,
       });
     });
 
@@ -299,7 +286,7 @@ describe('exporters', () => {
     it('should handle missing clipboard API', async () => {
       Object.defineProperty(global, 'navigator', {
         value: {},
-        writable: true
+        writable: true,
       });
 
       const result = await exportToClipboard('test');
@@ -330,7 +317,9 @@ describe('exporters', () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
       exportToFile(filePath, data);
 
-      expect(fs.mkdirSync).toHaveBeenCalledWith('/tmp/subdir', { recursive: true });
+      expect(fs.mkdirSync).toHaveBeenCalledWith('/tmp/subdir', {
+        recursive: true,
+      });
       expect(fs.writeFileSync).toHaveBeenCalledWith(filePath, data, 'utf-8');
     });
 
@@ -398,8 +387,12 @@ describe('exporters', () => {
     });
 
     it('should handle different extensions', () => {
-      expect(getExportFilename('data', 'csv')).toBe('data_2025-01-15_10-30-45.csv');
-      expect(getExportFilename('report', 'txt')).toBe('report_2025-01-15_10-30-45.txt');
+      expect(getExportFilename('data', 'csv')).toBe(
+        'data_2025-01-15_10-30-45.csv'
+      );
+      expect(getExportFilename('report', 'txt')).toBe(
+        'report_2025-01-15_10-30-45.txt'
+      );
     });
 
     it('should handle custom timestamp format', () => {
@@ -471,7 +464,7 @@ describe('exporters', () => {
         tool: 'Read',
         timestamp: '2025-01-15T10:00:00Z',
         arguments: { file: 'test.js' },
-        result: 'file content'
+        result: 'file content',
       },
       {
         id: '2',
@@ -479,14 +472,14 @@ describe('exporters', () => {
         tool: 'Write',
         timestamp: '2025-01-15T10:01:00Z',
         arguments: { file: 'test.js', content: 'new content' },
-        result: 'success'
-      }
+        result: 'success',
+      },
     ];
 
     it('should export events as JSON', () => {
       const options: ExportOptions = {
         format: 'json' as ExportFormat,
-        events: mockEvents
+        events: mockEvents,
       };
 
       const result = exportEvents(options);
@@ -500,7 +493,7 @@ describe('exporters', () => {
     it('should export events as CSV', () => {
       const options: ExportOptions = {
         format: 'csv' as ExportFormat,
-        events: mockEvents
+        events: mockEvents,
       };
 
       const result = exportEvents(options);
@@ -515,7 +508,7 @@ describe('exporters', () => {
     it('should export events as text', () => {
       const options: ExportOptions = {
         format: 'text' as ExportFormat,
-        events: mockEvents
+        events: mockEvents,
       };
 
       const result = exportEvents(options);
@@ -532,8 +525,8 @@ describe('exporters', () => {
         format: 'json' as ExportFormat,
         events: mockEvents,
         filter: {
-          type: 'ToolUse'
-        }
+          type: 'ToolUse',
+        },
       };
 
       const result = exportEvents(options);
@@ -547,8 +540,8 @@ describe('exporters', () => {
         format: 'json' as ExportFormat,
         events: mockEvents,
         filter: {
-          tool: 'Read'
-        }
+          tool: 'Read',
+        },
       };
 
       const result = exportEvents(options);
@@ -564,8 +557,8 @@ describe('exporters', () => {
         events: mockEvents,
         filter: {
           startDate: '2025-01-15T09:00:00Z',
-          endDate: '2025-01-15T10:00:30Z'
-        }
+          endDate: '2025-01-15T10:00:30Z',
+        },
       };
 
       const result = exportEvents(options);
@@ -578,7 +571,7 @@ describe('exporters', () => {
       const options: ExportOptions = {
         format: 'json' as ExportFormat,
         events: mockEvents,
-        includeMetadata: true
+        includeMetadata: true,
       };
 
       const result = exportEvents(options);
@@ -592,7 +585,7 @@ describe('exporters', () => {
     it('should handle empty events', () => {
       const options: ExportOptions = {
         format: 'json' as ExportFormat,
-        events: []
+        events: [],
       };
 
       const result = exportEvents(options);
@@ -604,7 +597,7 @@ describe('exporters', () => {
     it('should handle export errors', () => {
       const options: ExportOptions = {
         format: 'invalid' as ExportFormat,
-        events: mockEvents
+        events: mockEvents,
       };
 
       const result = exportEvents(options);
@@ -619,12 +612,12 @@ describe('exporters', () => {
       theme: 'dark',
       server: {
         port: 3000,
-        host: 'localhost'
+        host: 'localhost',
       },
       display: {
         showTimestamps: true,
-        dateFormat: 'YYYY-MM-DD'
-      }
+        dateFormat: 'YYYY-MM-DD',
+      },
     };
 
     it('should export config as JSON', () => {
@@ -655,7 +648,7 @@ describe('exporters', () => {
       const configWithSecrets = {
         ...mockConfig,
         apiKey: 'secret123',
-        password: 'hidden'
+        password: 'hidden',
       };
 
       const result = exportConfig(configWithSecrets, 'json', false, true);

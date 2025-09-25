@@ -39,7 +39,7 @@ describe('ServerManager', () => {
     };
 
     // Mock the store implementation
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         serverStatus: 'running',
         serverInfo: mockServerInfo,
@@ -119,19 +119,21 @@ describe('ServerManager', () => {
 
     describe('When server is stopped', () => {
       beforeEach(() => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'stopped',
-            serverInfo: null,
-            isLoading: false,
-            loadingMessage: '',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'stopped',
+              serverInfo: null,
+              isLoading: false,
+              loadingMessage: '',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show stopped status', () => {
@@ -165,22 +167,24 @@ describe('ServerManager', () => {
 
     describe('When server is in error state', () => {
       beforeEach(() => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'error',
-            serverInfo: {
-              status: 'error',
-              port: 3000,
-            },
-            isLoading: false,
-            loadingMessage: '',
-            errors: [new Error('Failed to start server')],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'error',
+              serverInfo: {
+                status: 'error',
+                port: 3000,
+              },
+              isLoading: false,
+              loadingMessage: '',
+              errors: [new Error('Failed to start server')],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show error status', () => {
@@ -206,19 +210,21 @@ describe('ServerManager', () => {
 
     describe('When server is connecting', () => {
       beforeEach(() => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'connecting',
-            serverInfo: null,
-            isLoading: true,
-            loadingMessage: 'Starting server...',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'connecting',
+              serverInfo: null,
+              isLoading: true,
+              loadingMessage: 'Starting server...',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show connecting status', () => {
@@ -248,21 +254,23 @@ describe('ServerManager', () => {
         const startServer = vi.fn();
         const stopServer = vi.fn();
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'running',
-            serverInfo: mockServerInfo,
-            isLoading: false,
-            loadingMessage: '',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-            startServer,
-            stopServer,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'running',
+              serverInfo: mockServerInfo,
+              isLoading: false,
+              loadingMessage: '',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+              startServer,
+              stopServer,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin, lastFrame } = render(<ServerManager onBack={onBack} />);
 
@@ -275,20 +283,22 @@ describe('ServerManager', () => {
       it('Then r should restart server', () => {
         const restartServer = vi.fn();
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'running',
-            serverInfo: mockServerInfo,
-            isLoading: false,
-            loadingMessage: '',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-            restartServer,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'running',
+              serverInfo: mockServerInfo,
+              isLoading: false,
+              loadingMessage: '',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+              restartServer,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin, lastFrame } = render(<ServerManager onBack={onBack} />);
 
@@ -299,7 +309,9 @@ describe('ServerManager', () => {
       });
 
       it('Then c should enter configuration mode', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c');
         rerender(<ServerManager onBack={onBack} />);
@@ -308,7 +320,9 @@ describe('ServerManager', () => {
       });
 
       it('Then l should toggle logs view', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('l');
         rerender(<ServerManager onBack={onBack} />);
@@ -336,7 +350,9 @@ describe('ServerManager', () => {
 
     describe('When in configuration mode', () => {
       it('Then should show port input field', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -345,7 +361,9 @@ describe('ServerManager', () => {
       });
 
       it('Then should allow editing port number', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -358,7 +376,9 @@ describe('ServerManager', () => {
       });
 
       it('Then Enter should save configuration', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -370,7 +390,9 @@ describe('ServerManager', () => {
       });
 
       it('Then Escape should cancel configuration', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -384,7 +406,9 @@ describe('ServerManager', () => {
 
     describe('When viewing logs', () => {
       it('Then should show recent log entries', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('l'); // Toggle logs
         rerender(<ServerManager onBack={onBack} />);
@@ -393,7 +417,9 @@ describe('ServerManager', () => {
       });
 
       it('Then should show log timestamps', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('l'); // Toggle logs
         rerender(<ServerManager onBack={onBack} />);
@@ -402,7 +428,9 @@ describe('ServerManager', () => {
       });
 
       it('Then should allow scrolling through logs', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('l'); // Toggle logs
         rerender(<ServerManager onBack={onBack} />);
@@ -412,7 +440,9 @@ describe('ServerManager', () => {
       });
 
       it('Then should show different log levels', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('l'); // Toggle logs
         rerender(<ServerManager onBack={onBack} />);
@@ -441,19 +471,21 @@ describe('ServerManager', () => {
           cpuUsage: 15.3,
         };
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'running',
-            serverInfo: serverWithCPU,
-            isLoading: false,
-            loadingMessage: '',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'running',
+              serverInfo: serverWithCPU,
+              isLoading: false,
+              loadingMessage: '',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<ServerManager onBack={onBack} />);
 
@@ -466,19 +498,21 @@ describe('ServerManager', () => {
           port: 3000,
         };
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'running',
-            serverInfo: minimalServerInfo,
-            isLoading: false,
-            loadingMessage: '',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'running',
+              serverInfo: minimalServerInfo,
+              isLoading: false,
+              loadingMessage: '',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<ServerManager onBack={onBack} />);
 
@@ -489,7 +523,9 @@ describe('ServerManager', () => {
 
     describe('When handling validation', () => {
       it('Then should validate port numbers', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -508,7 +544,9 @@ describe('ServerManager', () => {
       });
 
       it('Then should show validation errors', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -526,7 +564,9 @@ describe('ServerManager', () => {
       });
 
       it('Then should clear validation errors on input change', () => {
-        const { stdin, lastFrame, rerender } = render(<ServerManager onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ServerManager onBack={onBack} />
+        );
 
         stdin.write('c'); // Enter config mode
         rerender(<ServerManager onBack={onBack} />);
@@ -552,19 +592,21 @@ describe('ServerManager', () => {
       });
 
       it('Then stopped status should be muted', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'stopped',
-            serverInfo: null,
-            isLoading: false,
-            loadingMessage: '',
-            errors: [],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'stopped',
+              serverInfo: null,
+              isLoading: false,
+              loadingMessage: '',
+              errors: [],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<ServerManager onBack={onBack} />);
 
@@ -573,19 +615,21 @@ describe('ServerManager', () => {
       });
 
       it('Then error status should be red', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            serverStatus: 'error',
-            serverInfo: { status: 'error', port: 3000 },
-            isLoading: false,
-            loadingMessage: '',
-            errors: [new Error('Server error')],
-            setServerInfo,
-            setLoading,
-            addError,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              serverStatus: 'error',
+              serverInfo: { status: 'error', port: 3000 },
+              isLoading: false,
+              loadingMessage: '',
+              errors: [new Error('Server error')],
+              setServerInfo,
+              setLoading,
+              addError,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<ServerManager onBack={onBack} />);
 

@@ -18,7 +18,11 @@ interface EventInspectorProps {
 type SortField = 'timestamp' | 'type' | 'tool' | 'session';
 type SortOrder = 'asc' | 'desc';
 
-export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, onBack, initialSelectedIndex = 0 }) => {
+export const EventInspector: React.FC<EventInspectorProps> = ({
+  onSelectEvent,
+  onBack,
+  initialSelectedIndex = 0,
+}) => {
   const [sortField, setSortField] = useState<SortField>('timestamp');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [searchMode, setSearchMode] = useState(false);
@@ -74,13 +78,15 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
 
     // Apply search filter
     if (appliedSearch) {
-      filtered = filtered.filter((event) => {
+      filtered = filtered.filter(event => {
         const searchableContent = [
           event.eventType,
           event.toolName || '',
           JSON.stringify(event.arguments || {}),
           JSON.stringify(event.result || {}),
-        ].join(' ').toLowerCase();
+        ]
+          .join(' ')
+          .toLowerCase();
         return searchableContent.includes(appliedSearch.toLowerCase());
       });
     }
@@ -91,7 +97,8 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
 
       switch (sortField) {
         case 'timestamp':
-          comparison = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+          comparison =
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
           break;
         case 'type':
           comparison = a.eventType.localeCompare(b.eventType);
@@ -110,66 +117,85 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return filtered;
   }, [realEvents, sortField, sortOrder, appliedSearch]);
 
-  useSafeInput((input, key) => {
-    // Search mode - capture all text input
-    if (searchMode) {
-      if (key.return) {
-        setAppliedSearch(searchQuery);
-        setSearchMode(false);
-        return;
+  useSafeInput(
+    (input, key) => {
+      // Search mode - capture all text input
+      if (searchMode) {
+        if (key.return) {
+          setAppliedSearch(searchQuery);
+          setSearchMode(false);
+          return;
+        }
+        if (key.escape) {
+          setSearchMode(false);
+          setSearchQuery('');
+          return;
+        }
+        if (key.delete || key.backspace) {
+          setSearchQuery(prev => prev.slice(0, -1));
+          return;
+        }
+        if (input && !key.ctrl && !key.meta) {
+          setSearchQuery(prev => prev + input);
+          return;
+        }
+        return; // Block all other input
       }
+
+      // Normal mode - handle escape to go back
       if (key.escape) {
-        setSearchMode(false);
-        setSearchQuery('');
+        onBack();
         return;
       }
-      if (key.delete || key.backspace) {
-        setSearchQuery(prev => prev.slice(0, -1));
-        return;
-      }
-      if (input && !key.ctrl && !key.meta) {
-        setSearchQuery(prev => prev + input);
-        return;
-      }
-      return; // Block all other input
-    }
 
-    // Normal mode - handle escape to go back
-    if (key.escape) {
-      onBack();
-      return;
-    }
-
-    // Normal mode shortcuts
-    switch (input) {
-      case '/':
-        setSearchMode(true);
-        setSearchQuery('');
-        break;
-      case 't':
-        setSortField('timestamp');
-        setSortOrder(prev => sortField === 'timestamp' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-        break;
-      case 'y':
-        setSortField('type');
-        setSortOrder(prev => sortField === 'type' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-        break;
-      case 'o':
-        setSortField('tool');
-        setSortOrder(prev => sortField === 'tool' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-        break;
-      case 's':
-        setSortField('session');
-        setSortOrder(prev => sortField === 'session' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc');
-        break;
-      case 'r':
-        setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
-        break;
-      case 'c':
-        setAppliedSearch('');
-        break;
-    }
-  }, { componentId: 'event-inspector' });
+      // Normal mode shortcuts
+      switch (input) {
+        case '/':
+          setSearchMode(true);
+          setSearchQuery('');
+          break;
+        case 't':
+          setSortField('timestamp');
+          setSortOrder(prev =>
+            sortField === 'timestamp'
+              ? prev === 'desc'
+                ? 'asc'
+                : 'desc'
+              : 'desc'
+          );
+          break;
+        case 'y':
+          setSortField('type');
+          setSortOrder(prev =>
+            sortField === 'type' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc'
+          );
+          break;
+        case 'o':
+          setSortField('tool');
+          setSortOrder(prev =>
+            sortField === 'tool' ? (prev === 'desc' ? 'asc' : 'desc') : 'desc'
+          );
+          break;
+        case 's':
+          setSortField('session');
+          setSortOrder(prev =>
+            sortField === 'session'
+              ? prev === 'desc'
+                ? 'asc'
+                : 'desc'
+              : 'desc'
+          );
+          break;
+        case 'r':
+          setSortOrder(prev => (prev === 'desc' ? 'asc' : 'desc'));
+          break;
+        case 'c':
+          setAppliedSearch('');
+          break;
+      }
+    },
+    { componentId: 'event-inspector' }
+  );
 
   const getSortIndicator = (field: SortField) => {
     if (sortField === field) {
@@ -208,7 +234,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     return (
       <Box width="100%">
         <Text color={textColor} wrap="truncate">
-          {indicator} {time}  {type}  {tool}  {desc}
+          {indicator} {time} {type} {tool} {desc}
         </Text>
       </Box>
     );
@@ -217,9 +243,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
   if (loading) {
     return (
       <Box justifyContent="center" alignItems="center" flexGrow={1}>
-        <Text color={theme.ui.textMuted}>
-          Loading events...
-        </Text>
+        <Text color={theme.ui.textMuted}>Loading events...</Text>
       </Box>
     );
   }
@@ -227,9 +251,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
   if (realEvents.length === 0) {
     return (
       <Box justifyContent="center" alignItems="center" flexGrow={1}>
-        <Text color={theme.ui.textMuted}>
-          No events found
-        </Text>
+        <Text color={theme.ui.textMuted}>No events found</Text>
       </Box>
     );
   }
@@ -238,17 +260,22 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     <Box flexDirection="column" flexGrow={1}>
       {/* Search bar */}
       {searchMode && (
-        <Box marginBottom={1} paddingX={1} borderStyle="single" borderColor={theme.primary.aqua}>
-          <Text color={theme.ui.text}>
-            Search: {searchQuery}
-          </Text>
+        <Box
+          marginBottom={1}
+          paddingX={1}
+          borderStyle="single"
+          borderColor={theme.primary.aqua}
+        >
+          <Text color={theme.ui.text}>Search: {searchQuery}</Text>
         </Box>
       )}
 
       {/* Column headers */}
       <Box paddingX={1} marginBottom={1}>
         <Text color={theme.ui.textMuted} bold>
-          {'  Time           Type                Tool                Description'}
+          {
+            '  Time           Type                Tool                Description'
+          }
         </Text>
       </Box>
 
@@ -259,13 +286,13 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         onSelect={(event, index) => {
           onSelectEvent(event, index);
         }}
-        keyExtractor={(event) => event.id}
+        keyExtractor={event => event.id}
         emptyMessage="No events to display"
         showScrollbar={true}
         enableWrapAround={true}
-        testMode={true}  // Enable input without focus check
+        testMode={true} // Enable input without focus check
         initialIndex={initialSelectedIndex}
-        heightOffset={12}  // Header(3) + Footer(3) + Padding(2) + Columns(2) + Buffer(2)
+        heightOffset={12} // Header(3) + Footer(3) + Padding(2) + Columns(2) + Buffer(2)
         dynamicOffset={dynamicOffset}
       />
     </Box>

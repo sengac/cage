@@ -1,4 +1,7 @@
-import { getServerStatus, type ServerStatus } from '../commands/server-management';
+import {
+  getServerStatus,
+  type ServerStatus,
+} from '../commands/server-management';
 import { Logger } from '@cage/shared';
 
 // Define ServerInfo locally since we removed it from the store
@@ -20,17 +23,25 @@ export async function getRealServerStatus(): Promise<{
   try {
     const status = await getServerStatus();
 
-    const mappedStatus: 'running' | 'stopped' | 'connecting' | 'error' =
-      status.server.running ? 'running' :
-      status.server.warning ? 'error' : 'stopped';
+    const mappedStatus: 'running' | 'stopped' | 'connecting' | 'error' = status
+      .server.running
+      ? 'running'
+      : status.server.warning
+        ? 'error'
+        : 'stopped';
 
-    const serverInfo: ServerInfo | null = status.server.running ? {
-      status: 'running',
-      port: typeof status.server.port === 'number' ? status.server.port : parseInt(status.server.port.toString()),
-      pid: status.server.pid,
-      uptime: status.server.uptime, // Now properly tracked in milliseconds
-      memoryUsage: undefined, // Not available in current server status
-    } : null;
+    const serverInfo: ServerInfo | null = status.server.running
+      ? {
+          status: 'running',
+          port:
+            typeof status.server.port === 'number'
+              ? status.server.port
+              : parseInt(status.server.port.toString()),
+          pid: status.server.pid,
+          uptime: status.server.uptime, // Now properly tracked in milliseconds
+          memoryUsage: undefined, // Not available in current server status
+        }
+      : null;
 
     return {
       status: mappedStatus,

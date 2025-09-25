@@ -36,7 +36,7 @@ describe('HooksConfiguration', () => {
     };
 
     // Mock the app store
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         hooksStatus: mockHooksStatus,
         refreshHooksStatus: vi.fn(),
@@ -127,17 +127,19 @@ describe('HooksConfiguration', () => {
         mockHooksStatus.settingsPath = null;
         mockHooksStatus.totalEvents = 0;
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks: vi.fn(),
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks: vi.fn(),
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show not installed status', () => {
@@ -172,7 +174,9 @@ describe('HooksConfiguration', () => {
 
     describe('When navigating hooks list', () => {
       it('Then up/down arrows should move between hooks', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\u001B[B'); // Down arrow
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -181,7 +185,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then j/k keys should move between hooks', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('j'); // Down
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -195,7 +201,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should cycle through all hooks', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Navigate through several hooks
         stdin.write('j'); // PostToolUse
@@ -212,7 +220,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should wrap around at boundaries', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Go up from first hook (should wrap to last)
         stdin.write('\u001B[A'); // Up arrow
@@ -225,17 +235,19 @@ describe('HooksConfiguration', () => {
     describe('When toggling hooks', () => {
       it('Then Space should toggle hook enabled state', () => {
         const toggleHook = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks: vi.fn(),
-            uninstallHooks: vi.fn(),
-            toggleHook,
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks: vi.fn(),
+              uninstallHooks: vi.fn(),
+              toggleHook,
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin } = render(<HooksConfiguration onBack={onBack} />);
 
@@ -245,7 +257,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show visual feedback when toggling', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Navigate to disabled hook (Notification)
         for (let i = 0; i < 5; i++) {
@@ -258,7 +272,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should update hook status after toggle', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Mock the hook being toggled
         mockHooksStatus.installedHooks[0].enabled = false;
@@ -272,7 +288,9 @@ describe('HooksConfiguration', () => {
 
     describe('When using action buttons', () => {
       it('Then Tab should navigate to action area', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -281,7 +299,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should navigate between action buttons', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -293,19 +313,23 @@ describe('HooksConfiguration', () => {
 
       it('Then Install should trigger installation', () => {
         const installHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks,
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks,
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -317,19 +341,23 @@ describe('HooksConfiguration', () => {
 
       it('Then Uninstall should trigger uninstallation', () => {
         const uninstallHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks: vi.fn(),
-            uninstallHooks,
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks: vi.fn(),
+              uninstallHooks,
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -343,19 +371,23 @@ describe('HooksConfiguration', () => {
 
       it('Then Verify should trigger verification', () => {
         const verifyHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks: vi.fn(),
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks: vi.fn(),
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -371,19 +403,23 @@ describe('HooksConfiguration', () => {
 
       it('Then Refresh should update status', () => {
         const refreshHooksStatus = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus,
-            installHooks: vi.fn(),
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus,
+              installHooks: vi.fn(),
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -402,7 +438,9 @@ describe('HooksConfiguration', () => {
 
     describe('When displaying hook details', () => {
       it('Then Enter should show hook details', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter to view details
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -411,7 +449,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show hook event count and status', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter to view details
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -422,7 +462,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show hook configuration if available', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter to view details
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -431,7 +473,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then Escape should close details view', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter to view details
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -448,7 +492,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then w should start setup wizard', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('w'); // Start wizard
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -457,7 +503,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show step-by-step instructions', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('w'); // Start wizard
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -468,7 +516,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should allow navigation through steps', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('w'); // Start wizard
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -480,19 +530,23 @@ describe('HooksConfiguration', () => {
 
       it('Then should allow installation from wizard', () => {
         const installHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks,
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks,
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('w'); // Start wizard
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -506,7 +560,9 @@ describe('HooksConfiguration', () => {
 
     describe('When filtering and searching', () => {
       it('Then / should start search mode', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('/');
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -515,7 +571,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should filter hooks by search term', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Start search
         stdin.write('/');
@@ -535,7 +593,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then Enter should apply search filter', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('/');
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -548,7 +608,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show only enabled hooks when filtering', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('f'); // Filter enabled only
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -559,7 +621,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should clear filter when requested', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         stdin.write('f'); // Filter enabled
         rerender(<HooksConfiguration onBack={onBack} />);
@@ -573,7 +637,9 @@ describe('HooksConfiguration', () => {
 
     describe('When handling loading states', () => {
       it('Then should show loading spinner during installation', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Mock loading state
         mockHooksStatus.isLoading = true;
@@ -587,7 +653,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show progress during verification', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Mock verification in progress
         mockHooksStatus.isVerifying = true;
@@ -598,10 +666,15 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show success message after installation', () => {
-        const { lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Mock successful installation
-        mockHooksStatus.lastOperation = { success: true, message: 'Hooks installed successfully' };
+        mockHooksStatus.lastOperation = {
+          success: true,
+          message: 'Hooks installed successfully',
+        };
 
         rerender(<HooksConfiguration onBack={onBack} />);
 
@@ -609,10 +682,15 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should show error message on failure', () => {
-        const { lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Mock failed operation
-        mockHooksStatus.lastOperation = { success: false, message: 'Installation failed: Permission denied' };
+        mockHooksStatus.lastOperation = {
+          success: false,
+          message: 'Installation failed: Permission denied',
+        };
 
         rerender(<HooksConfiguration onBack={onBack} />);
 
@@ -639,17 +717,19 @@ describe('HooksConfiguration', () => {
 
       it('Then i should trigger quick install', () => {
         const installHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks,
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks,
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin } = render(<HooksConfiguration onBack={onBack} />);
 
@@ -660,17 +740,19 @@ describe('HooksConfiguration', () => {
 
       it('Then u should trigger quick uninstall', () => {
         const uninstallHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks: vi.fn(),
-            uninstallHooks,
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks: vi.fn(),
+              uninstallHooks,
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin } = render(<HooksConfiguration onBack={onBack} />);
 
@@ -681,17 +763,19 @@ describe('HooksConfiguration', () => {
 
       it('Then v should trigger quick verify', () => {
         const verifyHooks = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus: vi.fn(),
-            installHooks: vi.fn(),
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus: vi.fn(),
+              installHooks: vi.fn(),
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin } = render(<HooksConfiguration onBack={onBack} />);
 
@@ -702,17 +786,19 @@ describe('HooksConfiguration', () => {
 
       it('Then r should trigger quick refresh', () => {
         const refreshHooksStatus = vi.fn();
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            hooksStatus: mockHooksStatus,
-            refreshHooksStatus,
-            installHooks: vi.fn(),
-            uninstallHooks: vi.fn(),
-            toggleHook: vi.fn(),
-            verifyHooks: vi.fn(),
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              hooksStatus: mockHooksStatus,
+              refreshHooksStatus,
+              installHooks: vi.fn(),
+              uninstallHooks: vi.fn(),
+              toggleHook: vi.fn(),
+              verifyHooks: vi.fn(),
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { stdin } = render(<HooksConfiguration onBack={onBack} />);
 
@@ -729,7 +815,7 @@ describe('HooksConfiguration', () => {
 
         expect(frame).toContain('Total Events: 324');
         expect(frame).toContain('125'); // PreToolUse count
-        expect(frame).toContain('98');  // PostToolUse count
+        expect(frame).toContain('98'); // PostToolUse count
       });
 
       it('Then should show enabled vs disabled counts', () => {
@@ -748,7 +834,9 @@ describe('HooksConfiguration', () => {
       });
 
       it('Then should update statistics after actions', () => {
-        const { stdin, lastFrame, rerender } = render(<HooksConfiguration onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HooksConfiguration onBack={onBack} />
+        );
 
         // Toggle a hook and check if stats update
         stdin.write(' '); // Toggle hook

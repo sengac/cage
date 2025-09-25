@@ -27,14 +27,13 @@ interface BackendResponse {
   warning?: string;
 }
 
-
 // Find cage config - check current dir, parent dirs, and home
 function findCageConfig(): CageConfig {
   const locations = [
     process.cwd(),
     join(process.cwd(), '..'),
     join(process.cwd(), '../..'),
-    homedir()
+    homedir(),
   ];
 
   for (const dir of locations) {
@@ -66,13 +65,27 @@ async function main(): Promise<void> {
   }
 
   // Log raw input for debugging
-  const debugLogPath = join(process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd(), '.cage', 'raw-hooks.log');
+  const debugLogPath = join(
+    process.env.TEST_BASE_DIR ||
+      process.env.CLAUDE_PROJECT_DIR ||
+      process.cwd(),
+    '.cage',
+    'raw-hooks.log'
+  );
   try {
-    const cageDir = join(process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd(), '.cage');
+    const cageDir = join(
+      process.env.TEST_BASE_DIR ||
+        process.env.CLAUDE_PROJECT_DIR ||
+        process.cwd(),
+      '.cage'
+    );
     if (!existsSync(cageDir)) {
       mkdirSync(cageDir, { recursive: true });
     }
-    appendFileSync(debugLogPath, `\n===== ${hookType} at ${new Date().toISOString()} =====\n`);
+    appendFileSync(
+      debugLogPath,
+      `\n===== ${hookType} at ${new Date().toISOString()} =====\n`
+    );
     appendFileSync(debugLogPath, `RAW INPUT: ${inputData}\n`);
     appendFileSync(debugLogPath, `===== END =====\n`);
   } catch {}
@@ -96,10 +109,10 @@ async function main(): Promise<void> {
     transcript_path?: string;
     cwd?: string;
     hook_event_name?: string;
-    tool_name?: string;  // Claude Code uses tool_name
-    tool_input?: Record<string, unknown>;  // Claude Code uses tool_input
-    tool_response?: unknown;  // For PostToolUse
-    additionalContext?: string;  // For UserPromptSubmit
+    tool_name?: string; // Claude Code uses tool_name
+    tool_input?: Record<string, unknown>; // Claude Code uses tool_input
+    tool_response?: unknown; // For PostToolUse
+    additionalContext?: string; // For UserPromptSubmit
     permission_mode?: string;
   }
 
@@ -112,20 +125,20 @@ async function main(): Promise<void> {
       sessionId: typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
       toolName: typedHookData.tool_name || 'unknown',
-      arguments: typedHookData.tool_input || {},  // Backend expects 'arguments'
+      arguments: typedHookData.tool_input || {}, // Backend expects 'arguments'
       transcriptPath: typedHookData.transcript_path,
-      cwd: typedHookData.cwd
+      cwd: typedHookData.cwd,
     };
   } else if (hookType === 'PostToolUse') {
     mappedData = {
       sessionId: typedHookData.session_id || `session-${Date.now()}`,
       timestamp: new Date().toISOString(),
       toolName: typedHookData.tool_name || 'unknown',
-      arguments: typedHookData.tool_input || {},  // Backend expects 'arguments'
-      result: typedHookData.tool_response || null,  // Backend expects 'result'
+      arguments: typedHookData.tool_input || {}, // Backend expects 'arguments'
+      result: typedHookData.tool_response || null, // Backend expects 'result'
       executionTime: 0,
       transcriptPath: typedHookData.transcript_path,
-      cwd: typedHookData.cwd
+      cwd: typedHookData.cwd,
     };
   } else if (hookType === 'UserPromptSubmit') {
     mappedData = {
@@ -136,8 +149,8 @@ async function main(): Promise<void> {
       cwd: typedHookData.cwd,
       context: {
         previousMessages: [],
-        currentFile: undefined
-      }
+        currentFile: undefined,
+      },
     };
   } else {
     // For other hooks, pass through with minimal mapping
@@ -146,7 +159,7 @@ async function main(): Promise<void> {
       timestamp: new Date().toISOString(),
       transcriptPath: typedHookData.transcript_path,
       cwd: typedHookData.cwd,
-      ...hookData
+      ...hookData,
     };
   }
 
@@ -155,11 +168,14 @@ async function main(): Promise<void> {
     ...mappedData,
     timestamp: (mappedData.timestamp as string) || new Date().toISOString(), // Ensure timestamp exists
     hook_type: hookType,
-    project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd()
+    project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
   };
 
   // Define baseDir before the try block for proper scoping
-  const baseDir = process.env.TEST_BASE_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const baseDir =
+    process.env.TEST_BASE_DIR ||
+    process.env.CLAUDE_PROJECT_DIR ||
+    process.cwd();
 
   // Forward to Cage backend
   try {
@@ -174,30 +190,33 @@ async function main(): Promise<void> {
     // Debug logging
     const debugLogPath = join(baseDir, '.cage', 'debug-hook-connection.log');
     try {
-      appendFileSync(debugLogPath, `\n===== ${hookType} at ${new Date().toISOString()} =====\n`);
+      appendFileSync(
+        debugLogPath,
+        `\n===== ${hookType} at ${new Date().toISOString()} =====\n`
+      );
       appendFileSync(debugLogPath, `URL: ${backendUrl}\n`);
       appendFileSync(debugLogPath, `Port: ${config.port}\n`);
       appendFileSync(debugLogPath, `Config: ${JSON.stringify(config)}\n`);
-      appendFileSync(debugLogPath, `Payload size: ${JSON.stringify(enrichedData).length} bytes\n`);
+      appendFileSync(
+        debugLogPath,
+        `Payload size: ${JSON.stringify(enrichedData).length} bytes\n`
+      );
     } catch {
       // Ignore debug log errors
     }
 
-    const response = await fetch(
-      backendUrl,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(enrichedData),
-        signal: AbortSignal.timeout(5000) // 5 second timeout
-      }
-    );
+    const response = await fetch(backendUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(enrichedData),
+      signal: AbortSignal.timeout(5000), // 5 second timeout
+    });
 
     if (!response.ok) {
       throw new Error(`Backend returned ${response.status}`);
     }
 
-    const result = await response.json() as BackendResponse;
+    const result = (await response.json()) as BackendResponse;
 
     // Handle Cage backend's response
     if (result.block) {
@@ -224,7 +243,10 @@ async function main(): Promise<void> {
     try {
       appendFileSync(debugLogPath, `ERROR: ${error}\n`);
       appendFileSync(debugLogPath, `ERROR NAME: ${(error as Error).name}\n`);
-      appendFileSync(debugLogPath, `ERROR MESSAGE: ${(error as Error).message}\n`);
+      appendFileSync(
+        debugLogPath,
+        `ERROR MESSAGE: ${(error as Error).message}\n`
+      );
       appendFileSync(debugLogPath, `ERROR STACK: ${(error as Error).stack}\n`);
       appendFileSync(debugLogPath, `===== END ERROR =====\n`);
     } catch {

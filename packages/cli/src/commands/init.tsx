@@ -15,7 +15,7 @@ interface InitStatus {
 export function InitCommand(): JSX.Element {
   const [state, setState] = useState<InitStatus>({
     status: 'checking',
-    message: 'Checking project status...'
+    message: 'Checking project status...',
   });
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function InitCommand(): JSX.Element {
         if (existsSync(configPath)) {
           setState({
             status: 'already-initialized',
-            message: 'CAGE is already initialized in this project'
+            message: 'CAGE is already initialized in this project',
           });
           setTimeout(() => process.exit(1), 100);
           return;
@@ -38,7 +38,7 @@ export function InitCommand(): JSX.Element {
 
         setState({
           status: 'creating',
-          message: 'Creating CAGE configuration...'
+          message: 'Creating CAGE configuration...',
         });
 
         // Create .cage directory structure
@@ -48,14 +48,14 @@ export function InitCommand(): JSX.Element {
         const config = {
           ...defaultConfig,
           eventsDir: '.cage/events',
-          version: '1.0.0'
+          version: '1.0.0',
         };
 
         await writeFile(configPath, JSON.stringify(config, null, 2));
 
         setState({
           status: 'done',
-          message: 'CAGE initialized successfully'
+          message: 'CAGE initialized successfully',
         });
 
         // Exit successfully
@@ -64,7 +64,7 @@ export function InitCommand(): JSX.Element {
         setState({
           status: 'error',
           message: 'Failed to initialize CAGE',
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: err instanceof Error ? err.message : 'Unknown error',
         });
         setTimeout(() => process.exit(1), 100);
       }
@@ -89,7 +89,7 @@ export function InitCommand(): JSX.Element {
     return (
       <Box flexDirection="column">
         <Text>🔴 {state.message}</Text>
-        {state.error && <Text color="gray">  {state.error}</Text>}
+        {state.error && <Text color="gray"> {state.error}</Text>}
       </Box>
     );
   }
@@ -97,8 +97,8 @@ export function InitCommand(): JSX.Element {
   return (
     <Box flexDirection="column">
       <Text>🟢 {state.message}</Text>
-      <Text color="gray">  Configuration saved to cage.config.json</Text>
-      <Text color="gray">  Event logs will be stored in .cage/events/</Text>
+      <Text color="gray"> Configuration saved to cage.config.json</Text>
+      <Text color="gray"> Event logs will be stored in .cage/events/</Text>
     </Box>
   );
 }

@@ -28,7 +28,7 @@ export function FileViewer({
   currentPage = 1,
   fileSize,
   lastModified,
-  showMetadata = false
+  showMetadata = false,
 }: FileViewerProps) {
   const lines = useMemo(() => {
     if (!content) return [];
@@ -48,7 +48,9 @@ export function FileViewer({
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text bold color="cyan">{filename}</Text>
+        <Text bold color="cyan">
+          {filename}
+        </Text>
         {showMetadata && fileSize !== undefined && (
           <Text color="gray"> | {fileSize} bytes</Text>
         )}
@@ -110,14 +112,14 @@ export function DiffViewer({
   showColors = true,
   viewMode = 'unified',
   showStats = false,
-  showFileList = false
+  showFileList = false,
 }: DiffViewerProps) {
   const lines = diff.split('\n');
 
   const stats = useMemo(() => {
     let additions = 0;
     let deletions = 0;
-    let files = new Set<string>();
+    const files = new Set<string>();
 
     lines.forEach(line => {
       if (line.startsWith('+') && !line.startsWith('+++')) {
@@ -139,7 +141,9 @@ export function DiffViewer({
     <Box flexDirection="column">
       {filename && (
         <Box marginBottom={1}>
-          <Text bold color="cyan">{filename}</Text>
+          <Text bold color="cyan">
+            {filename}
+          </Text>
         </Box>
       )}
 
@@ -152,7 +156,9 @@ export function DiffViewer({
       {showStats && !isBinary && (
         <Box marginBottom={1}>
           <Text color="green">+{stats.additions} additions </Text>
-          <Text color="red">-{stats.deletions} deletion{stats.deletions !== 1 ? 's' : ''}</Text>
+          <Text color="red">
+            -{stats.deletions} deletion{stats.deletions !== 1 ? 's' : ''}
+          </Text>
         </Box>
       )}
 
@@ -174,15 +180,18 @@ export function DiffViewer({
               line = line.substring(1);
             } else if (line.startsWith('@@')) {
               color = 'cyan';
-            } else if (line.startsWith('diff --git') ||
-                       line.startsWith('---') ||
-                       line.startsWith('+++')) {
+            } else if (
+              line.startsWith('diff --git') ||
+              line.startsWith('---') ||
+              line.startsWith('+++')
+            ) {
               color = 'gray';
             }
 
             return (
               <Text key={index} color={color}>
-                {prefix}{line}
+                {prefix}
+                {line}
               </Text>
             );
           })}
@@ -210,7 +219,7 @@ export function CommandOutputViewer({
   stripAnsi = true,
   maxLines,
   expandable = false,
-  showWorkingDir = false
+  showWorkingDir = false,
 }: CommandOutputViewerProps) {
   const output = event.output || '';
   const error = event.error || '';
@@ -240,9 +249,10 @@ export function CommandOutputViewer({
   const errorLines = error.split('\n');
   const totalLines = outputLines.length;
 
-  const displayLines = maxLines && outputLines.length > maxLines
-    ? outputLines.slice(0, maxLines)
-    : outputLines;
+  const displayLines =
+    maxLines && outputLines.length > maxLines
+      ? outputLines.slice(0, maxLines)
+      : outputLines;
 
   const truncated = maxLines && totalLines > maxLines;
   const remainingLines = totalLines - (maxLines || 0);
@@ -253,7 +263,9 @@ export function CommandOutputViewer({
         {showWorkingDir && event.workingDirectory && (
           <Text color="gray">[{event.workingDirectory}] </Text>
         )}
-        <Text bold color="cyan">$ {event.command}</Text>
+        <Text bold color="cyan">
+          $ {event.command}
+        </Text>
       </Box>
 
       {displayLines.length > 0 && displayLines[0] !== '' && (
@@ -273,7 +285,9 @@ export function CommandOutputViewer({
       {error && (
         <Box flexDirection="column" marginBottom={1}>
           {errorLines.map((line, index) => (
-            <Text key={index} color="red">{line}</Text>
+            <Text key={index} color="red">
+              {line}
+            </Text>
           ))}
         </Box>
       )}
@@ -283,7 +297,10 @@ export function CommandOutputViewer({
           Exit code: {event.exitCode}
         </Text>
         {showTiming && event.duration !== undefined && (
-          <Text color="gray"> | Execution time: {(event.duration / 1000).toFixed(2)}s</Text>
+          <Text color="gray">
+            {' '}
+            | Execution time: {(event.duration / 1000).toFixed(2)}s
+          </Text>
         )}
       </Box>
     </Box>

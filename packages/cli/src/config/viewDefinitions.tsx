@@ -23,8 +23,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Code Alignment Guard Engine',
       showServerStatus: true,
-      showDefaultFooter: true
-    }
+      showDefaultFooter: true,
+    },
   },
 
   events: {
@@ -33,9 +33,10 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Events Inspector',
       subtitle: 'Browse & analyze events',
-      footer: '↵ View | / Search | t,y,o,s Sort | r Reverse | c Clear | ESC Back',
-      showDefaultFooter: false
-    }
+      footer:
+        '↵ View | / Search | t,y,o,s Sort | r Reverse | c Clear | ESC Back',
+      showDefaultFooter: false,
+    },
   },
 
   eventDetail: {
@@ -44,8 +45,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Event Detail',
       footer: '← → Switch tabs | c Copy | e Export | ESC Back',
-      showDefaultFooter: false
-    }
+      showDefaultFooter: false,
+    },
   },
 
   server: {
@@ -56,8 +57,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
       subtitle: 'Start/stop/status',
       showServerStatus: true,
       footer: 's Start/Stop | r Restart | c Config | l Logs | ESC Back',
-      showDefaultFooter: false
-    }
+      showDefaultFooter: false,
+    },
   },
 
   hooks: {
@@ -66,9 +67,10 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Hooks Configuration',
       subtitle: 'Setup & verify hooks',
-      footer: 'Space Toggle | a Enable All | d Disable All | r Refresh | v Verify | / Search | f Filter | ESC Back',
-      showDefaultFooter: false
-    }
+      footer:
+        'Space Toggle | a Enable All | d Disable All | r Refresh | v Verify | / Search | f Filter | ESC Back',
+      showDefaultFooter: false,
+    },
   },
 
   stream: {
@@ -77,9 +79,10 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Real-time Monitor',
       subtitle: 'Stream live events',
-      footer: 'Space Pause | s Start/Stop | / Filter | c Clear | ↵ View | ESC Back',
-      showDefaultFooter: false
-    }
+      footer:
+        'Space Pause | s Start/Stop | / Filter | c Clear | ↵ View | ESC Back',
+      showDefaultFooter: false,
+    },
   },
 
   statistics: {
@@ -89,8 +92,8 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
       title: 'Statistics Dashboard',
       subtitle: 'View metrics & charts',
       footer: '↑↓ Navigate | ↵ View Details | r Refresh | ? Help | ESC Back',
-      showDefaultFooter: false
-    }
+      showDefaultFooter: false,
+    },
   },
 
   settings: {
@@ -99,9 +102,10 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Settings',
       subtitle: 'Configure Cage',
-      footer: 'TAB/Shift+TAB Navigate | SPACE Toggle | ↵ Edit | S Save | R Reset | ESC Back',
-      showDefaultFooter: false
-    }
+      footer:
+        'TAB/Shift+TAB Navigate | SPACE Toggle | ↵ Edit | S Save | R Reset | ESC Back',
+      showDefaultFooter: false,
+    },
   },
 
   debug: {
@@ -110,9 +114,10 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     metadata: {
       title: 'Debug Console',
       subtitle: 'View debug output',
-      footer: '/ Search | f Filter Level | c Filter Component | r Reset | ESC Back',
-      showDefaultFooter: false
-    }
+      footer:
+        '/ Search | f Filter Level | c Filter Component | r Reset | ESC Back',
+      showDefaultFooter: false,
+    },
   },
 
   help: {
@@ -120,8 +125,9 @@ export const viewDefinitions: Record<string, ViewDefinition> = {
     component: HelpSystemView,
     metadata: {
       title: 'Help System',
-      footer: '↑↓ Navigate | ↵ View Topic | / Search | ? Advanced | h Reference | ESC Back',
-      showDefaultFooter: false
-    }
-  }
+      footer:
+        '↑↓ Navigate | ↵ View Topic | / Search | ? Advanced | h Reference | ESC Back',
+      showDefaultFooter: false,
+    },
+  },
 };

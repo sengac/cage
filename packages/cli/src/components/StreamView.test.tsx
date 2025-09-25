@@ -55,14 +55,18 @@ describe('StreamView', () => {
         eventType: 'ToolUse',
         sessionId: 'session-1',
         toolName: 'Edit',
-        arguments: { file_path: '/app.ts', old_string: 'foo', new_string: 'bar' },
+        arguments: {
+          file_path: '/app.ts',
+          old_string: 'foo',
+          new_string: 'bar',
+        },
         result: { success: true },
         executionTime: 250,
       },
     ];
 
     // Mock the store implementation
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         streamBuffer: mockEvents,
         isStreaming: true,
@@ -147,20 +151,22 @@ describe('StreamView', () => {
 
     describe('When paused', () => {
       beforeEach(() => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            streamBuffer: mockEvents,
-            isStreaming: true,
-            isPaused: true,
-            newEventCount: 0,
-            eventFilters: {},
-            toggleStream,
-            pauseStream,
-            selectEvent,
-            navigate,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              streamBuffer: mockEvents,
+              isStreaming: true,
+              isPaused: true,
+              newEventCount: 0,
+              eventFilters: {},
+              toggleStream,
+              pauseStream,
+              selectEvent,
+              navigate,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show paused status', () => {
@@ -178,7 +184,9 @@ describe('StreamView', () => {
       });
 
       it('Then should allow navigation when paused', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         // Should be able to navigate up/down when paused
         stdin.write('\u001B[A'); // Up arrow
@@ -200,22 +208,26 @@ describe('StreamView', () => {
 
       it('Then up/down arrows should navigate when paused', () => {
         // Set to paused state for navigation
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            streamBuffer: mockEvents,
-            isStreaming: true,
-            isPaused: true,
-            newEventCount: 0,
-            eventFilters: {},
-            toggleStream,
-            pauseStream,
-            selectEvent,
-            navigate,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              streamBuffer: mockEvents,
+              isStreaming: true,
+              isPaused: true,
+              newEventCount: 0,
+              eventFilters: {},
+              toggleStream,
+              pauseStream,
+              selectEvent,
+              navigate,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('\u001B[A'); // Up arrow
         rerender(<StreamView onBack={onBack} />);
@@ -259,7 +271,9 @@ describe('StreamView', () => {
 
     describe('When filtering events', () => {
       it('Then / should start filter mode', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('/');
         rerender(<StreamView onBack={onBack} />);
@@ -268,7 +282,9 @@ describe('StreamView', () => {
       });
 
       it('Then should filter events in real-time', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         // Start filter
         stdin.write('/');
@@ -288,7 +304,9 @@ describe('StreamView', () => {
       });
 
       it('Then Enter should apply filter', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('/');
         rerender(<StreamView onBack={onBack} />);
@@ -308,7 +326,9 @@ describe('StreamView', () => {
       });
 
       it('Then Escape should cancel filter', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('/');
         rerender(<StreamView onBack={onBack} />);
@@ -322,20 +342,22 @@ describe('StreamView', () => {
 
     describe('When showing new events', () => {
       beforeEach(() => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            streamBuffer: mockEvents,
-            isStreaming: true,
-            isPaused: false,
-            newEventCount: 2,
-            eventFilters: {},
-            toggleStream,
-            pauseStream,
-            selectEvent,
-            navigate,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              streamBuffer: mockEvents,
+              isStreaming: true,
+              isPaused: false,
+              newEventCount: 2,
+              eventFilters: {},
+              toggleStream,
+              pauseStream,
+              selectEvent,
+              navigate,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show new event indicator', () => {
@@ -354,20 +376,22 @@ describe('StreamView', () => {
 
     describe('When not streaming', () => {
       beforeEach(() => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            streamBuffer: [],
-            isStreaming: false,
-            isPaused: false,
-            newEventCount: 0,
-            eventFilters: {},
-            toggleStream,
-            pauseStream,
-            selectEvent,
-            navigate,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              streamBuffer: [],
+              isStreaming: false,
+              isPaused: false,
+              newEventCount: 0,
+              eventFilters: {},
+              toggleStream,
+              pauseStream,
+              selectEvent,
+              navigate,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
       });
 
       it('Then should show stopped status', () => {
@@ -393,7 +417,9 @@ describe('StreamView', () => {
 
     describe('When export functionality is used', () => {
       it('Then e should show export options', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('e');
         rerender(<StreamView onBack={onBack} />);
@@ -402,7 +428,9 @@ describe('StreamView', () => {
       });
 
       it('Then should show export format options', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('e');
         rerender(<StreamView onBack={onBack} />);
@@ -413,7 +441,9 @@ describe('StreamView', () => {
 
     describe('When handling split-screen mode', () => {
       it('Then Tab should toggle split-screen detail view', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab key
         rerender(<StreamView onBack={onBack} />);
@@ -423,7 +453,9 @@ describe('StreamView', () => {
       });
 
       it('Then should show event detail in split view', () => {
-        const { stdin, lastFrame, rerender } = render(<StreamView onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <StreamView onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to enable split view
         rerender(<StreamView onBack={onBack} />);
@@ -445,20 +477,22 @@ describe('StreamView', () => {
           arguments: { index: i },
         }));
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            streamBuffer: largeBuffer,
-            isStreaming: true,
-            isPaused: false,
-            newEventCount: 0,
-            eventFilters: {},
-            toggleStream,
-            pauseStream,
-            selectEvent,
-            navigate,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              streamBuffer: largeBuffer,
+              isStreaming: true,
+              isPaused: false,
+              newEventCount: 0,
+              eventFilters: {},
+              toggleStream,
+              pauseStream,
+              selectEvent,
+              navigate,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<StreamView onBack={onBack} />);
 

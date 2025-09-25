@@ -50,14 +50,18 @@ describe('EventInspector', () => {
         eventType: 'ToolUse',
         sessionId: 'session-1',
         toolName: 'Edit',
-        arguments: { file_path: '/app.ts', old_string: 'foo', new_string: 'bar' },
+        arguments: {
+          file_path: '/app.ts',
+          old_string: 'foo',
+          new_string: 'bar',
+        },
         result: { success: true },
         executionTime: 250,
       },
     ];
 
     // Mock the store implementation
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         events: mockEvents,
       };
@@ -137,7 +141,9 @@ describe('EventInspector', () => {
         );
 
         stdin.write('\u001B[B'); // Down arrow
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should move to second event
         expect(lastFrame()).toMatch(/❯.*UserMessage/);
@@ -150,11 +156,17 @@ describe('EventInspector', () => {
 
         // Move down twice then up once
         stdin.write('\u001B[B');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('\u001B[B');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('\u001B[A'); // Up arrow
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should be on second event
         expect(lastFrame()).toMatch(/❯.*UserMessage/);
@@ -179,7 +191,9 @@ describe('EventInspector', () => {
         );
 
         stdin.write('t');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should show sort indicator on Time column
         expect(lastFrame()).toMatch(/Time\s*[↓↑]/);
@@ -191,7 +205,9 @@ describe('EventInspector', () => {
         );
 
         stdin.write('y');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should show sort indicator on Type column
         expect(lastFrame()).toMatch(/Type\s*[↓↑]/);
@@ -205,7 +221,9 @@ describe('EventInspector', () => {
         const initialFrame = lastFrame();
 
         stdin.write('r');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         const reversedFrame = lastFrame();
 
@@ -221,7 +239,9 @@ describe('EventInspector', () => {
         );
 
         stdin.write('/');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         expect(lastFrame()).toContain('Search:');
       });
@@ -233,14 +253,18 @@ describe('EventInspector', () => {
 
         // Start search
         stdin.write('/');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Type "Edit"
         stdin.write('E');
         stdin.write('d');
         stdin.write('i');
         stdin.write('t');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         expect(lastFrame()).toContain('Search: Edit');
       });
@@ -251,17 +275,29 @@ describe('EventInspector', () => {
         );
 
         stdin.write('/');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('E');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('d');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('i');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('t');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('\r'); // Enter to apply search
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should show filtered count
         expect(lastFrame()).toMatch(/1 events.*filtered from 3/);
@@ -273,10 +309,14 @@ describe('EventInspector', () => {
         );
 
         stdin.write('/');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
         stdin.write('test');
         stdin.write('\u001B'); // Escape
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Search should be cancelled
         expect(lastFrame()).not.toContain('Search:');
@@ -290,7 +330,9 @@ describe('EventInspector', () => {
         );
 
         stdin.write('f');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should show filter mode (implementation will determine exact display)
         const frame = lastFrame();
@@ -304,11 +346,15 @@ describe('EventInspector', () => {
 
         // Set a filter first
         stdin.write('f');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Clear it
         stdin.write('F');
-        rerender(<EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />);
+        rerender(
+          <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />
+        );
 
         // Should show all events
         expect(lastFrame()).toContain('3 events');
@@ -339,12 +385,14 @@ describe('EventInspector', () => {
 
     describe('When no events exist', () => {
       it('Then should show empty message', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            events: [],
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              events: [],
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(
           <EventInspector onSelectEvent={onSelectEvent} onBack={onBack} />

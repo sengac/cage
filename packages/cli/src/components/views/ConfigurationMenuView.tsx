@@ -6,6 +6,9 @@ import { ConfigurationMenu } from '../ConfigurationMenu';
  * ConfigurationMenuView - wraps the existing ConfigurationMenu component
  * Integrates with the new ViewManager system
  */
-export const ConfigurationMenuView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
+export const ConfigurationMenuView: React.FC<ViewProps> = ({
+  onBack,
+  onNavigate,
+}) => {
   return <ConfigurationMenu onBack={onBack} />;
 };

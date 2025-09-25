@@ -44,19 +44,21 @@ describe('ConfigurationMenu', () => {
     };
 
     // Mock the settings store
-    (useSettingsStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = {
-        settings: mockSettings,
-        updateSettings,
-        resetSettings,
-        exportSettings,
-        importSettings,
-      };
-      return selector ? selector(state) : state;
-    });
+    (useSettingsStore as ReturnType<typeof vi.fn>).mockImplementation(
+      selector => {
+        const state = {
+          settings: mockSettings,
+          updateSettings,
+          resetSettings,
+          exportSettings,
+          importSettings,
+        };
+        return selector ? selector(state) : state;
+      }
+    );
 
     // Mock the app store
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         currentView: 'settings',
       };
@@ -111,7 +113,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When navigating sections', () => {
       it('Then up/down arrows should move between sections', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\u001B[B'); // Down arrow
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -120,7 +124,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then j/k keys should move between sections', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Down
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -134,7 +140,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should cycle through all sections', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Navigate through all sections
         stdin.write('j'); // Server
@@ -151,7 +159,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should wrap around at boundaries', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Go up from first item (should wrap to last)
         stdin.write('\u001B[A'); // Up arrow
@@ -169,7 +179,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Enter should open theme selector', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -178,7 +190,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should show available theme options', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter theme selector
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -190,7 +204,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should allow theme selection', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter theme selector
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -205,7 +221,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When viewing server section', () => {
       it('Then should show current server configuration', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Navigate to Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -217,7 +235,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Enter should open server configuration', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Navigate to Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -228,7 +248,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should allow port configuration', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Navigate to Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -239,7 +261,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should validate port numbers', async () => {
-        const { stdin, lastFrame } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Wait for component to mount
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -272,7 +296,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When viewing display section', () => {
       it('Then should show current display preferences', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         stdin.write('j'); // Display
@@ -285,7 +311,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Enter should open display preferences', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -298,7 +326,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should allow toggling timestamps', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -311,7 +341,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should allow changing date format', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -326,7 +358,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When viewing key bindings section', () => {
       it('Then should show current key binding style', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -340,7 +374,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Enter should open key bindings editor', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -355,7 +391,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should show navigation style options', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('j'); // Server
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -374,7 +412,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When using action buttons', () => {
       it('Then Tab should navigate to action buttons', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -383,7 +423,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should navigate between action buttons', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -394,7 +436,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Apply should save settings', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -406,7 +450,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Cancel should discard changes', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -419,7 +465,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Reset should restore defaults', async () => {
-        const { stdin, lastFrame } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Wait for component to mount
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -432,7 +480,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Export should show export options', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -451,7 +501,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Import should show import dialog', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         stdin.write('\t'); // Tab to actions
         rerender(<ConfigurationMenu onBack={onBack} />);
@@ -470,7 +522,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When handling unsaved changes', () => {
       it('Then should show unsaved changes indicator', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Make a change
         stdin.write('\r'); // Enter theme selector
@@ -484,7 +538,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then Escape should warn about unsaved changes', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Make a change
         stdin.write('\r'); // Enter theme selector
@@ -501,7 +557,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should allow confirming exit with unsaved changes', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Make a change and try to exit
         stdin.write('\r'); // Enter theme selector
@@ -556,7 +614,9 @@ describe('ConfigurationMenu', () => {
 
     describe('When showing validation errors', () => {
       it('Then should highlight invalid fields', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Navigate to server and enter invalid config
         stdin.write('j'); // Server
@@ -568,7 +628,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should show error messages', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Try to apply with validation errors
         stdin.write('\t'); // Tab to actions
@@ -582,7 +644,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should prevent saving with validation errors', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Set invalid configuration
         mockSettings.serverConfig.port = 99999;
@@ -610,7 +674,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should update display when values change', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Change theme
         stdin.write('\r'); // Enter theme selector
@@ -624,7 +690,9 @@ describe('ConfigurationMenu', () => {
       });
 
       it('Then should show loading states during async operations', () => {
-        const { stdin, lastFrame, rerender } = render(<ConfigurationMenu onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <ConfigurationMenu onBack={onBack} />
+        );
 
         // Trigger export which might be async
         stdin.write('\t'); // Tab to actions

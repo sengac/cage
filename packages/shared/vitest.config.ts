@@ -8,19 +8,19 @@ const __dirname = dirname(__filename);
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node'
+    environment: 'node',
   },
   resolve: {
     alias: {
-      '@cage/shared': resolve(__dirname, './src')
-    }
+      '@cage/shared': resolve(__dirname, './src'),
+    },
   },
   optimizeDeps: {
-    include: ['zod']
+    include: ['zod'],
   },
   build: {
     commonjsOptions: {
-      include: [/zod/, /node_modules/]
-    }
-  }
+      include: [/zod/, /node_modules/],
+    },
+  },
 });

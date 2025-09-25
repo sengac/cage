@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsEnum,
+  Min,
+  Max,
+} from 'class-validator';
 
 /**
  * Event type enumeration
@@ -13,7 +20,7 @@ export enum EventType {
   Notification = 'Notification',
   PreCompact = 'PreCompact',
   Stop = 'Stop',
-  SubagentStop = 'SubagentStop'
+  SubagentStop = 'SubagentStop',
 }
 
 /**
@@ -22,7 +29,7 @@ export enum EventType {
 export class EventsQueryDto {
   @ApiPropertyOptional({
     description: 'Filter events by session ID',
-    example: 'session-123e4567-e89b-12d3-a456-426614174000'
+    example: 'session-123e4567-e89b-12d3-a456-426614174000',
   })
   @IsOptional()
   @IsString()
@@ -31,7 +38,7 @@ export class EventsQueryDto {
   @ApiPropertyOptional({
     description: 'Filter events by type',
     enum: EventType,
-    example: EventType.PreToolUse
+    example: EventType.PreToolUse,
   })
   @IsOptional()
   @IsEnum(EventType)
@@ -39,7 +46,7 @@ export class EventsQueryDto {
 
   @ApiPropertyOptional({
     description: 'Start timestamp for date range filter (ISO 8601)',
-    example: '2025-01-24T00:00:00.000Z'
+    example: '2025-01-24T00:00:00.000Z',
   })
   @IsOptional()
   @IsString()
@@ -47,7 +54,7 @@ export class EventsQueryDto {
 
   @ApiPropertyOptional({
     description: 'End timestamp for date range filter (ISO 8601)',
-    example: '2025-01-24T23:59:59.999Z'
+    example: '2025-01-24T23:59:59.999Z',
   })
   @IsOptional()
   @IsString()
@@ -58,7 +65,7 @@ export class EventsQueryDto {
     minimum: 1,
     maximum: 1000,
     default: 100,
-    example: 50
+    example: 50,
   })
   @IsOptional()
   @IsNumber()
@@ -70,7 +77,7 @@ export class EventsQueryDto {
     description: 'Number of events to skip for pagination',
     minimum: 0,
     default: 0,
-    example: 0
+    example: 0,
   })
   @IsOptional()
   @IsNumber()
@@ -79,7 +86,7 @@ export class EventsQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter events by tool name',
-    example: 'Read'
+    example: 'Read',
   })
   @IsOptional()
   @IsString()
@@ -89,7 +96,7 @@ export class EventsQueryDto {
     description: 'Sort order for results',
     enum: ['asc', 'desc'],
     default: 'desc',
-    example: 'desc'
+    example: 'desc',
   })
   @IsOptional()
   @IsEnum(['asc', 'desc'])
@@ -102,34 +109,34 @@ export class EventsQueryDto {
 export class EventDto {
   @ApiProperty({
     description: 'Unique event identifier',
-    example: 'evt_123e4567-e89b-12d3-a456-426614174000'
+    example: 'evt_123e4567-e89b-12d3-a456-426614174000',
   })
   id: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the event occurred',
     example: '2025-01-24T10:30:00.000Z',
-    type: String
+    type: String,
   })
   timestamp: string;
 
   @ApiProperty({
     description: 'Type of the event',
     enum: EventType,
-    example: EventType.PreToolUse
+    example: EventType.PreToolUse,
   })
   eventType: EventType;
 
   @ApiPropertyOptional({
     description: 'Session ID associated with the event',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
-    type: String
+    type: String,
   })
   sessionId?: string;
 
   @ApiPropertyOptional({
     description: 'Tool name (for tool-related events)',
-    example: 'Read'
+    example: 'Read',
   })
   toolName?: string;
 
@@ -137,7 +144,7 @@ export class EventDto {
     description: 'Arguments passed to the tool',
     type: 'object',
     additionalProperties: true,
-    example: { file_path: '/src/index.ts', limit: 100 }
+    example: { file_path: '/src/index.ts', limit: 100 },
   })
   arguments?: Record<string, unknown>;
 
@@ -145,38 +152,38 @@ export class EventDto {
     description: 'Result of the operation',
     example: 'File contents...',
     type: 'object',
-    additionalProperties: true
+    additionalProperties: true,
   })
   result?: unknown;
 
   @ApiPropertyOptional({
     description: 'Execution time in milliseconds',
-    example: 1500
+    example: 1500,
   })
   executionTime?: number;
 
   @ApiPropertyOptional({
     description: 'Error message if applicable',
-    example: 'File not found'
+    example: 'File not found',
   })
   error?: string;
 
   @ApiPropertyOptional({
     description: 'User prompt (for UserPromptSubmit events)',
-    example: 'Please help me refactor this function'
+    example: 'Please help me refactor this function',
   })
   prompt?: string;
 
   @ApiPropertyOptional({
     description: 'Notification level (for Notification events)',
     enum: ['info', 'warning', 'error'],
-    example: 'info'
+    example: 'info',
   })
   level?: 'info' | 'warning' | 'error';
 
   @ApiPropertyOptional({
     description: 'Message content (for Notification events)',
-    example: 'Task completed successfully'
+    example: 'Task completed successfully',
   })
   message?: string;
 
@@ -184,7 +191,7 @@ export class EventDto {
     description: 'Additional metadata specific to the event type',
     type: 'object',
     additionalProperties: true,
-    example: { custom: 'data' }
+    example: { custom: 'data' },
   })
   metadata?: Record<string, unknown>;
 }
@@ -196,43 +203,43 @@ export class EventsResponseDto {
   @ApiProperty({
     description: 'Array of events',
     type: () => [EventDto],
-    isArray: true
+    isArray: true,
   })
   events: EventDto[];
 
   @ApiProperty({
     description: 'Total number of events matching the query',
-    example: 150
+    example: 150,
   })
   total: number;
 
   @ApiProperty({
     description: 'Number of events returned in this response',
-    example: 50
+    example: 50,
   })
   count: number;
 
   @ApiProperty({
     description: 'Offset used for this query',
-    example: 0
+    example: 0,
   })
   offset: number;
 
   @ApiProperty({
     description: 'Limit used for this query',
-    example: 50
+    example: 50,
   })
   limit: number;
 
   @ApiPropertyOptional({
     description: 'URL for the next page of results',
-    example: '/api/events?offset=50&limit=50'
+    example: '/api/events?offset=50&limit=50',
   })
   nextPage?: string;
 
   @ApiPropertyOptional({
     description: 'URL for the previous page of results',
-    example: '/api/events?offset=0&limit=50'
+    example: '/api/events?offset=0&limit=50',
   })
   previousPage?: string;
 }
@@ -243,19 +250,19 @@ export class EventsResponseDto {
 export class EventStatsDto {
   @ApiProperty({
     description: 'Total number of events',
-    example: 1500
+    example: 1500,
   })
   totalEvents: number;
 
   @ApiProperty({
     description: 'Number of events today',
-    example: 42
+    example: 42,
   })
   eventsToday: number;
 
   @ApiProperty({
     description: 'Number of events in the last hour',
-    example: 5
+    example: 5,
   })
   eventsLastHour: number;
 
@@ -269,8 +276,8 @@ export class EventStatsDto {
       UserPromptSubmit: 200,
       Notification: 100,
       SessionStart: 100,
-      SessionEnd: 100
-    }
+      SessionEnd: 100,
+    },
   })
   eventsByType: Record<string, number>;
 
@@ -281,32 +288,32 @@ export class EventStatsDto {
       type: 'object',
       properties: {
         toolName: { type: 'string' },
-        count: { type: 'number' }
-      }
+        count: { type: 'number' },
+      },
     },
     example: [
       { toolName: 'Read', count: 250 },
       { toolName: 'Write', count: 150 },
-      { toolName: 'Bash', count: 100 }
-    ]
+      { toolName: 'Bash', count: 100 },
+    ],
   })
   topTools: Array<{ toolName: string; count: number }>;
 
   @ApiProperty({
     description: 'Number of unique sessions',
-    example: 25
+    example: 25,
   })
   uniqueSessions: number;
 
   @ApiProperty({
     description: 'Average events per session',
-    example: 60
+    example: 60,
   })
   averageEventsPerSession: number;
 
   @ApiProperty({
     description: 'Error rate (percentage of events with errors)',
-    example: 2.5
+    example: 2.5,
   })
   errorRate: number;
 }
@@ -318,7 +325,7 @@ export class ExportEventsDto {
   @ApiProperty({
     description: 'Export format',
     enum: ['json', 'csv', 'ndjson'],
-    example: 'json'
+    example: 'json',
   })
   @IsEnum(['json', 'csv', 'ndjson'])
   format: 'json' | 'csv' | 'ndjson';
@@ -326,7 +333,7 @@ export class ExportEventsDto {
   @ApiPropertyOptional({
     description: 'Include only specific fields in the export',
     type: [String],
-    example: ['timestamp', 'eventType', 'toolName', 'sessionId']
+    example: ['timestamp', 'eventType', 'toolName', 'sessionId'],
   })
   @IsOptional()
   fields?: string[];
@@ -334,7 +341,7 @@ export class ExportEventsDto {
   @ApiPropertyOptional({
     description: 'Compress the export file',
     default: false,
-    example: true
+    example: true,
   })
   @IsOptional()
   compress?: boolean;

@@ -1,10 +1,22 @@
-import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'fs';
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  unlinkSync,
+  readdirSync,
+  statSync,
+} from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
 import ora from 'ora';
 import { platform } from 'os';
-import { findProcessesOnPort, killProcess, isProcessRunning, killProcessesOnPort } from '../utils/process-utils';
+import {
+  findProcessesOnPort,
+  killProcess,
+  isProcessRunning,
+  killProcessesOnPort,
+} from '../utils/process-utils';
 
 export interface ServerStatus {
   server: {
@@ -39,7 +51,9 @@ export interface ServerStatus {
 const PID_FILE = join(process.cwd(), '.cage', 'server.pid');
 const PORT = 3790;
 
-export async function stopServer(options: { force?: boolean } = {}): Promise<{ success: boolean; message: string }> {
+export async function stopServer(
+  options: { force?: boolean } = {}
+): Promise<{ success: boolean; message: string }> {
   try {
     let pidFromFile: number | undefined;
     let killedFromPid = false;
@@ -73,7 +87,9 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
               if (isProcessRunning(pidFromFile) && !options.force) {
                 return {
                   success: false,
-                  message: chalk.yellow('Server not responding. Try: cage stop --force')
+                  message: chalk.yellow(
+                    'Server not responding. Try: cage stop --force'
+                  ),
                 };
               }
             }
@@ -107,7 +123,9 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
       if (stillRunning.length > 0 && !options.force) {
         return {
           success: false,
-          message: chalk.yellow(`${stillRunning.length} process(es) still using port ${PORT}. Try: cage stop --force`)
+          message: chalk.yellow(
+            `${stillRunning.length} process(es) still using port ${PORT}. Try: cage stop --force`
+          ),
         };
       }
     }
@@ -121,7 +139,7 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
     if (!killedFromPid && killedFromPort === 0) {
       return {
         success: true,
-        message: '🔴 No CAGE server is running'
+        message: '🔴 No CAGE server is running',
       };
     }
 
@@ -131,16 +149,20 @@ export async function stopServer(options: { force?: boolean } = {}): Promise<{ s
 
     const details: string[] = [];
     if (killedFromPid) details.push('PID from file');
-    if (killedFromPort > 0) details.push(`${killedFromPort} orphaned process(es)`);
+    if (killedFromPort > 0)
+      details.push(`${killedFromPort} orphaned process(es)`);
 
     return {
       success: true,
-      message: details.length > 0 ? `${message} (killed: ${details.join(', ')})` : message
+      message:
+        details.length > 0
+          ? `${message} (killed: ${details.join(', ')})`
+          : message,
     };
   } catch (error) {
     return {
       success: false,
-      message: chalk.red(`Error stopping server: ${error}`)
+      message: chalk.red(`Error stopping server: ${error}`),
     };
   }
 }
@@ -150,7 +172,7 @@ export async function getServerStatus(): Promise<ServerStatus> {
     server: { running: false, port: `${PORT} (available)` },
     hooks: { installed: false },
     events: { total: 0 },
-    offline: { count: 0 }
+    offline: { count: 0 },
   };
 
   // Check server status
@@ -173,7 +195,10 @@ export async function getServerStatus(): Promise<ServerStatus> {
       // Check if process is running (cross-platform)
       try {
         if (platform() === 'win32') {
-          execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, { stdio: 'ignore', shell: true });
+          execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, {
+            stdio: 'ignore',
+            shell: true,
+          });
         } else {
           execSync(`kill -0 ${pid}`, { stdio: 'ignore' });
         }
@@ -188,12 +213,13 @@ export async function getServerStatus(): Promise<ServerStatus> {
 
         // Try to get health status
         try {
-          execSync(`curl -s http://localhost:${PORT}/health`, { stdio: 'ignore' });
+          execSync(`curl -s http://localhost:${PORT}/health`, {
+            stdio: 'ignore',
+          });
           status.server.health = 'OK';
         } catch {
           status.server.health = 'Not responding';
         }
-
       } catch {
         // Process not running but PID file exists
         status.server.running = false;
@@ -209,7 +235,10 @@ export async function getServerStatus(): Promise<ServerStatus> {
     try {
       if (platform() === 'win32') {
         // Windows: use netstat to check port
-        const netstatOutput = execSync(`netstat -ano | findstr :${PORT}`, { encoding: 'utf-8', shell: true }).trim();
+        const netstatOutput = execSync(`netstat -ano | findstr :${PORT}`, {
+          encoding: 'utf-8',
+          shell: true,
+        }).trim();
         if (netstatOutput) {
           const lines = netstatOutput.split('\n');
           const firstLine = lines[0];
@@ -221,7 +250,9 @@ export async function getServerStatus(): Promise<ServerStatus> {
         }
       } else {
         // Unix: use lsof
-        const lsofOutput = execSync(`lsof -ti :${PORT}`, { encoding: 'utf-8' }).trim();
+        const lsofOutput = execSync(`lsof -ti :${PORT}`, {
+          encoding: 'utf-8',
+        }).trim();
         if (lsofOutput) {
           const otherPid = parseInt(lsofOutput.split('\n')[0]);
           status.server.warning = `Port ${PORT} is in use by another process (PID: ${otherPid})`;
@@ -253,7 +284,10 @@ export async function getServerStatus(): Promise<ServerStatus> {
             for (const hook of postToolUse) {
               if (hook.hooks && Array.isArray(hook.hooks)) {
                 for (const hookDef of hook.hooks) {
-                  if (hookDef.command && hookDef.command.includes('quality-check')) {
+                  if (
+                    hookDef.command &&
+                    hookDef.command.includes('quality-check')
+                  ) {
                     status.hooks.hasQualityCheck = true;
                     break;
                   }
@@ -264,7 +298,10 @@ export async function getServerStatus(): Promise<ServerStatus> {
           } else if (typeof postToolUse === 'object') {
             // Handle object format
             for (const key of Object.keys(postToolUse)) {
-              if (typeof postToolUse[key] === 'string' && postToolUse[key].includes('quality-check')) {
+              if (
+                typeof postToolUse[key] === 'string' &&
+                postToolUse[key].includes('quality-check')
+              ) {
                 status.hooks.hasQualityCheck = true;
                 break;
               }
@@ -295,7 +332,10 @@ export async function getServerStatus(): Promise<ServerStatus> {
         if (statSync(datePath).isDirectory()) {
           const eventsFile = join(datePath, 'events.jsonl');
           if (existsSync(eventsFile)) {
-            const lines = readFileSync(eventsFile, 'utf-8').trim().split('\n').filter(l => l);
+            const lines = readFileSync(eventsFile, 'utf-8')
+              .trim()
+              .split('\n')
+              .filter(l => l);
             totalEvents += lines.length;
 
             if (dateDir === today) {
@@ -334,7 +374,10 @@ export async function getServerStatus(): Promise<ServerStatus> {
   const offlineLog = join(process.cwd(), '.cage', 'hooks-offline.log');
   if (existsSync(offlineLog)) {
     try {
-      const lines = readFileSync(offlineLog, 'utf-8').trim().split('\n').filter(l => l);
+      const lines = readFileSync(offlineLog, 'utf-8')
+        .trim()
+        .split('\n')
+        .filter(l => l);
       status.offline.count = lines.length;
       status.offline.location = offlineLog;
 
@@ -366,7 +409,7 @@ export function formatStatus(status: ServerStatus): string {
   }
 
   if (status.server.warning) {
-    lines.push(chalk.yellow(`  ${status.server.warning}`))
+    lines.push(chalk.yellow(`  ${status.server.warning}`));
   }
 
   lines.push('');
@@ -374,7 +417,8 @@ export function formatStatus(status: ServerStatus): string {
   // Hooks status
   if (status.hooks.installed) {
     lines.push(chalk.green('Hooks: Installed'));
-    if (status.hooks.location) lines.push(`  Location: ${status.hooks.location}`);
+    if (status.hooks.location)
+      lines.push(`  Location: ${status.hooks.location}`);
     if (status.hooks.count) lines.push(`  Hook Types: ${status.hooks.count}`);
     if (status.hooks.hasQualityCheck) {
       lines.push(chalk.green('  Quality check hook detected'));
@@ -390,8 +434,10 @@ export function formatStatus(status: ServerStatus): string {
   lines.push('Events:');
   if (status.events.total > 0) {
     lines.push(`  Total Captured: ${status.events.total}`);
-    if (status.events.today !== undefined) lines.push(`  Today: ${status.events.today}`);
-    if (status.events.location) lines.push(`  Location: ${status.events.location}`);
+    if (status.events.today !== undefined)
+      lines.push(`  Today: ${status.events.today}`);
+    if (status.events.location)
+      lines.push(`  Location: ${status.events.location}`);
     if (status.events.latest) lines.push(`  Latest: ${status.events.latest}`);
   } else {
     lines.push(`  ${status.events.message || 'No events recorded yet'}`);
@@ -401,8 +447,10 @@ export function formatStatus(status: ServerStatus): string {
   if (status.offline.count > 0) {
     lines.push('');
     lines.push(chalk.yellow(`Offline Logs: ${status.offline.count} entries`));
-    if (status.offline.location) lines.push(`  Location: ${status.offline.location}`);
-    if (status.offline.latestError) lines.push(`  Latest Error: ${status.offline.latestError}`);
+    if (status.offline.location)
+      lines.push(`  Location: ${status.offline.location}`);
+    if (status.offline.latestError)
+      lines.push(`  Latest Error: ${status.offline.latestError}`);
     lines.push(`  Run 'cage logs offline' to view`);
   }
 

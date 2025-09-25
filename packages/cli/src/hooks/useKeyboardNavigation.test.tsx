@@ -2,13 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from 'ink-testing-library';
 import React, { useEffect, useState } from 'react';
 import { Text } from 'ink';
-import { useKeyboardNavigation, KeyboardNavigationProvider } from './useKeyboardNavigation';
-import type { NavigationConfig, NavigationState } from './useKeyboardNavigation';
+import {
+  useKeyboardNavigation,
+  KeyboardNavigationProvider,
+} from './useKeyboardNavigation';
+import type {
+  NavigationConfig,
+  NavigationState,
+} from './useKeyboardNavigation';
 
 // Create a test component that exposes navigation state
 function createTestComponent(config: NavigationConfig) {
   let navState: NavigationState | null = null;
-  let inputSimulator: ((input: string, key?: any) => void) | null = null;
+  const inputSimulator: ((input: string, key?: any) => void) | null = null;
 
   const TestComponent = () => {
     const navigation = useKeyboardNavigation(config);
@@ -21,15 +27,19 @@ function createTestComponent(config: NavigationConfig) {
 
     return (
       <Text>
-        Panel: {navigation.currentPanel || 'none'} |
-        Index: {navigation.currentIndex} |
-        Search: {navigation.searchMode ? 'on' : 'off'} |
-        Filter: {navigation.filterMode ? 'on' : 'off'}
+        Panel: {navigation.currentPanel || 'none'} | Index:{' '}
+        {navigation.currentIndex} | Search:{' '}
+        {navigation.searchMode ? 'on' : 'off'} | Filter:{' '}
+        {navigation.filterMode ? 'on' : 'off'}
       </Text>
     );
   };
 
-  return { TestComponent, getState: () => navState, simulateInput: inputSimulator };
+  return {
+    TestComponent,
+    getState: () => navState,
+    simulateInput: inputSimulator,
+  };
 }
 
 describe('useKeyboardNavigation', () => {
@@ -46,7 +56,7 @@ describe('useKeyboardNavigation', () => {
       const config: NavigationConfig = {
         enableTabSwitching: true,
         panels: ['left', 'right', 'bottom'],
-        currentPanel: 'left'
+        currentPanel: 'left',
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -74,7 +84,7 @@ describe('useKeyboardNavigation', () => {
       const config: NavigationConfig = {
         enableJumpNavigation: true,
         totalItems: 100,
-        currentIndex: 50
+        currentIndex: 50,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -90,7 +100,7 @@ describe('useKeyboardNavigation', () => {
         enableJumpNavigation: true,
         totalItems: 100,
         currentIndex: 0,
-        supportDocumentNavigation: true
+        supportDocumentNavigation: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -105,7 +115,7 @@ describe('useKeyboardNavigation', () => {
   describe('Search Mode', () => {
     it('should initialize with search disabled', () => {
       const config: NavigationConfig = {
-        enableSearch: true
+        enableSearch: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -120,7 +130,7 @@ describe('useKeyboardNavigation', () => {
   describe('Filter Mode', () => {
     it('should initialize with filter disabled', () => {
       const config: NavigationConfig = {
-        enableFilter: true
+        enableFilter: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -135,7 +145,7 @@ describe('useKeyboardNavigation', () => {
   describe('Quit Confirmation', () => {
     it('should initialize without quit confirmation', () => {
       const config: NavigationConfig = {
-        enableQuitConfirmation: true
+        enableQuitConfirmation: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -149,7 +159,7 @@ describe('useKeyboardNavigation', () => {
   describe('Help System', () => {
     it('should initialize with help hidden', () => {
       const config: NavigationConfig = {
-        enableHelp: true
+        enableHelp: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -165,7 +175,7 @@ describe('useKeyboardNavigation', () => {
       const config: NavigationConfig = {
         trackFocus: true,
         focusableElements: ['input', 'button', 'list'],
-        currentFocus: 'input'
+        currentFocus: 'input',
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -180,7 +190,7 @@ describe('useKeyboardNavigation', () => {
     it('should allow setting focus', () => {
       const config: NavigationConfig = {
         trackFocus: true,
-        focusableElements: ['input', 'button', 'list']
+        focusableElements: ['input', 'button', 'list'],
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -201,8 +211,7 @@ describe('useKeyboardNavigation', () => {
         const nav = useKeyboardNavigation();
         return (
           <Text>
-            Panel: {nav.currentPanel || 'main'} |
-            Index: {nav.currentIndex}
+            Panel: {nav.currentPanel || 'main'} | Index: {nav.currentIndex}
           </Text>
         );
       };
@@ -211,7 +220,7 @@ describe('useKeyboardNavigation', () => {
         <KeyboardNavigationProvider
           initialState={{
             currentPanel: 'main',
-            currentIndex: 0
+            currentIndex: 0,
           }}
         >
           <TestComponent />
@@ -256,7 +265,7 @@ describe('useKeyboardNavigation', () => {
       const config: NavigationConfig = {
         enableViBindings: true,
         totalItems: 100,
-        currentIndex: 50
+        currentIndex: 50,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -274,7 +283,7 @@ describe('useKeyboardNavigation', () => {
         enableAccessibility: true,
         onAnnounce,
         totalItems: 10,
-        currentIndex: 0
+        currentIndex: 0,
       };
 
       const { TestComponent } = createTestComponent(config);
@@ -289,7 +298,7 @@ describe('useKeyboardNavigation', () => {
   describe('State Methods', () => {
     it('should expose setFocus method', () => {
       const config: NavigationConfig = {
-        trackFocus: true
+        trackFocus: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);
@@ -302,7 +311,7 @@ describe('useKeyboardNavigation', () => {
 
     it('should expose hasFocus method', () => {
       const config: NavigationConfig = {
-        trackFocus: true
+        trackFocus: true,
       };
 
       const { TestComponent, getState } = createTestComponent(config);

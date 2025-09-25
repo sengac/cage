@@ -24,12 +24,15 @@ describe('HooksStatusCommand', () => {
     process.chdir(testDir);
 
     // Create cage.config.json
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      port: 3790,
-      host: 'localhost',
-      enabled: true,
-      logLevel: 'info'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        port: 3790,
+        host: 'localhost',
+        enabled: true,
+        logLevel: 'info',
+      })
+    );
 
     // Create .cage directory
     await mkdir(join(testDir, '.cage'), { recursive: true });
@@ -46,7 +49,7 @@ describe('HooksStatusCommand', () => {
       maxEventSize: 1048576,
       enableMetrics: false,
       enableOfflineMode: true,
-      offlineLogPath: '.cage/hooks-offline.log'
+      offlineLogPath: '.cage/hooks-offline.log',
     });
 
     vi.mocked(hooksInstaller.getLocalClaudeSettingsPath).mockReturnValue(
@@ -69,9 +72,10 @@ describe('HooksStatusCommand', () => {
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({
         PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
         PostToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/posttooluse.mjs',
-        UserPromptSubmit: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/userpromptsubmit.mjs',
+        UserPromptSubmit:
+          '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/userpromptsubmit.mjs',
         Stop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/stop.mjs',
-        SubagentStop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/subagentstop.mjs'
+        SubagentStop: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/subagentstop.mjs',
       });
 
       // When
@@ -152,7 +156,7 @@ describe('HooksStatusCommand', () => {
     it('Given some hooks are missing When I run cage hooks status Then it suggests running setup', async () => {
       // Setup - partial hooks installed
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({
-        PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs'
+        PreToolUse: '$CLAUDE_PROJECT_DIR/.claude/hooks/cage/pretooluse.mjs',
       });
 
       // When
@@ -170,17 +174,21 @@ describe('HooksStatusCommand', () => {
       const output = component!.lastFrame();
       expect(output).toContain('Installed Hooks (1/9)');
       expect(output).toContain('Missing Hooks:');
-      expect(output).toContain('Run "cage hooks setup" to install missing hooks');
+      expect(output).toContain(
+        'Run "cage hooks setup" to install missing hooks'
+      );
     });
   });
 
   describe('Display requirements', () => {
     it('should display loading spinner while checking status', async () => {
       // Setup - delay the mock to see loading state
-      vi.mocked(hooksInstaller.getInstalledHooksLocally).mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return {};
-      });
+      vi.mocked(hooksInstaller.getInstalledHooksLocally).mockImplementation(
+        async () => {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          return {};
+        }
+      );
 
       // When
       const component = render(<HooksStatusCommand />);
@@ -225,7 +233,7 @@ describe('HooksStatusCommand', () => {
         maxEventSize: 1048576,
         enableMetrics: false,
         enableOfflineMode: true,
-        offlineLogPath: '.cage/hooks-offline.log'
+        offlineLogPath: '.cage/hooks-offline.log',
       });
 
       vi.mocked(hooksInstaller.getInstalledHooksLocally).mockResolvedValue({});

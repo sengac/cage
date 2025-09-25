@@ -18,17 +18,14 @@ export const API_ENDPOINTS = {
     status: '/claude/hooks/status',
     events: '/claude/events',
     eventsStream: '/claude/events/stream',
-    eventsStats: '/claude/events/stats'
-  }
+    eventsStats: '/claude/events/stats',
+  },
 } as const;
 
 /**
  * Helper function to build full endpoint URL
  */
-export function buildEndpointUrl(
-  baseUrl: string,
-  endpoint: string
-): string {
+export function buildEndpointUrl(baseUrl: string, endpoint: string): string {
   // Ensure baseUrl doesn't end with slash and endpoint starts with slash
   const cleanBase = baseUrl.replace(/\/$/, '');
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -48,7 +45,7 @@ export function getHookEndpoint(hookType: string): string | undefined {
     SubagentStop: API_ENDPOINTS.claude.subagentStop,
     SessionStart: API_ENDPOINTS.claude.sessionStart,
     SessionEnd: API_ENDPOINTS.claude.sessionEnd,
-    PreCompact: API_ENDPOINTS.claude.preCompact
+    PreCompact: API_ENDPOINTS.claude.preCompact,
   };
 
   return hookToEndpoint[hookType];

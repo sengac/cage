@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'http';
 import { AppModule } from '../../src/app.module';
@@ -18,7 +18,7 @@ describe('Feature: Backend Event Processing - PreToolUse', () => {
 
     // Set global prefix like in main.ts
     app.setGlobalPrefix('api', {
-      exclude: ['/health']
+      exclude: ['/health'],
     });
     await app.init();
     httpServer = app.getHttpServer();
@@ -38,8 +38,8 @@ describe('Feature: Backend Event Processing - PreToolUse', () => {
         timestamp: '2025-01-15T10:00:00Z',
         toolName: 'Read',
         arguments: {
-          file_path: '/test/file.js'
-        }
+          file_path: '/test/file.js',
+        },
       };
 
       const startTime = Date.now();

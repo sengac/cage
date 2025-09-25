@@ -10,7 +10,7 @@ vi.mock('ink', () => ({
   Box: ({ children }: any) => children,
   Text: ({ children }: any) => children,
   useInput: vi.fn(),
-  useStdout: () => ({ stdout: { columns: 80, rows: 24 } })
+  useStdout: () => ({ stdout: { columns: 80, rows: 24 } }),
 }));
 
 describe('ViewManager Navigation', () => {
@@ -34,17 +34,17 @@ describe('ViewManager Navigation', () => {
       component: TestView1,
       metadata: {
         title: 'Main Menu',
-        showDefaultFooter: true
-      }
+        showDefaultFooter: true,
+      },
     },
     secondary: {
       id: 'secondary',
       component: TestView2,
       metadata: {
         title: 'Secondary View',
-        showDefaultFooter: true
-      }
-    }
+        showDefaultFooter: true,
+      },
+    },
   };
 
   beforeEach(() => {
@@ -64,11 +64,7 @@ describe('ViewManager Navigation', () => {
      */
     it('AC-1: Should handle ESC key exactly once through FullScreenLayout', () => {
       const { rerender } = render(
-        <ViewManager
-          views={testViews}
-          initialView="main"
-          onExit={mockExit}
-        />
+        <ViewManager views={testViews} initialView="main" onExit={mockExit} />
       );
 
       // Simulate navigating to secondary view
@@ -81,13 +77,11 @@ describe('ViewManager Navigation', () => {
       navigateHandler?.('', { escape: true });
 
       // Should not crash with "undefined" view error
-      expect(() => rerender(
-        <ViewManager
-          views={testViews}
-          initialView="main"
-          onExit={mockExit}
-        />
-      )).not.toThrow();
+      expect(() =>
+        rerender(
+          <ViewManager views={testViews} initialView="main" onExit={mockExit} />
+        )
+      ).not.toThrow();
     });
 
     /**
@@ -99,11 +93,7 @@ describe('ViewManager Navigation', () => {
      */
     it('AC-2: Should navigate forward correctly', async () => {
       const { container } = render(
-        <ViewManager
-          views={testViews}
-          initialView="main"
-          onExit={mockExit}
-        />
+        <ViewManager views={testViews} initialView="main" onExit={mockExit} />
       );
 
       expect(container.textContent).toContain('Test View 1');
@@ -120,11 +110,7 @@ describe('ViewManager Navigation', () => {
      */
     it('AC-3: Should maintain navigation history correctly', () => {
       const { rerender } = render(
-        <ViewManager
-          views={testViews}
-          initialView="main"
-          onExit={mockExit}
-        />
+        <ViewManager views={testViews} initialView="main" onExit={mockExit} />
       );
 
       // Test multiple navigations and back
@@ -140,11 +126,7 @@ describe('ViewManager Navigation', () => {
      */
     it('AC-4: Should exit from main menu', () => {
       render(
-        <ViewManager
-          views={testViews}
-          initialView="main"
-          onExit={mockExit}
-        />
+        <ViewManager views={testViews} initialView="main" onExit={mockExit} />
       );
 
       const inputHandler = mockUseInput.mock.calls[0]?.[0];
@@ -172,17 +154,15 @@ describe('ViewManager Navigation', () => {
         bad: {
           id: 'bad',
           component: BadView,
-          metadata: { title: 'Bad' }
-        }
+          metadata: { title: 'Bad' },
+        },
       };
 
-      expect(() => render(
-        <ViewManager
-          views={badViews}
-          initialView="bad"
-          onExit={mockExit}
-        />
-      )).toThrow('Cannot navigate to unknown view: nonexistent');
+      expect(() =>
+        render(
+          <ViewManager views={badViews} initialView="bad" onExit={mockExit} />
+        )
+      ).toThrow('Cannot navigate to unknown view: nonexistent');
     });
 
     /**
@@ -197,11 +177,7 @@ describe('ViewManager Navigation', () => {
       // We'll verify this by checking that only FullScreenLayout registers handlers
 
       render(
-        <ViewManager
-          views={testViews}
-          initialView="main"
-          onExit={mockExit}
-        />
+        <ViewManager views={testViews} initialView="main" onExit={mockExit} />
       );
 
       // Should only have one useInput call (from FullScreenLayout)

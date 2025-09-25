@@ -13,8 +13,12 @@ describe('Logger', () => {
   beforeEach(() => {
     // Mock console methods since we shouldn't use console in production
     // but the logger needs to output somewhere during tests
-    consoleLogSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    consoleErrorSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    consoleLogSpy = vi
+      .spyOn(process.stdout, 'write')
+      .mockImplementation(() => true);
+    consoleErrorSpy = vi
+      .spyOn(process.stderr, 'write')
+      .mockImplementation(() => true);
     consoleWarnSpy = consoleErrorSpy; // Both warn and error use stderr
     logger = new Logger();
   });

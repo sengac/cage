@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { CageConfig, CageConfigSchema } from '@cage/shared';
+import { type CageConfig, CageConfigSchema } from '@cage/shared';
 
 export async function loadCageConfig(): Promise<CageConfig | null> {
   const configPath = join(process.cwd(), 'cage.config.json');

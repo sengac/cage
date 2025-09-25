@@ -7,9 +7,9 @@ vi.mock('../../hooks/useTheme', () => ({
   useTheme: () => ({
     ui: {
       borderSubtle: 'gray',
-      textDim: 'dimColor'
-    }
-  })
+      textDim: 'dimColor',
+    },
+  }),
 }));
 
 describe('Footer Component', () => {
@@ -35,9 +35,7 @@ describe('Footer Component', () => {
   });
 
   it('should render custom content string', () => {
-    const { lastFrame } = render(
-      <Footer content="Custom footer content" />
-    );
+    const { lastFrame } = render(<Footer content="Custom footer content" />);
 
     expect(lastFrame()).toContain('Custom footer content');
     expect(lastFrame()).not.toContain('Navigate');
@@ -46,18 +44,14 @@ describe('Footer Component', () => {
   it('should render custom React element', () => {
     const CustomContent = () => <span>Custom React Footer</span>;
 
-    const { lastFrame } = render(
-      <Footer content={<CustomContent />} />
-    );
+    const { lastFrame } = render(<Footer content={<CustomContent />} />);
 
     expect(lastFrame()).toContain('Custom React Footer');
     expect(lastFrame()).not.toContain('Navigate');
   });
 
   it('should not show defaults when showDefaults is false', () => {
-    const { lastFrame } = render(
-      <Footer showDefaults={false} />
-    );
+    const { lastFrame } = render(<Footer showDefaults={false} />);
 
     const output = lastFrame();
     expect(output).not.toContain('Navigate');
@@ -67,10 +61,7 @@ describe('Footer Component', () => {
 
   it('should show custom content over defaults', () => {
     const { lastFrame } = render(
-      <Footer
-        content="Override content"
-        showDefaults={true}
-      />
+      <Footer content="Override content" showDefaults={true} />
     );
 
     expect(lastFrame()).toContain('Override content');
@@ -78,9 +69,7 @@ describe('Footer Component', () => {
   });
 
   it('should render nothing when no content and showDefaults is false', () => {
-    const { lastFrame } = render(
-      <Footer showDefaults={false} />
-    );
+    const { lastFrame } = render(<Footer showDefaults={false} />);
 
     // Should still have the border box but no content
     const output = lastFrame();

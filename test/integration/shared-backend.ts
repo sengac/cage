@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import { mkdtemp, rm, mkdir, writeFile, readFile } from 'fs/promises';
 import { rmSync, existsSync, writeFileSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
@@ -14,7 +14,10 @@ export const BACKEND_PORT = 3790;
 const LOCK_FILE = join(tmpdir(), 'cage-integration-backend.lock');
 const INFO_FILE = join(tmpdir(), 'cage-integration-backend.json');
 
-export async function getSharedBackend(): Promise<{ port: number; testDir: string }> {
+export async function getSharedBackend(): Promise<{
+  port: number;
+  testDir: string;
+}> {
   // Check if we already have it in this process
   if (sharedBackendProcess && sharedTestDir) {
     return { port: BACKEND_PORT, testDir: sharedTestDir };
@@ -119,16 +122,18 @@ async function startBackendProcess(): Promise<void> {
   const __dirname = dirname(__filename);
   const projectRoot = join(__dirname, '..', '..');
 
-  sharedBackendProcess = spawn('node', [
-    join(projectRoot, 'packages/backend/dist/main.js')
-  ], {
-    env: {
-      ...process.env,
-      PORT: BACKEND_PORT.toString(),
-      TEST_BASE_DIR: sharedTestDir
-    },
-    stdio: ['pipe', 'pipe', 'pipe']
-  });
+  sharedBackendProcess = spawn(
+    'node',
+    [join(projectRoot, 'packages/backend/dist/main.js')],
+    {
+      env: {
+        ...process.env,
+        PORT: BACKEND_PORT.toString(),
+        TEST_BASE_DIR: sharedTestDir,
+      },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }
+  );
 
   // Wait for backend to be ready
   await new Promise<void>((resolve, reject) => {
@@ -137,7 +142,7 @@ async function startBackendProcess(): Promise<void> {
     }, 10000);
 
     if (sharedBackendProcess?.stdout) {
-      sharedBackendProcess.stdout.on('data', (data) => {
+      sharedBackendProcess.stdout.on('data', data => {
         if (data.toString().includes('Nest application successfully started')) {
           clearTimeout(timeout);
           resolve();
@@ -146,7 +151,7 @@ async function startBackendProcess(): Promise<void> {
     }
 
     if (sharedBackendProcess?.stderr) {
-      sharedBackendProcess.stderr.on('data', (data) => {
+      sharedBackendProcess.stderr.on('data', data => {
         const message = data.toString();
         console.error('Shared backend stderr:', message);
         if (message.includes('EADDRINUSE')) {
@@ -156,7 +161,7 @@ async function startBackendProcess(): Promise<void> {
     }
 
     // Also handle process exit
-    sharedBackendProcess?.on('exit', (code) => {
+    sharedBackendProcess?.on('exit', code => {
       if (code !== 0) {
         reject(new Error(`Backend process exited with code ${code}`));
       }
@@ -178,10 +183,13 @@ async function initializeBackend(): Promise<void> {
     sharedTestDir = await mkdtemp(join(tmpdir(), 'cage-shared-integration-'));
 
     // Create cage config in test directory
-    await writeFile(join(sharedTestDir, 'cage.config.json'), JSON.stringify({
-      port: BACKEND_PORT,
-      logLevel: 'info'
-    }));
+    await writeFile(
+      join(sharedTestDir, 'cage.config.json'),
+      JSON.stringify({
+        port: BACKEND_PORT,
+        logLevel: 'info',
+      })
+    );
 
     // Create .cage directory structure
     await mkdir(join(sharedTestDir, '.cage'), { recursive: true });
@@ -190,7 +198,10 @@ async function initializeBackend(): Promise<void> {
     // Start the backend
     await startBackendProcess();
 
-    console.log('SHARED backend server started successfully on port', BACKEND_PORT);
+    console.log(
+      'SHARED backend server started successfully on port',
+      BACKEND_PORT
+    );
 
     // NOTE: We don't register cleanup handlers here because this is a SHARED backend
     // that should stay alive across multiple test files. Vitest will handle cleanup
@@ -207,7 +218,7 @@ async function initializeBackend(): Promise<void> {
 async function checkBackendHealth(): Promise<boolean> {
   try {
     const response = await fetch(`http://localhost:${BACKEND_PORT}/health`, {
-      signal: AbortSignal.timeout(2000) // 2 second timeout
+      signal: AbortSignal.timeout(2000), // 2 second timeout
     });
     if (response.ok) {
       const data = await response.json();
@@ -238,7 +249,10 @@ async function waitForBackendHealth(): Promise<void> {
   throw new Error(`Backend health check failed after ${maxAttempts} attempts`);
 }
 
-async function acquireLockAndStartBackend(): Promise<{ port: number; testDir: string }> {
+async function acquireLockAndStartBackend(): Promise<{
+  port: number;
+  testDir: string;
+}> {
   const maxRetries = 10;
   const retryDelay = 1000; // 1 second
 
@@ -248,7 +262,9 @@ async function acquireLockAndStartBackend(): Promise<{ port: number; testDir: st
       writeFileSync(LOCK_FILE, process.pid.toString(), { flag: 'wx' });
 
       // We got the lock! Start the backend
-      console.log(`Process ${process.pid} acquired lock, starting shared backend...`);
+      console.log(
+        `Process ${process.pid} acquired lock, starting shared backend...`
+      );
 
       try {
         await initializeBackend();
@@ -258,7 +274,7 @@ async function acquireLockAndStartBackend(): Promise<{ port: number; testDir: st
           port: BACKEND_PORT,
           testDir: sharedTestDir,
           pid: process.pid,
-          startTime: Date.now()
+          startTime: Date.now(),
         };
         writeFileSync(INFO_FILE, JSON.stringify(info));
 
@@ -271,7 +287,9 @@ async function acquireLockAndStartBackend(): Promise<{ port: number; testDir: st
     } catch (error) {
       // Lock file already exists, wait and retry
       if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
-        console.log(`Process ${process.pid} waiting for backend (attempt ${attempt}/${maxRetries})...`);
+        console.log(
+          `Process ${process.pid} waiting for backend (attempt ${attempt}/${maxRetries})...`
+        );
 
         // Wait and check if backend is available
         await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -283,7 +301,9 @@ async function acquireLockAndStartBackend(): Promise<{ port: number; testDir: st
             const isHealthy = await checkBackendHealth();
             if (isHealthy) {
               sharedTestDir = info.testDir;
-              console.log(`Process ${process.pid} using backend started by process ${info.pid}`);
+              console.log(
+                `Process ${process.pid} using backend started by process ${info.pid}`
+              );
               return { port: BACKEND_PORT, testDir: info.testDir };
             }
           } catch (e) {
@@ -296,7 +316,9 @@ async function acquireLockAndStartBackend(): Promise<{ port: number; testDir: st
     }
   }
 
-  throw new Error(`Failed to acquire backend lock after ${maxRetries} attempts`);
+  throw new Error(
+    `Failed to acquire backend lock after ${maxRetries} attempts`
+  );
 }
 
 function cleanupSharedBackend(): void {

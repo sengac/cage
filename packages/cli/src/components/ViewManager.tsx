@@ -5,7 +5,7 @@ import type {
   ViewMetadata,
   ViewProps,
   ViewDefinition,
-  ViewContextValue
+  ViewContextValue,
 } from '../types/viewSystem';
 
 /**
@@ -45,17 +45,23 @@ interface ViewManagerProps {
 export const ViewManager: React.FC<ViewManagerProps> = ({
   views,
   initialView,
-  onExit
+  onExit,
 }) => {
   const [history, setHistory] = useState<string[]>([initialView]);
-  const [metadataOverrides, setMetadataOverrides] = useState<Partial<ViewMetadata>>({});
+  const [metadataOverrides, setMetadataOverrides] = useState<
+    Partial<ViewMetadata>
+  >({});
 
   const currentView = history[history.length - 1];
 
   // Use effect to handle invalid states
   React.useEffect(() => {
     if (!currentView || !views[currentView]) {
-      console.error('Invalid view state:', { currentView, history, views: Object.keys(views) });
+      console.error('Invalid view state:', {
+        currentView,
+        history,
+        views: Object.keys(views),
+      });
       // Fallback to initial view if something goes wrong
       if (initialView && views[initialView]) {
         setHistory([initialView]);
@@ -67,16 +73,21 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
   const viewDef = views[currentView] || views[initialView];
 
   if (!viewDef) {
-    throw new Error(`View "${currentView}" not found in views. History: ${JSON.stringify(history)}`);
+    throw new Error(
+      `View "${currentView}" not found in views. History: ${JSON.stringify(history)}`
+    );
   }
 
-  const navigate = useCallback((viewId: string) => {
-    if (!views[viewId]) {
-      throw new Error(`Cannot navigate to unknown view: ${viewId}`);
-    }
-    setHistory(prev => [...prev, viewId]);
-    setMetadataOverrides({}); // Clear overrides when navigating
-  }, [views]);
+  const navigate = useCallback(
+    (viewId: string) => {
+      if (!views[viewId]) {
+        throw new Error(`Cannot navigate to unknown view: ${viewId}`);
+      }
+      setHistory(prev => [...prev, viewId]);
+      setMetadataOverrides({}); // Clear overrides when navigating
+    },
+    [views]
+  );
 
   const goBack = useCallback(() => {
     // Check current history length before updating
@@ -99,7 +110,7 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
   // Merge static metadata with dynamic overrides
   const currentMetadata: ViewMetadata = {
     ...viewDef.metadata,
-    ...metadataOverrides
+    ...metadataOverrides,
   };
 
   const contextValue: ViewContextValue = {
@@ -108,7 +119,7 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
     navigate,
     goBack,
     updateMetadata,
-    history
+    history,
   };
 
   const ViewComponent = viewDef.component;
@@ -116,7 +127,7 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
   const viewProps: ViewProps = {
     onNavigate: navigate,
     onBack: goBack,
-    updateMetadata
+    updateMetadata,
   };
 
   // Handle back navigation if the view doesn't have a custom handler

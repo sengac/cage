@@ -5,7 +5,7 @@ import { Header } from './Header';
 import { useAppStore } from '../../stores/appStore';
 
 vi.mock('../../stores/appStore', () => ({
-  useAppStore: vi.fn()
+  useAppStore: vi.fn(),
 }));
 
 vi.mock('../../hooks/useTheme', () => ({
@@ -13,17 +13,17 @@ vi.mock('../../hooks/useTheme', () => ({
     ui: {
       borderSubtle: 'gray',
       textMuted: 'gray',
-      textDim: 'dimColor'
+      textDim: 'dimColor',
     },
     secondary: {
-      blue: 'blue'
+      blue: 'blue',
     },
     status: {
       success: 'green',
       error: 'red',
-      warning: 'yellow'
-    }
-  })
+      warning: 'yellow',
+    },
+  }),
 }));
 
 describe('Header Component', () => {

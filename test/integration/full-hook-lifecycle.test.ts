@@ -3,7 +3,11 @@ import { spawn } from 'child_process';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { getSharedBackend, resetBackendState, BACKEND_PORT } from './shared-backend';
+import {
+  getSharedBackend,
+  resetBackendState,
+  BACKEND_PORT,
+} from './shared-backend';
 
 /**
  * Integration Test: Full Hook Lifecycle
@@ -30,7 +34,7 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
     'notification',
     'pre-compact',
     'stop',
-    'subagent-stop'
+    'subagent-stop',
   ] as const;
 
   beforeAll(async () => {
@@ -57,14 +61,17 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
     await mkdir(join(testDir, '.cage/events'), { recursive: true });
 
     // Create cage config in our test directory
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      port: backendPort,
-      logLevel: 'info'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        port: backendPort,
+        logLevel: 'info',
+      })
+    );
   });
 
   describe('All 10 Hook Types', () => {
-    ALL_HOOK_TYPES.forEach((hookType) => {
+    ALL_HOOK_TYPES.forEach(hookType => {
       it(`should capture and log ${hookType} hook event`, async () => {
         // Arrange: Create test payload for this hook type
         const sessionId = `test-session-${Date.now()}`;
@@ -73,29 +80,33 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
         // Add sessionId to the payload that's sent to the hook handler
         const payloadWithSessionId = {
           ...testPayload,
-          sessionId
+          sessionId,
         };
 
         // Act: Trigger hook via hook handler
-        const hookHandler = spawn('node', [
-          join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
-          hookType
-        ], {
-          cwd: testDir, // Set working directory to test directory so it finds cage.config.json
-          env: {
-            ...process.env,
-            TEST_BASE_DIR: testDir,
-            CLAUDE_PROJECT_DIR: testDir
+        const hookHandler = spawn(
+          'node',
+          [
+            join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
+            hookType,
+          ],
+          {
+            cwd: testDir, // Set working directory to test directory so it finds cage.config.json
+            env: {
+              ...process.env,
+              TEST_BASE_DIR: testDir,
+              CLAUDE_PROJECT_DIR: testDir,
+            },
           }
-        });
+        );
 
         // Send payload with sessionId to hook handler
         hookHandler.stdin.write(JSON.stringify(payloadWithSessionId));
         hookHandler.stdin.end();
 
         // Wait for hook handler to complete
-        const exitCode = await new Promise<number>((resolve) => {
-          hookHandler.on('exit', (code) => resolve(code || 0));
+        const exitCode = await new Promise<number>(resolve => {
+          hookHandler.on('exit', code => resolve(code || 0));
         });
 
         // Assert: Hook handler should succeed
@@ -104,22 +115,32 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
         // Assert: Event should be logged to file system
         // (no wait needed - if hook handler exited successfully, the file write is complete)
         const today = new Date().toISOString().split('T')[0];
-        const eventsFile = join(sharedTestDir, '.cage/events', today, 'events.jsonl');
+        const eventsFile = join(
+          sharedTestDir,
+          '.cage/events',
+          today,
+          'events.jsonl'
+        );
 
         expect(existsSync(eventsFile)).toBe(true);
 
         // Assert: Event content should be correct
         const logContent = await readFile(eventsFile, 'utf-8');
-        const loggedEvents = logContent.trim().split('\n').map(line => JSON.parse(line));
+        const loggedEvents = logContent
+          .trim()
+          .split('\n')
+          .map(line => JSON.parse(line));
 
         // Filter events for this specific sessionId (since file is shared)
-        const sessionEvents = loggedEvents.filter(event => event.sessionId === sessionId);
+        const sessionEvents = loggedEvents.filter(
+          event => event.sessionId === sessionId
+        );
         expect(sessionEvents).toHaveLength(1);
 
         const loggedEvent = sessionEvents[0];
         const expectedEvent: Record<string, unknown> = {
           eventType: hookTypeToEventType(hookType),
-          sessionId
+          sessionId,
         };
 
         // Add hook-specific fields based on type
@@ -151,14 +172,16 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
         expect(loggedEvent).toMatchObject(expectedEvent);
 
         // Assert: Event should be queryable via API with sessionId
-        const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=10`);
+        const response = await fetch(
+          `http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=10`
+        );
         expect(response.ok).toBe(true);
 
         const { events } = await response.json();
         expect(events).toHaveLength(1);
         expect(events[0]).toMatchObject({
           eventType: hookTypeToEventType(hookType),
-          sessionId
+          sessionId,
         });
       });
     });
@@ -167,7 +190,12 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
   describe('Event Persistence and Querying', () => {
     it('should capture multiple events from a session', async () => {
       const sessionId = `test-session-${Date.now()}`;
-      const hookTypes = ['session-start', 'pre-tool-use', 'post-tool-use', 'stop'] as const;
+      const hookTypes = [
+        'session-start',
+        'pre-tool-use',
+        'post-tool-use',
+        'stop',
+      ] as const;
 
       // Send all events with unique timestamps in payload
       const promises = hookTypes.map((hookType, index) => {
@@ -176,23 +204,27 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
         // Add sequence number to verify we got all events
         payload.sequenceNumber = index;
 
-        const hookHandler = spawn('node', [
-          join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
-          hookType
-        ], {
-          cwd: testDir,
-          env: {
-            ...process.env,
-            TEST_BASE_DIR: testDir,
-            CLAUDE_PROJECT_DIR: testDir
+        const hookHandler = spawn(
+          'node',
+          [
+            join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
+            hookType,
+          ],
+          {
+            cwd: testDir,
+            env: {
+              ...process.env,
+              TEST_BASE_DIR: testDir,
+              CLAUDE_PROJECT_DIR: testDir,
+            },
           }
-        });
+        );
 
         hookHandler.stdin.write(JSON.stringify(payload));
         hookHandler.stdin.end();
 
-        return new Promise<number>((resolve) => {
-          hookHandler.on('exit', (code) => resolve(code || 0));
+        return new Promise<number>(resolve => {
+          hookHandler.on('exit', code => resolve(code || 0));
         });
       });
 
@@ -202,7 +234,9 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
 
       // Query events and verify we got them all
       // (no wait needed - if all hook handlers exited successfully, all file writes are complete)
-      const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=10`);
+      const response = await fetch(
+        `http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=10`
+      );
       expect(response.ok).toBe(true);
 
       const { events } = await response.json();
@@ -224,23 +258,27 @@ describe('Integration: Full Hook Lifecycle', { concurrent: false }, () => {
       const payload = createTestPayload('pre-tool-use');
       payload.sessionId = sessionId; // Add sessionId to the payload
 
-      const hookHandler = spawn('node', [
-        join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
-        'pre-tool-use'
-      ], {
-        cwd: testDir,
-        env: {
-          ...process.env,
-          TEST_BASE_DIR: testDir,
-          CLAUDE_PROJECT_DIR: testDir
+      const hookHandler = spawn(
+        'node',
+        [
+          join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
+          'pre-tool-use',
+        ],
+        {
+          cwd: testDir,
+          env: {
+            ...process.env,
+            TEST_BASE_DIR: testDir,
+            CLAUDE_PROJECT_DIR: testDir,
+          },
         }
-      });
+      );
 
       hookHandler.stdin.write(JSON.stringify(payload));
       hookHandler.stdin.end();
 
-      const exitCode = await new Promise<number>((resolve) => {
-        hookHandler.on('exit', (code) => resolve(code || 0));
+      const exitCode = await new Promise<number>(resolve => {
+        hookHandler.on('exit', code => resolve(code || 0));
       });
 
       expect(exitCode).toBe(0);
@@ -270,7 +308,7 @@ interface TestPayload {
   // User Prompt Submit
   prompt?: string;
   context?: {
-    previousMessages?: Array<{ role: string; content: string; }>;
+    previousMessages?: Array<{ role: string; content: string }>;
     currentFile?: string;
   };
   // Session Start/End
@@ -297,7 +335,7 @@ interface TestPayload {
 
 function createTestPayload(hookType: string): TestPayload {
   const basePayload = {
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
     // sessionId will be added by the test
   };
 
@@ -306,7 +344,7 @@ function createTestPayload(hookType: string): TestPayload {
       return {
         ...basePayload,
         toolName: 'Read',
-        arguments: { file_path: '/test.txt' }
+        arguments: { file_path: '/test.txt' },
       };
 
     case 'post-tool-use':
@@ -315,7 +353,7 @@ function createTestPayload(hookType: string): TestPayload {
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
         result: { content: 'test file content' },
-        executionTime: 150
+        executionTime: 150,
       };
 
     case 'user-prompt-submit':
@@ -325,10 +363,10 @@ function createTestPayload(hookType: string): TestPayload {
         context: {
           previousMessages: [
             { role: 'user', content: 'Hello' },
-            { role: 'assistant', content: 'Hi there!' }
+            { role: 'assistant', content: 'Hi there!' },
           ],
-          currentFile: '/test.js'
-        }
+          currentFile: '/test.js',
+        },
       };
 
     case 'session-start':
@@ -338,8 +376,8 @@ function createTestPayload(hookType: string): TestPayload {
         environment: {
           nodeVersion: process.version,
           platform: process.platform,
-          cwd: process.cwd()
-        }
+          cwd: process.cwd(),
+        },
       };
 
     case 'session-end':
@@ -350,15 +388,15 @@ function createTestPayload(hookType: string): TestPayload {
           toolsUsed: ['Read', 'Write'],
           filesModified: ['/test.js'],
           errors: 0,
-          warnings: 2
-        }
+          warnings: 2,
+        },
       };
 
     case 'notification':
       return {
         ...basePayload,
         level: 'info',
-        message: 'Test notification'
+        message: 'Test notification',
       };
 
     case 'pre-compact':
@@ -366,14 +404,14 @@ function createTestPayload(hookType: string): TestPayload {
         ...basePayload,
         reason: 'conversation_length',
         currentTokenCount: 5000,
-        maxTokenCount: 10000
+        maxTokenCount: 10000,
       };
 
     case 'stop':
       return {
         ...basePayload,
         reason: 'completed',
-        finalState: { tasksCompleted: 5 }
+        finalState: { tasksCompleted: 5 },
       };
 
     case 'subagent-stop':
@@ -384,8 +422,8 @@ function createTestPayload(hookType: string): TestPayload {
         result: {
           success: true,
           output: 'Task completed successfully',
-          metrics: { duration: 1500 }
-        }
+          metrics: { duration: 1500 },
+        },
       };
 
     default:

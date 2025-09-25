@@ -56,7 +56,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   showTimestamps = false,
   showDependencies = false,
   showAssignees = false,
-  showTags = false
+  showTags = false,
 }) => {
   const [spinnerIndex, setSpinnerIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -117,7 +117,9 @@ export const TaskList: React.FC<TaskListProps> = ({
   };
 
   const truncateText = (text: string, maxLength: number): string => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + '...'
+      : text;
   };
 
   const filterTasks = (tasks: Task[]): Task[] => {
@@ -142,14 +144,25 @@ export const TaskList: React.FC<TaskListProps> = ({
           const priorityOrder = { high: 0, medium: 1, low: 2 };
           return priorityOrder[a.priority] - priorityOrder[b.priority];
         case 'status':
-          const statusOrder = { completed: 0, in_progress: 1, pending: 2, blocked: 3 };
+          const statusOrder = {
+            completed: 0,
+            in_progress: 1,
+            pending: 2,
+            blocked: 3,
+          };
           return statusOrder[a.status] - statusOrder[b.status];
         case 'progress':
           return b.progress - a.progress;
         case 'created':
-          return new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime();
+          return (
+            new Date(a.createdAt || '').getTime() -
+            new Date(b.createdAt || '').getTime()
+          );
         case 'updated':
-          return new Date(b.updatedAt || '').getTime() - new Date(a.updatedAt || '').getTime();
+          return (
+            new Date(b.updatedAt || '').getTime() -
+            new Date(a.updatedAt || '').getTime()
+          );
         default:
           return 0;
       }
@@ -181,7 +194,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       pending: tasks.filter(t => t.status === 'pending').length,
       inProgress: tasks.filter(t => t.status === 'in_progress').length,
       completed: tasks.filter(t => t.status === 'completed').length,
-      blocked: tasks.filter(t => t.status === 'blocked').length
+      blocked: tasks.filter(t => t.status === 'blocked').length,
     };
   };
 
@@ -195,17 +208,20 @@ export const TaskList: React.FC<TaskListProps> = ({
     const priorityIcon = getPriorityIcon(task.priority);
     const textColor = isSelected ? appTheme.ui.hover : appTheme.ui.text;
 
-    const taskContent = layout === 'minimal'
-      ? truncateText(task.content, 30)
-      : layout === 'compact'
-      ? truncateText(task.content, 50)
-      : task.content;
+    const taskContent =
+      layout === 'minimal'
+        ? truncateText(task.content, 30)
+        : layout === 'compact'
+          ? truncateText(task.content, 50)
+          : task.content;
 
     // For simple layout, just return Text (ResizeAwareList will wrap it)
     if (layout === 'minimal') {
       return (
         <Text color={textColor}>
-          {prefix}{showIds && `#${task.id} `}{priorityIcon} {statusIcon} {taskContent}
+          {prefix}
+          {showIds && `#${task.id} `}
+          {priorityIcon} {statusIcon} {taskContent}
           {task.duration && ` (${formatDuration(task.duration)})`}
         </Text>
       );
@@ -224,44 +240,76 @@ export const TaskList: React.FC<TaskListProps> = ({
         </Box>
 
         {/* Progress bar for in-progress and completed tasks */}
-        {(task.status === 'in_progress' || task.status === 'completed') && layout !== 'minimal' && (
-          <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text>
-              [{createProgressBar(task.progress)}] {task.progress}%
-            </Text>
-          </Box>
-        )}
+        {(task.status === 'in_progress' || task.status === 'completed') &&
+          layout !== 'minimal' && (
+            <Box
+              marginLeft={
+                prefix.length + (showIds ? task.id.length + 2 : 0) + 4
+              }
+            >
+              <Text>
+                [{createProgressBar(task.progress)}] {task.progress}%
+              </Text>
+            </Box>
+          )}
 
         {/* Active form in detailed layout */}
         {layout === 'detailed' && task.status === 'in_progress' && (
-          <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
+          <Box
+            marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}
+          >
             <Text color={appTheme.ui.textMuted}>{task.activeForm}</Text>
           </Box>
         )}
 
         {/* Additional details */}
         {showTimestamps && (task.createdAt || task.updatedAt) && (
-          <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4} flexDirection="column">
-            {task.createdAt && <Text color={appTheme.ui.textMuted}>Created: {formatTimestamp(task.createdAt)}</Text>}
-            {task.updatedAt && <Text color={appTheme.ui.textMuted}>Updated: {formatTimestamp(task.updatedAt)}</Text>}
+          <Box
+            marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}
+            flexDirection="column"
+          >
+            {task.createdAt && (
+              <Text color={appTheme.ui.textMuted}>
+                Created: {formatTimestamp(task.createdAt)}
+              </Text>
+            )}
+            {task.updatedAt && (
+              <Text color={appTheme.ui.textMuted}>
+                Updated: {formatTimestamp(task.updatedAt)}
+              </Text>
+            )}
           </Box>
         )}
 
-        {showDependencies && task.dependencies && task.dependencies.length > 0 && (
-          <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text color={appTheme.ui.textMuted}>Depends on: {task.dependencies.map(dep => `#${dep}`).join(', ')}</Text>
-          </Box>
-        )}
+        {showDependencies &&
+          task.dependencies &&
+          task.dependencies.length > 0 && (
+            <Box
+              marginLeft={
+                prefix.length + (showIds ? task.id.length + 2 : 0) + 4
+              }
+            >
+              <Text color={appTheme.ui.textMuted}>
+                Depends on: {task.dependencies.map(dep => `#${dep}`).join(', ')}
+              </Text>
+            </Box>
+          )}
 
         {showAssignees && task.assignee && (
-          <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
+          <Box
+            marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}
+          >
             <Text color={appTheme.ui.textMuted}>Assigned: {task.assignee}</Text>
           </Box>
         )}
 
         {showTags && task.tags && task.tags.length > 0 && (
-          <Box marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}>
-            <Text color={appTheme.ui.textMuted}>{task.tags.map(tag => `[${tag}]`).join(' ')}</Text>
+          <Box
+            marginLeft={prefix.length + (showIds ? task.id.length + 2 : 0) + 4}
+          >
+            <Text color={appTheme.ui.textMuted}>
+              {task.tags.map(tag => `[${tag}]`).join(' ')}
+            </Text>
           </Box>
         )}
       </Box>
@@ -292,11 +340,17 @@ export const TaskList: React.FC<TaskListProps> = ({
       <Box flexDirection="column">
         {/* Header */}
         <Box justifyContent="center" marginBottom={1}>
-          <Text bold color="cyan">TASK LIST</Text>
+          <Text bold color="cyan">
+            TASK LIST
+          </Text>
         </Box>
 
         {/* Summary */}
-        <Box marginBottom={1} flexDirection="row" justifyContent="space-between">
+        <Box
+          marginBottom={1}
+          flexDirection="row"
+          justifyContent="space-between"
+        >
           <Text>Tasks: {counts.total}</Text>
           <Box>
             <Text>Pending: {counts.pending}</Text>
@@ -309,20 +363,24 @@ export const TaskList: React.FC<TaskListProps> = ({
         <ResizeAwareList
           items={processedTasks}
           renderItem={renderTaskItem}
-          onSelect={(task) => {
+          onSelect={task => {
             if (onTaskSelect) {
               onTaskSelect(task.id);
             }
           }}
           onFocus={(_, index) => setSelectedIndex(index)}
-          keyExtractor={(task) => task.id}
+          keyExtractor={task => task.id}
           emptyMessage="No tasks found"
           showScrollbar={true}
           enableWrapAround={false}
           testMode={interactive}
-          initialIndex={selectedTaskId ? processedTasks.findIndex(t => t.id === selectedTaskId) : 0}
-          heightOffset={12}  // Account for header, summary, and interactive shortcuts
-          maxHeight={15}  // Limit to 15 items max
+          initialIndex={
+            selectedTaskId
+              ? processedTasks.findIndex(t => t.id === selectedTaskId)
+              : 0
+          }
+          heightOffset={12} // Account for header, summary, and interactive shortcuts
+          maxHeight={15} // Limit to 15 items max
         />
 
         {/* Interactive shortcuts */}
@@ -334,7 +392,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             marginTop={1}
           >
             <Text color="gray">
-              ↑↓ Navigate  ↵ Select  f Filter  s Sort  ESC Back
+              ↑↓ Navigate ↵ Select f Filter s Sort ESC Back
             </Text>
           </Box>
         )}
@@ -344,11 +402,7 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   if (border) {
     return (
-      <Box
-        borderStyle="single"
-        borderColor="cyan"
-        padding={1}
-      >
+      <Box borderStyle="single" borderColor="cyan" padding={1}>
         {renderContent()}
       </Box>
     );

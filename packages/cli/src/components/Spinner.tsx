@@ -7,7 +7,10 @@ interface SpinnerProps {
   color?: string;
 }
 
-export function Spinner({ message, color = 'cyan' }: SpinnerProps): JSX.Element {
+export function Spinner({
+  message,
+  color = 'cyan',
+}: SpinnerProps): JSX.Element {
   return (
     <Box>
       <Text color={color}>

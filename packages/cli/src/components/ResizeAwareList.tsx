@@ -100,10 +100,21 @@ export function ResizeAwareList<T>({
     calculatedHeight = Math.min(calculatedHeight, items.length || 1);
 
     return calculatedHeight;
-  }, [terminalHeight, heightOffset, dynamicOffset, minHeight, maxHeight, items.length]);
+  }, [
+    terminalHeight,
+    heightOffset,
+    dynamicOffset,
+    minHeight,
+    maxHeight,
+    items.length,
+  ]);
 
   // Wrapper for renderItem to ensure proper constraints
-  const constrainedRenderItem = (item: T, index: number, isSelected: boolean) => {
+  const constrainedRenderItem = (
+    item: T,
+    index: number,
+    isSelected: boolean
+  ) => {
     const rendered = renderItem(item, index, isSelected);
 
     // If the rendered item is already wrapped in a Box with constraints, return as-is

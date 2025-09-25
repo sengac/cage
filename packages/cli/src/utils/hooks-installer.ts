@@ -1,4 +1,11 @@
-import { readFile, writeFile, mkdir, access, chmod, copyFile } from 'fs/promises';
+import {
+  readFile,
+  writeFile,
+  mkdir,
+  access,
+  chmod,
+  copyFile,
+} from 'fs/promises';
 import { constants, existsSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { homedir } from 'os';
@@ -31,10 +38,20 @@ export function getClaudeSettingsPath(): string {
 
   if (platform === 'darwin') {
     // macOS
-    return join(homedir(), 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
+    return join(
+      homedir(),
+      'Library',
+      'Application Support',
+      'Claude',
+      'claude_desktop_config.json'
+    );
   } else if (platform === 'win32') {
     // Windows
-    return join(process.env.APPDATA || homedir(), 'Claude', 'claude_desktop_config.json');
+    return join(
+      process.env.APPDATA || homedir(),
+      'Claude',
+      'claude_desktop_config.json'
+    );
   } else {
     // Linux
     return join(homedir(), '.config', 'Claude', 'claude_desktop_config.json');
@@ -54,7 +71,9 @@ export async function loadClaudeSettings(): Promise<ClaudeSettings> {
   }
 }
 
-export async function saveClaudeSettings(settings: ClaudeSettings): Promise<void> {
+export async function saveClaudeSettings(
+  settings: ClaudeSettings
+): Promise<void> {
   const settingsPath = getClaudeSettingsPath();
   const settingsDir = dirname(settingsPath);
 
@@ -84,7 +103,10 @@ export async function installHooks(port: number): Promise<void> {
   const hookTypes = Object.values(HookType);
 
   for (const hookType of hookTypes) {
-    const hookKey = hookType.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase();
+    const hookKey = hookType
+      .toLowerCase()
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase();
     settings.hooks[hookKey] = getHookCommand(hookType, port);
   }
 
@@ -99,7 +121,10 @@ export async function uninstallHooks(): Promise<void> {
     const hookTypes = Object.values(HookType);
 
     for (const hookType of hookTypes) {
-      const hookKey = hookType.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase();
+      const hookKey = hookType
+        .toLowerCase()
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase();
       delete settings.hooks[hookKey];
     }
 
@@ -120,7 +145,10 @@ export async function getInstalledHooks(): Promise<Record<string, string>> {
     const hookTypes = Object.values(HookType);
 
     for (const hookType of hookTypes) {
-      const hookKey = hookType.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase();
+      const hookKey = hookType
+        .toLowerCase()
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase();
       const hookValue = settings.hooks[hookKey];
       if (hookValue && typeof hookValue === 'string') {
         installedHooks[hookType] = hookValue;
@@ -153,7 +181,9 @@ export async function loadLocalClaudeSettings(): Promise<ClaudeSettings> {
   }
 }
 
-export async function saveLocalClaudeSettings(settings: ClaudeSettings): Promise<void> {
+export async function saveLocalClaudeSettings(
+  settings: ClaudeSettings
+): Promise<void> {
   const settingsPath = getLocalClaudeSettingsPath();
   const settingsDir = dirname(settingsPath);
 
@@ -163,7 +193,10 @@ export async function saveLocalClaudeSettings(settings: ClaudeSettings): Promise
   // Backup existing settings with timestamp if they exist
   try {
     await access(settingsPath, constants.F_OK);
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, '-')
+      .substring(0, 19);
     await copyFile(settingsPath, settingsPath + `.backup.${timestamp}`);
     // Also keep a simple backup for compatibility
     await copyFile(settingsPath, settingsPath + '.backup');
@@ -191,9 +224,14 @@ export function getHookHandlerPath(): string {
     // When installed as dependency
     resolve(__dirname, '../../../@cage/hooks/dist/cage-hook-handler.js'),
     // Global npm install
-    resolve('/usr/local/lib/node_modules/@cage/hooks/dist/cage-hook-handler.js'),
+    resolve(
+      '/usr/local/lib/node_modules/@cage/hooks/dist/cage-hook-handler.js'
+    ),
     // Local node_modules
-    resolve(process.cwd(), 'node_modules/@cage/hooks/dist/cage-hook-handler.js')
+    resolve(
+      process.cwd(),
+      'node_modules/@cage/hooks/dist/cage-hook-handler.js'
+    ),
   ];
 
   for (const path of possiblePaths) {
@@ -202,7 +240,9 @@ export function getHookHandlerPath(): string {
     }
   }
 
-  throw new Error('Could not find cage-hook-handler.js - ensure @cage/hooks is built');
+  throw new Error(
+    'Could not find cage-hook-handler.js - ensure @cage/hooks is built'
+  );
 }
 
 export async function installHookHandler(): Promise<string> {
@@ -225,7 +265,10 @@ export async function installHookHandler(): Promise<string> {
   return targetPath;
 }
 
-export async function createHookScript(hookType: HookType, port: number): Promise<void> {
+export async function createHookScript(
+  hookType: HookType,
+  port: number
+): Promise<void> {
   const scriptDir = join(getLocalClaudeDirectory(), 'hooks', 'cage');
   const scriptPath = join(scriptDir, `${hookType.toLowerCase()}.mjs`);
 
@@ -286,7 +329,7 @@ export async function installHooksLocally(port: number): Promise<void> {
     'SessionStart' as HookType,
     'SessionEnd' as HookType,
     'Notification' as HookType,
-    'PreCompact' as HookType
+    'PreCompact' as HookType,
   ];
 
   for (const hookType of hookTypes) {
@@ -298,25 +341,31 @@ export async function installHooksLocally(port: number): Promise<void> {
     const existingHook = settings.hooks[hookType];
 
     // Determine if this hook type needs a matcher
-    const needsMatcher = ['PreToolUse', 'PostToolUse', 'PreCompact'].includes(hookType);
+    const needsMatcher = ['PreToolUse', 'PostToolUse', 'PreCompact'].includes(
+      hookType
+    );
 
     if (!existingHook) {
       // No existing hook - create array format
       const hookEntry: HookEntry = needsMatcher
         ? {
             matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: hookPath,
-              timeout: hookType === 'PostToolUse' ? 180 : undefined
-            }]
+            hooks: [
+              {
+                type: 'command',
+                command: hookPath,
+                timeout: hookType === 'PostToolUse' ? 180 : undefined,
+              },
+            ],
           }
         : {
-            hooks: [{
-              type: 'command',
-              command: hookPath,
-              timeout: hookType === 'PostToolUse' ? 180 : undefined
-            }]
+            hooks: [
+              {
+                type: 'command',
+                command: hookPath,
+                timeout: hookType === 'PostToolUse' ? 180 : undefined,
+              },
+            ],
           };
 
       settings.hooks[hookType] = [hookEntry];
@@ -326,25 +375,30 @@ export async function installHooksLocally(port: number): Promise<void> {
 
       // Remove any existing Cage hooks
       const filteredHooks = hookArray.filter(
-        (h: HookEntry) => !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
+        (h: HookEntry) =>
+          !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
       );
 
       // Add our new hook
       const hookEntry: HookEntry = needsMatcher
         ? {
             matcher: '*',
-            hooks: [{
-              type: 'command',
-              command: hookPath,
-              timeout: hookType === 'PostToolUse' ? 180 : undefined
-            }]
+            hooks: [
+              {
+                type: 'command',
+                command: hookPath,
+                timeout: hookType === 'PostToolUse' ? 180 : undefined,
+              },
+            ],
           }
         : {
-            hooks: [{
-              type: 'command',
-              command: hookPath,
-              timeout: hookType === 'PostToolUse' ? 180 : undefined
-            }]
+            hooks: [
+              {
+                type: 'command',
+                command: hookPath,
+                timeout: hookType === 'PostToolUse' ? 180 : undefined,
+              },
+            ],
           };
 
       filteredHooks.push(hookEntry);
@@ -359,10 +413,12 @@ export async function installHooksLocally(port: number): Promise<void> {
           if (typeof command === 'string') {
             existingEntries.push({
               matcher: matcher,
-              hooks: [{
-                type: 'command',
-                command: command
-              }]
+              hooks: [
+                {
+                  type: 'command',
+                  command: command,
+                },
+              ],
             });
           }
         }
@@ -370,20 +426,24 @@ export async function installHooksLocally(port: number): Promise<void> {
         // Simple string format - convert to array format
         existingEntries.push({
           matcher: '*',
-          hooks: [{
-            type: 'command',
-            command: existingHook
-          }]
+          hooks: [
+            {
+              type: 'command',
+              command: existingHook,
+            },
+          ],
         });
       }
 
       // Add our new Cage hook
       const hookEntry: HookEntry = {
-        hooks: [{
-          type: 'command',
-          command: hookPath,
-          timeout: hookType === 'PostToolUse' ? 180 : undefined
-        }]
+        hooks: [
+          {
+            type: 'command',
+            command: hookPath,
+            timeout: hookType === 'PostToolUse' ? 180 : undefined,
+          },
+        ],
       };
 
       if (needsMatcher) {
@@ -411,7 +471,7 @@ export async function uninstallHooksLocally(): Promise<void> {
       'SessionStart' as HookType,
       'SessionEnd' as HookType,
       'Notification' as HookType,
-      'PreCompact' as HookType
+      'PreCompact' as HookType,
     ];
 
     for (const hookType of hookTypes) {
@@ -440,7 +500,8 @@ export async function uninstallHooksLocally(): Promise<void> {
         // Array format
         const hookArray = hook as HookEntry[];
         const filtered = hookArray.filter(
-          (h: HookEntry) => !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
+          (h: HookEntry) =>
+            !h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
         );
 
         if (filtered.length === 0) {
@@ -460,7 +521,9 @@ export async function uninstallHooksLocally(): Promise<void> {
   }
 }
 
-export async function getInstalledHooksLocally(): Promise<Record<string, string>> {
+export async function getInstalledHooksLocally(): Promise<
+  Record<string, string>
+> {
   const settings = await loadLocalClaudeSettings();
   const installedHooks: Record<string, string> = {};
 
@@ -474,7 +537,7 @@ export async function getInstalledHooksLocally(): Promise<Record<string, string>
       'SessionStart' as HookType,
       'SessionEnd' as HookType,
       'Notification' as HookType,
-      'PreCompact' as HookType
+      'PreCompact' as HookType,
     ];
 
     for (const hookType of hookTypes) {
@@ -497,8 +560,8 @@ export async function getInstalledHooksLocally(): Promise<Record<string, string>
       } else if (Array.isArray(hook)) {
         // Array format
         const hookArray = hook as HookEntry[];
-        const cageHook = hookArray.find(
-          (h: HookEntry) => h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
+        const cageHook = hookArray.find((h: HookEntry) =>
+          h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
         );
         if (cageHook) {
           installedHooks[hookType] = cageHook.hooks?.[0]?.command || '';

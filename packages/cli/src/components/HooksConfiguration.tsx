@@ -11,17 +11,21 @@ interface HooksConfigurationProps {
   onBack: () => void;
 }
 
-export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }) => {
+export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({
+  onBack,
+}) => {
   const [realHooksStatus, setRealHooksStatus] = useState<HooksStatus>({
     isInstalled: false,
     installedHooks: [],
-    totalEvents: 0
+    totalEvents: 0,
   });
 
   const [selectedHookIndex, setSelectedHookIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchMode, setSearchMode] = useState(false);
-  const [filterMode, setFilterMode] = useState<'all' | 'enabled' | 'disabled'>('all');
+  const [filterMode, setFilterMode] = useState<'all' | 'enabled' | 'disabled'>(
+    'all'
+  );
   const [operationInProgress, setOperationInProgress] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -43,10 +47,11 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
 
   // Filter hooks based on search and filter mode
   const filteredHooks = realHooksStatus.installedHooks.filter(hook => {
-    const matchesSearch = !searchTerm ||
-      hook.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      !searchTerm || hook.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesFilter = filterMode === 'all' ||
+    const matchesFilter =
+      filterMode === 'all' ||
       (filterMode === 'enabled' && hook.enabled) ||
       (filterMode === 'disabled' && !hook.enabled);
 
@@ -100,8 +105,7 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
       case 'f':
         // Cycle through filter modes
         setFilterMode(prev =>
-          prev === 'all' ? 'enabled' :
-          prev === 'enabled' ? 'disabled' : 'all'
+          prev === 'all' ? 'enabled' : prev === 'enabled' ? 'disabled' : 'all'
         );
         break;
     }
@@ -125,11 +129,14 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
     const textColor = isSelected ? theme.ui.hover : theme.ui.text;
     const indicator = isSelected ? figures.pointer : ' ';
     const statusIcon = hook.enabled ? figures.tick : figures.cross;
-    const statusColor = hook.enabled ? theme.status.success : theme.status.error;
+    const statusColor = hook.enabled
+      ? theme.status.success
+      : theme.status.error;
 
     return (
       <Text color={textColor}>
-        {indicator} <Text color={statusColor}>{statusIcon}</Text> {hook.name.padEnd(30)}
+        {indicator} <Text color={statusColor}>{statusIcon}</Text>{' '}
+        {hook.name.padEnd(30)}
         <Text color={theme.ui.textMuted}>Events: {hook.eventCount || 0}</Text>
       </Text>
     );
@@ -149,7 +156,8 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
         <Text color={theme.status.warning}>⚠ Hooks not installed</Text>
         <Box marginTop={1}>
           <Text color={theme.ui.text}>
-            Hooks are not configured. Please run the setup wizard to configure hooks.
+            Hooks are not configured. Please run the setup wizard to configure
+            hooks.
           </Text>
         </Box>
         <Box marginTop={1}>
@@ -171,7 +179,8 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
       {/* Status Bar */}
       <Box marginBottom={1} paddingX={1}>
         <Text color={theme.ui.textMuted}>
-          Hooks: {filteredHooks.filter(h => h.enabled).length}/{filteredHooks.length} enabled
+          Hooks: {filteredHooks.filter(h => h.enabled).length}/
+          {filteredHooks.length} enabled
         </Text>
         {filterMode !== 'all' && (
           <Text color={theme.primary.aqua}> (Filter: {filterMode})</Text>
@@ -183,7 +192,12 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
 
       {/* Search Mode */}
       {searchMode && (
-        <Box marginBottom={1} paddingX={1} borderStyle="single" borderColor={theme.primary.aqua}>
+        <Box
+          marginBottom={1}
+          paddingX={1}
+          borderStyle="single"
+          borderColor={theme.primary.aqua}
+        >
           <Text color={theme.ui.text}>Search: {searchTerm}</Text>
         </Box>
       )}
@@ -193,22 +207,20 @@ export const HooksConfiguration: React.FC<HooksConfigurationProps> = ({ onBack }
         items={filteredHooks}
         renderItem={renderHook}
         onSelect={(hook, index) => setSelectedHookIndex(index)}
-        keyExtractor={(hook) => hook.name}
+        keyExtractor={hook => hook.name}
         emptyMessage="No hooks found"
         showScrollbar={true}
         enableWrapAround={true}
         testMode={true}
         initialIndex={selectedHookIndex}
-        heightOffset={8}  // Account for status bar and other static elements
+        heightOffset={8} // Account for status bar and other static elements
         dynamicOffset={dynamicOffset}
       />
 
       {/* Operation Status */}
       {operationInProgress && (
         <Box marginTop={1} paddingX={1}>
-          <Text color={theme.ui.textMuted}>
-            Processing...
-          </Text>
+          <Text color={theme.ui.textMuted}>Processing...</Text>
         </Box>
       )}
     </Box>

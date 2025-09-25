@@ -18,14 +18,14 @@ export default defineConfig({
         target: 'es2020',
         keepClassNames: true,
       },
-    })
+    }),
   ],
   esbuild: false, // Disable esbuild since we're using SWC
   build: {
     lib: {
       entry: 'src/main.ts',
       formats: ['es'],
-      fileName: 'main'
+      fileName: 'main',
     },
     rollupOptions: {
       external: [
@@ -40,17 +40,17 @@ export default defineConfig({
         'fs',
         'path',
         'os',
-        'url'
+        'url',
       ],
       output: {
         format: 'es',
-        banner: '#!/usr/bin/env node'
-      }
+        banner: '#!/usr/bin/env node',
+      },
     },
     target: 'node18',
-    ssr: true
+    ssr: true,
   },
   resolve: {
-    conditions: ['node', 'import', 'module', 'default']
-  }
+    conditions: ['node', 'import', 'module', 'default'],
+  },
 });

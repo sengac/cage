@@ -42,7 +42,7 @@ describe('EventLoggerService', () => {
         eventType: 'PreToolUse' as const,
         sessionId: 'test-session',
         toolName: 'Read',
-        arguments: { file_path: '/test.txt' }
+        arguments: { file_path: '/test.txt' },
       };
 
       // Act
@@ -65,7 +65,7 @@ describe('EventLoggerService', () => {
         eventType: 'PreToolUse',
         sessionId: 'test-session',
         toolName: 'Read',
-        arguments: { file_path: '/test.txt' }
+        arguments: { file_path: '/test.txt' },
       });
     });
 
@@ -76,7 +76,7 @@ describe('EventLoggerService', () => {
         eventType: 'PreToolUse' as const,
         sessionId: 'session-1',
         toolName: 'Read',
-        arguments: { file_path: '/test1.txt' }
+        arguments: { file_path: '/test1.txt' },
       };
 
       const event2 = {
@@ -85,7 +85,7 @@ describe('EventLoggerService', () => {
         sessionId: 'session-1',
         toolName: 'Read',
         arguments: { file_path: '/test1.txt' },
-        results: { success: true }
+        results: { success: true },
       };
 
       // Act
@@ -114,7 +114,7 @@ describe('EventLoggerService', () => {
         eventType: 'PreToolUse' as const,
         sessionId: `session-${i}`,
         toolName: 'Read',
-        arguments: { file_path: `/test${i}.txt` }
+        arguments: { file_path: `/test${i}.txt` },
       }));
 
       // Act: Log events concurrently
@@ -142,7 +142,7 @@ describe('EventLoggerService', () => {
         timestamp: new Date().toISOString(),
         eventType: 'SessionStart' as const,
         sessionId: 'test-session',
-        metadata: { version: '1.0.0' }
+        metadata: { version: '1.0.0' },
       };
 
       // Act
@@ -172,17 +172,19 @@ describe('EventLoggerService', () => {
         'Notification',
         'PreCompact',
         'Stop',
-        'SubagentStop'
+        'SubagentStop',
       ] as const;
 
       const events = eventTypes.map(eventType => ({
         timestamp: new Date().toISOString(),
         eventType,
         sessionId: 'test-session',
-        ...(eventType.includes('Tool') ? {
-          toolName: 'Read',
-          arguments: { file_path: '/test.txt' }
-        } : {})
+        ...(eventType.includes('Tool')
+          ? {
+              toolName: 'Read',
+              arguments: { file_path: '/test.txt' },
+            }
+          : {}),
       }));
 
       // Act
@@ -214,8 +216,8 @@ describe('EventLoggerService', () => {
           // Include data that could cause JSON issues
           circular: null as unknown,
           specialChars: 'test\n\r\t"quotes"',
-          unicode: '🚀🎣📊'
-        }
+          unicode: '🚀🎣📊',
+        },
       };
 
       // Remove circular reference issue

@@ -53,7 +53,7 @@ export class StatusMonitor extends EventEmitter {
       server: { status: 'stopped' },
       hooks: { installed: false, active: 0, total: 0 },
       events: { total: 0, today: 0, rate: 0 },
-      lastUpdated: 0
+      lastUpdated: 0,
     };
   }
 
@@ -68,7 +68,9 @@ export class StatusMonitor extends EventEmitter {
     if (intervalMs && intervalMs >= this.minUpdateInterval) {
       this.updateInterval = intervalMs;
     } else if (intervalMs && intervalMs < this.minUpdateInterval) {
-      logger.warn(`Update interval ${intervalMs}ms is below minimum ${this.minUpdateInterval}ms, using minimum`);
+      logger.warn(
+        `Update interval ${intervalMs}ms is below minimum ${this.minUpdateInterval}ms, using minimum`
+      );
       this.updateInterval = this.minUpdateInterval;
     }
 
@@ -103,7 +105,9 @@ export class StatusMonitor extends EventEmitter {
     const now = Date.now();
     const timeSinceLastUpdate = now - this.lastUpdateTime;
     if (!force && timeSinceLastUpdate < this.minUpdateInterval) {
-      logger.debug(`Skipping update, only ${timeSinceLastUpdate}ms since last update`);
+      logger.debug(
+        `Skipping update, only ${timeSinceLastUpdate}ms since last update`
+      );
       return this.status;
     }
 
@@ -113,7 +117,7 @@ export class StatusMonitor extends EventEmitter {
       const [serverStatus, hooksStatus, eventsCounts] = await Promise.all([
         getRealServerStatus(),
         getRealHooksStatus(),
-        getEventsCounts()
+        getEventsCounts(),
       ]);
 
       // Calculate events per minute rate
@@ -128,19 +132,19 @@ export class StatusMonitor extends EventEmitter {
           pid: serverStatus.serverInfo?.pid,
           uptime: serverStatus.serverInfo?.uptime,
           serverInfo: serverStatus.serverInfo,
-          fullStatus: serverStatus.fullStatus
+          fullStatus: serverStatus.fullStatus,
         },
         hooks: {
           installed: hooksStatus.isInstalled,
           active: hooksStatus.installedHooks.filter(h => h.enabled).length,
-          total: hooksStatus.installedHooks.length
+          total: hooksStatus.installedHooks.length,
         },
         events: {
           total: eventsCounts.total,
           today: eventsCounts.today,
-          rate: rate > 0 ? rate : 0
+          rate: rate > 0 ? rate : 0,
         },
-        lastUpdated: now
+        lastUpdated: now,
       };
 
       // Check for changes
@@ -166,7 +170,7 @@ export class StatusMonitor extends EventEmitter {
         server: { status: 'error' },
         hooks: { installed: false, active: 0, total: 0 },
         events: { total: 0, today: 0, rate: 0 },
-        lastUpdated: now
+        lastUpdated: now,
       };
 
       this.status = errorStatus;
@@ -186,24 +190,34 @@ export class StatusMonitor extends EventEmitter {
     return this.updateStatus(true);
   }
 
-  private hasStatusChanged(oldStatus: SystemStatus, newStatus: SystemStatus): boolean {
+  private hasStatusChanged(
+    oldStatus: SystemStatus,
+    newStatus: SystemStatus
+  ): boolean {
     // Check server changes
-    if (oldStatus.server.status !== newStatus.server.status ||
-        oldStatus.server.port !== newStatus.server.port ||
-        oldStatus.server.pid !== newStatus.server.pid) {
+    if (
+      oldStatus.server.status !== newStatus.server.status ||
+      oldStatus.server.port !== newStatus.server.port ||
+      oldStatus.server.pid !== newStatus.server.pid
+    ) {
       return true;
     }
 
     // Check hooks changes
-    if (oldStatus.hooks.installed !== newStatus.hooks.installed ||
-        oldStatus.hooks.active !== newStatus.hooks.active ||
-        oldStatus.hooks.total !== newStatus.hooks.total) {
+    if (
+      oldStatus.hooks.installed !== newStatus.hooks.installed ||
+      oldStatus.hooks.active !== newStatus.hooks.active ||
+      oldStatus.hooks.total !== newStatus.hooks.total
+    ) {
       return true;
     }
 
     // Check events changes (significant changes only)
-    const eventsDiff = Math.abs(newStatus.events.total - oldStatus.events.total);
-    if (eventsDiff > 10) { // Only notify if more than 10 events
+    const eventsDiff = Math.abs(
+      newStatus.events.total - oldStatus.events.total
+    );
+    if (eventsDiff > 10) {
+      // Only notify if more than 10 events
       return true;
     }
 
@@ -220,4 +234,5 @@ export class StatusMonitor extends EventEmitter {
 }
 
 // Export singleton instance getter
-export const getStatusMonitor = (): StatusMonitor => StatusMonitor.getInstance();
+export const getStatusMonitor = (): StatusMonitor =>
+  StatusMonitor.getInstance();

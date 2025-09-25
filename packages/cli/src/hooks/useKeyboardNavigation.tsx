@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback, useContext, createContext, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  createContext,
+  useRef,
+} from 'react';
 import { useApp } from 'ink';
 import { useSafeInput } from './useSafeInput';
 import type { ReactNode } from 'react';
@@ -100,7 +107,7 @@ const DEFAULT_STATE: Omit<NavigationState, 'setFocus' | 'hasFocus'> = {
   showQuitConfirmation: false,
   pendingKeys: '',
   showHelp: false,
-  focusedElement: null
+  focusedElement: null,
 };
 
 // Context
@@ -116,30 +123,35 @@ const NavigationContext = createContext<NavigationContextValue | null>(null);
 export function KeyboardNavigationProvider({
   children,
   initialState = {},
-  config = {}
+  config = {},
 }: {
   children: ReactNode;
   initialState?: Partial<NavigationState>;
   config?: NavigationConfig;
 }) {
-  const [state, setState] = useState<Omit<NavigationState, 'setFocus' | 'hasFocus'>>({
+  const [state, setState] = useState<
+    Omit<NavigationState, 'setFocus' | 'hasFocus'>
+  >({
     ...DEFAULT_STATE,
-    ...initialState
+    ...initialState,
   });
 
   const setFocus = useCallback((element: string) => {
     setState(prev => ({ ...prev, focusedElement: element }));
   }, []);
 
-  const hasFocus = useCallback((element: string) => {
-    return state.focusedElement === element;
-  }, [state.focusedElement]);
+  const hasFocus = useCallback(
+    (element: string) => {
+      return state.focusedElement === element;
+    },
+    [state.focusedElement]
+  );
 
   const value: NavigationContextValue = {
     ...state,
     setFocus,
     hasFocus,
-    config
+    config,
   };
 
   return (
@@ -152,7 +164,9 @@ export function KeyboardNavigationProvider({
 /**
  * Main keyboard navigation hook
  */
-export function useKeyboardNavigation(config?: NavigationConfig): NavigationState {
+export function useKeyboardNavigation(
+  config?: NavigationConfig
+): NavigationState {
   const context = useContext(NavigationContext);
   const { exit } = useApp();
 
@@ -161,13 +175,15 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
   const mergedConfig = { ...(context?.config || {}), ...config };
 
   // Local state (when not in context)
-  const [localState, setLocalState] = useState<Omit<NavigationState, 'setFocus' | 'hasFocus'>>(() => ({
+  const [localState, setLocalState] = useState<
+    Omit<NavigationState, 'setFocus' | 'hasFocus'>
+  >(() => ({
     ...DEFAULT_STATE,
     currentPanel: mergedConfig.currentPanel || DEFAULT_STATE.currentPanel,
     panels: mergedConfig.panels || DEFAULT_STATE.panels,
     currentIndex: mergedConfig.currentIndex ?? DEFAULT_STATE.currentIndex,
     totalItems: mergedConfig.totalItems ?? DEFAULT_STATE.totalItems,
-    focusedElement: mergedConfig.currentFocus || null
+    focusedElement: mergedConfig.currentFocus || null,
   }));
 
   // Multi-key timeout
@@ -177,52 +193,61 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
   const state = isInContext ? context : localState;
 
   // Update state helper
-  const updateState = useCallback((updates: Partial<typeof localState>) => {
-    if (isInContext) {
-      // Can't update context from here - would need to expose update methods
-      console.warn('Cannot update navigation state from within context');
-    } else {
-      setLocalState(prev => ({ ...prev, ...updates }));
-    }
-  }, [isInContext]);
+  const updateState = useCallback(
+    (updates: Partial<typeof localState>) => {
+      if (isInContext) {
+        // Can't update context from here - would need to expose update methods
+        console.warn('Cannot update navigation state from within context');
+      } else {
+        setLocalState(prev => ({ ...prev, ...updates }));
+      }
+    },
+    [isInContext]
+  );
 
   // Announce for accessibility
-  const announce = useCallback((message: string) => {
-    if (mergedConfig.enableAccessibility && mergedConfig.onAnnounce) {
-      mergedConfig.onAnnounce(message);
-    }
-  }, [mergedConfig]);
+  const announce = useCallback(
+    (message: string) => {
+      if (mergedConfig.enableAccessibility && mergedConfig.onAnnounce) {
+        mergedConfig.onAnnounce(message);
+      }
+    },
+    [mergedConfig]
+  );
 
   // Handle multi-key sequences
-  const handleMultiKey = useCallback((key: string) => {
-    if (!mergedConfig.enableViBindings) return false;
+  const handleMultiKey = useCallback(
+    (key: string) => {
+      if (!mergedConfig.enableViBindings) return false;
 
-    const pending = state.pendingKeys + key;
+      const pending = state.pendingKeys + key;
 
-    // Check for multi-key commands
-    if (pending === 'gg') {
-      updateState({ currentIndex: 0, pendingKeys: '' });
-      announce('Jumped to top');
-      return true;
-    }
-
-    // Single 'g' starts a sequence
-    if (key === 'g' && !state.pendingKeys) {
-      updateState({ pendingKeys: 'g' });
-
-      // Clear after timeout
-      if (multiKeyTimeoutRef.current) {
-        clearTimeout(multiKeyTimeoutRef.current);
+      // Check for multi-key commands
+      if (pending === 'gg') {
+        updateState({ currentIndex: 0, pendingKeys: '' });
+        announce('Jumped to top');
+        return true;
       }
-      multiKeyTimeoutRef.current = setTimeout(() => {
-        updateState({ pendingKeys: '' });
-      }, mergedConfig.multiKeyTimeout || 1000);
 
-      return true;
-    }
+      // Single 'g' starts a sequence
+      if (key === 'g' && !state.pendingKeys) {
+        updateState({ pendingKeys: 'g' });
 
-    return false;
-  }, [state.pendingKeys, mergedConfig, updateState, announce]);
+        // Clear after timeout
+        if (multiKeyTimeoutRef.current) {
+          clearTimeout(multiKeyTimeoutRef.current);
+        }
+        multiKeyTimeoutRef.current = setTimeout(() => {
+          updateState({ pendingKeys: '' });
+        }, mergedConfig.multiKeyTimeout || 1000);
+
+        return true;
+      }
+
+      return false;
+    },
+    [state.pendingKeys, mergedConfig, updateState, announce]
+  );
 
   // Input handler
   useSafeInput((input, key) => {
@@ -321,7 +346,7 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
         updateState({
           currentIndex: newIndex,
           atDocumentStart: key.ctrl || newIndex === 0,
-          atDocumentEnd: false
+          atDocumentEnd: false,
         });
         announce(`Item 1 of ${state.totalItems}`);
         return;
@@ -332,7 +357,7 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
         updateState({
           currentIndex: newIndex,
           atDocumentStart: false,
-          atDocumentEnd: key.ctrl || newIndex === state.totalItems - 1
+          atDocumentEnd: key.ctrl || newIndex === state.totalItems - 1,
         });
         announce(`Item ${state.totalItems} of ${state.totalItems}`);
         return;
@@ -351,7 +376,10 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
       }
 
       if (key.pageDown) {
-        const newIndex = Math.min(state.totalItems - 1, state.currentIndex + pageSize);
+        const newIndex = Math.min(
+          state.totalItems - 1,
+          state.currentIndex + pageSize
+        );
         updateState({ currentIndex: newIndex });
         announce(`Item ${newIndex + 1} of ${state.totalItems}`);
         return;
@@ -435,17 +463,23 @@ export function useKeyboardNavigation(config?: NavigationConfig): NavigationStat
   }, []);
 
   // Local setFocus and hasFocus methods
-  const setFocus = useCallback((element: string) => {
-    updateState({ focusedElement: element });
-  }, [updateState]);
+  const setFocus = useCallback(
+    (element: string) => {
+      updateState({ focusedElement: element });
+    },
+    [updateState]
+  );
 
-  const hasFocus = useCallback((element: string) => {
-    return state.focusedElement === element;
-  }, [state.focusedElement]);
+  const hasFocus = useCallback(
+    (element: string) => {
+      return state.focusedElement === element;
+    },
+    [state.focusedElement]
+  );
 
   return {
     ...state,
     setFocus: context?.setFocus || setFocus,
-    hasFocus: context?.hasFocus || hasFocus
+    hasFocus: context?.hasFocus || hasFocus,
   };
 }

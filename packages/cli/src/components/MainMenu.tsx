@@ -56,15 +56,15 @@ interface MainMenuProps {
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const navigate = useAppStore((state) => state.navigate);
+  const navigate = useAppStore(state => state.navigate);
   const theme = useTheme();
   const { stdout } = useStdout();
 
   useSafeInput((input, key) => {
     if (key.upArrow || input === 'k') {
-      setSelectedIndex((prev) => (prev === 0 ? menuItems.length - 1 : prev - 1));
+      setSelectedIndex(prev => (prev === 0 ? menuItems.length - 1 : prev - 1));
     } else if (key.downArrow || input === 'j') {
-      setSelectedIndex((prev) => (prev === menuItems.length - 1 ? 0 : prev + 1));
+      setSelectedIndex(prev => (prev === menuItems.length - 1 ? 0 : prev + 1));
     } else if (key.return) {
       navigate(menuItems[selectedIndex].value);
     } else if (input === '?') {
@@ -121,7 +121,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onExit }) => {
         borderColor={theme.ui.borderSubtle}
       >
         <Text color={theme.ui.textDim}>
-          ↑↓ Navigate  ↵ Select  ESC Exit  ? Help
+          ↑↓ Navigate ↵ Select ESC Exit ? Help
         </Text>
       </Box>
     </Box>

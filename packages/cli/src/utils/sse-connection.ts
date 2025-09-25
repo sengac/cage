@@ -1,4 +1,8 @@
-export type SSEConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
+export type SSEConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting';
 
 export type SSEReconnectStrategy = 'linear' | 'exponential';
 
@@ -62,11 +66,14 @@ export class SSEConnection {
     connectionState: 'disconnected',
     reconnectCount: 0,
     currentReconnectAttempt: 0,
-    bytesReceived: 0
+    bytesReceived: 0,
   };
 
   // Event handlers
-  private messageHandlers: Array<{ handler: (message: SSEMessage) => void; filter?: MessageFilter }> = [];
+  private messageHandlers: Array<{
+    handler: (message: SSEMessage) => void;
+    filter?: MessageFilter;
+  }> = [];
   private errorHandlers: Array<(error: ErrorInfo) => void> = [];
   private reconnectingHandlers: Array<(info: ReconnectInfo) => void> = [];
   private heartbeatHandlers: Array<() => void> = [];
@@ -78,7 +85,12 @@ export class SSEConnection {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private lastHeartbeatTime: number = 0;
-  private customEventTypes: Set<string> = new Set(['heartbeat', 'tool-use', 'user-message', 'error']);
+  private customEventTypes: Set<string> = new Set([
+    'heartbeat',
+    'tool-use',
+    'user-message',
+    'error',
+  ]);
 
   constructor(url: string, options: SSEConnectionOptions = {}) {
     this.url = url;
@@ -91,7 +103,7 @@ export class SSEConnection {
       heartbeatInterval: options.heartbeatInterval ?? 30000,
       heartbeatTimeout: options.heartbeatTimeout ?? 60000,
       headers: options.headers ?? {},
-      bufferSize: options.bufferSize ?? 0
+      bufferSize: options.bufferSize ?? 0,
     };
   }
 
@@ -132,11 +144,11 @@ export class SSEConnection {
           resolve();
         };
 
-        this.eventSource.onerror = (event) => {
+        this.eventSource.onerror = event => {
           const errorInfo: ErrorInfo = {
             type: 'connection',
             message: 'Failed to connect',
-            timestamp: Date.now()
+            timestamp: Date.now(),
           };
 
           // Notify error handlers
@@ -160,18 +172,17 @@ export class SSEConnection {
 
         // Register custom event listeners
         this.customEventTypes.forEach(eventType => {
-          this.eventSource?.addEventListener(eventType, (event) => {
+          this.eventSource?.addEventListener(eventType, event => {
             const messageEvent = event as MessageEvent;
             this.handleMessage(eventType, messageEvent.data);
           });
         });
-
       } catch (error) {
         const errorInfo: ErrorInfo = {
           type: 'network',
           message: error instanceof Error ? error.message : 'Network error',
           error: error instanceof Error ? error : undefined,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
         this.errorHandlers.forEach(handler => handler(errorInfo));
         reject(error);
@@ -212,7 +223,7 @@ export class SSEConnection {
         id: Math.random().toString(36).substr(2, 9),
         event: eventType,
         data: parsedData,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       // Update statistics
@@ -249,24 +260,26 @@ export class SSEConnection {
 
         handler(message);
       });
-
     } catch (error) {
       const errorInfo: ErrorInfo = {
         type: 'parse',
         message: `Failed to parse message: ${error instanceof Error ? error.message : 'Unknown error'}`,
         error: error instanceof Error ? error : undefined,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       this.errorHandlers.forEach(handler => handler(errorInfo));
     }
   }
 
   private handleReconnection(): void {
-    if (this.stats.currentReconnectAttempt >= (this.options.reconnectAttempts ?? Infinity)) {
+    if (
+      this.stats.currentReconnectAttempt >=
+      (this.options.reconnectAttempts ?? Infinity)
+    ) {
       const errorInfo: ErrorInfo = {
         type: 'connection',
         message: 'Max reconnection attempts reached',
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       this.errorHandlers.forEach(handler => handler(errorInfo));
       this.setState('disconnected');
@@ -280,7 +293,7 @@ export class SSEConnection {
     const reconnectInfo: ReconnectInfo = {
       attempt: this.stats.currentReconnectAttempt,
       delay,
-      nextAttemptAt: Date.now() + delay
+      nextAttemptAt: Date.now() + delay,
     };
 
     this.reconnectingHandlers.forEach(handler => handler(reconnectInfo));
@@ -298,7 +311,8 @@ export class SSEConnection {
     const maxDelay = this.options.maxReconnectDelay ?? 60000;
 
     if (this.options.reconnectStrategy === 'exponential') {
-      const delay = baseDelay * Math.pow(2, this.stats.currentReconnectAttempt - 1);
+      const delay =
+        baseDelay * Math.pow(2, this.stats.currentReconnectAttempt - 1);
       return Math.min(delay, maxDelay);
     }
 
@@ -362,7 +376,10 @@ export class SSEConnection {
   }
 
   // Event handler registration
-  onMessage(handler: (message: SSEMessage) => void, filter?: MessageFilter): void {
+  onMessage(
+    handler: (message: SSEMessage) => void,
+    filter?: MessageFilter
+  ): void {
     this.messageHandlers.push({ handler, filter });
   }
 

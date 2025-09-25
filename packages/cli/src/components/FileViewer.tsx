@@ -83,7 +83,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
   wrapLines = false,
   maxWidth = 80,
   virtualize = false,
-  error
+  error,
 }) => {
   // Handle error state
   if (error) {
@@ -119,11 +119,17 @@ export const FileViewer: React.FC<FileViewerProps> = ({
 
   // Calculate viewport
   const effectiveViewportStart = jumpToLine ? jumpToLine - 1 : viewportStart;
-  const effectiveViewportSize = viewportSize || (maxLines && maxLines < lines.length ? maxLines : lines.length);
-  const viewportEnd = Math.min(effectiveViewportStart + effectiveViewportSize, lines.length);
-  const displayLines = virtualize || viewportSize || maxLines
-    ? lines.slice(effectiveViewportStart, viewportEnd)
-    : lines;
+  const effectiveViewportSize =
+    viewportSize ||
+    (maxLines && maxLines < lines.length ? maxLines : lines.length);
+  const viewportEnd = Math.min(
+    effectiveViewportStart + effectiveViewportSize,
+    lines.length
+  );
+  const displayLines =
+    virtualize || viewportSize || maxLines
+      ? lines.slice(effectiveViewportStart, viewportEnd)
+      : lines;
 
   // Count search matches
   const searchMatches = useMemo(() => {
@@ -133,7 +139,10 @@ export const FileViewer: React.FC<FileViewerProps> = ({
     try {
       const searchRegex = regex
         ? new RegExp(searchTerm, caseInsensitive ? 'gi' : 'g')
-        : new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), caseInsensitive ? 'gi' : 'g');
+        : new RegExp(
+            searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+            caseInsensitive ? 'gi' : 'g'
+          );
 
       lines.forEach((line, index) => {
         const lineMatches = line.matchAll(searchRegex);
@@ -161,37 +170,61 @@ export const FileViewer: React.FC<FileViewerProps> = ({
   const detectLanguageFromFilename = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase();
     switch (ext) {
-      case 'js': case 'jsx': return 'javascript';
-      case 'ts': case 'tsx': return 'typescript';
-      case 'py': return 'python';
-      case 'json': return 'json';
-      case 'html': case 'htm': return 'html';
-      case 'css': return 'css';
-      case 'md': return 'markdown';
-      default: return 'plain';
+      case 'js':
+      case 'jsx':
+        return 'javascript';
+      case 'ts':
+      case 'tsx':
+        return 'typescript';
+      case 'py':
+        return 'python';
+      case 'json':
+        return 'json';
+      case 'html':
+      case 'htm':
+        return 'html';
+      case 'css':
+        return 'css';
+      case 'md':
+        return 'markdown';
+      default:
+        return 'plain';
     }
   };
 
-  const detectedLanguage = language || (filename ? detectLanguageFromFilename(filename) : 'plain');
+  const detectedLanguage =
+    language || (filename ? detectLanguageFromFilename(filename) : 'plain');
 
-  const highlightSearchInLine = (line: string, lineNumber: number): React.ReactNode => {
+  const highlightSearchInLine = (
+    line: string,
+    lineNumber: number
+  ): React.ReactNode => {
     if (!searchTerm) return line;
 
     try {
       const searchRegex = regex
         ? new RegExp(`(${searchTerm})`, caseInsensitive ? 'gi' : 'g')
-        : new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, caseInsensitive ? 'gi' : 'g');
+        : new RegExp(
+            `(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+            caseInsensitive ? 'gi' : 'g'
+          );
 
       const parts = line.split(searchRegex);
       return parts.map((part, index) => {
         const isMatch = index % 2 === 1;
         const matchIndex = Math.floor(index / 2);
-        const isCurrentMatch = currentMatch !== undefined &&
-          searchMatches.findIndex(m => m.line === lineNumber) === currentMatch - 1;
+        const isCurrentMatch =
+          currentMatch !== undefined &&
+          searchMatches.findIndex(m => m.line === lineNumber) ===
+            currentMatch - 1;
 
         if (isMatch) {
           return (
-            <Text key={index} backgroundColor={isCurrentMatch ? 'yellow' : 'blue'} color="white">
+            <Text
+              key={index}
+              backgroundColor={isCurrentMatch ? 'yellow' : 'blue'}
+              color="white"
+            >
               {part}
             </Text>
           );
@@ -220,7 +253,12 @@ export const FileViewer: React.FC<FileViewerProps> = ({
 
   const isLineHighlighted = (lineNumber: number): boolean => {
     if (highlightLines.includes(lineNumber)) return true;
-    if (highlightRange && lineNumber >= highlightRange.start && lineNumber <= highlightRange.end) return true;
+    if (
+      highlightRange &&
+      lineNumber >= highlightRange.start &&
+      lineNumber <= highlightRange.end
+    )
+      return true;
     if (currentLine === lineNumber) return true;
     return false;
   };
@@ -250,7 +288,9 @@ export const FileViewer: React.FC<FileViewerProps> = ({
         {showLineNumbers && wrapIndex === 0 && (
           <Box marginRight={1}>
             <Text color="gray">
-              {actualLineNumber.toString().padStart(Math.max(3, lines.length.toString().length))}
+              {actualLineNumber
+                .toString()
+                .padStart(Math.max(3, lines.length.toString().length))}
             </Text>
           </Box>
         )}
@@ -261,10 +301,14 @@ export const FileViewer: React.FC<FileViewerProps> = ({
             </Text>
           </Box>
         )}
-        {isCurrent && showCursor && wrapIndex === 0 && <Text color="cyan">{'>'}</Text>}
-        {(!isCurrent || !showCursor) && wrapIndex === 0 && showFoldIndicators && foldable && wrappedLine.includes('{') && (
-          <Text color="gray">{'▼'}</Text>
+        {isCurrent && showCursor && wrapIndex === 0 && (
+          <Text color="cyan">{'>'}</Text>
         )}
+        {(!isCurrent || !showCursor) &&
+          wrapIndex === 0 &&
+          showFoldIndicators &&
+          foldable &&
+          wrappedLine.includes('{') && <Text color="gray">{'▼'}</Text>}
         {syntax && !searchTerm ? (
           <SyntaxHighlighter
             code={wrappedLine}
@@ -282,17 +326,32 @@ export const FileViewer: React.FC<FileViewerProps> = ({
   return (
     <Box flexDirection="column">
       {/* Header with file info */}
-      {(filename || filepath || showFileSize || showLineCount || showEncoding || modified) && (
+      {(filename ||
+        filepath ||
+        showFileSize ||
+        showLineCount ||
+        showEncoding ||
+        modified) && (
         <Box flexDirection="column" marginBottom={1}>
-          {filename && <Text bold color="cyan">{filename}</Text>}
+          {filename && (
+            <Text bold color="cyan">
+              {filename}
+            </Text>
+          )}
           {filepath && <Text color="gray">{filepath}</Text>}
           <Box flexDirection="row">
             {showLineCount && <Text color="gray">{lines.length} lines</Text>}
             {showLineCount && showFileSize && <Text color="gray"> · </Text>}
-            {showFileSize && <Text color="gray">{contentString.length} bytes</Text>}
-            {(showLineCount || showFileSize) && showEncoding && <Text color="gray"> · </Text>}
+            {showFileSize && (
+              <Text color="gray">{contentString.length} bytes</Text>
+            )}
+            {(showLineCount || showFileSize) && showEncoding && (
+              <Text color="gray"> · </Text>
+            )}
             {showEncoding && <Text color="gray">{encoding}</Text>}
-            {(showLineCount || showFileSize || showEncoding) && modified && <Text color="gray"> · </Text>}
+            {(showLineCount || showFileSize || showEncoding) && modified && (
+              <Text color="gray"> · </Text>
+            )}
             {modified && <Text color="yellow">Modified</Text>}
           </Box>
         </Box>

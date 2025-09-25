@@ -15,36 +15,43 @@ import { ValidationPipe } from '@nestjs/common';
  */
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log', 'debug', 'verbose']
+    logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
   // Enable CORS for local development
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3790'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:3790',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Enable global validation pipe for DTOs
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,           // Strip properties not defined in DTO
-    forbidNonWhitelisted: true, // Throw error for non-whitelisted properties
-    transform: true,            // Auto-transform to DTO types
-    transformOptions: {
-      enableImplicitConversion: true // Convert primitive types
-    }
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Strip properties not defined in DTO
+      forbidNonWhitelisted: true, // Throw error for non-whitelisted properties
+      transform: true, // Auto-transform to DTO types
+      transformOptions: {
+        enableImplicitConversion: true, // Convert primitive types
+      },
+    })
+  );
 
   // Set global prefix for API routes
   app.setGlobalPrefix('api', {
-    exclude: ['/health'] // Health check at root level for monitoring
+    exclude: ['/health'], // Health check at root level for monitoring
   });
 
   // Setup comprehensive Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('CAGE API')
-    .setDescription(`
+    .setDescription(
+      `
 # CAGE - Code Alignment Guard Engine
 
 CAGE is a developer productivity tool that provides boundaries, context, and guidance to help AI produce code matching living specifications.
@@ -84,7 +91,8 @@ All successful responses return JSON with appropriate HTTP status codes:
 - **Website**: [https://cage.tools](https://cage.tools)
 - **GitHub**: [https://github.com/sengac/cage](https://github.com/sengac/cage)
 - **License**: MIT
-    `)
+    `
+    )
     .setVersion('0.0.1')
     .setContact(
       'CAGE Development Team',
@@ -110,9 +118,9 @@ All successful responses return JSON with appropriate HTTP status codes:
   // Custom Swagger UI options for better presentation
   if (document) {
     SwaggerModule.setup('api-docs', app, document, {
-    customSiteTitle: 'CAGE API Documentation',
-    customfavIcon: 'https://cage.tools/favicon.ico',
-    customCss: `
+      customSiteTitle: 'CAGE API Documentation',
+      customfavIcon: 'https://cage.tools/favicon.ico',
+      customCss: `
       .swagger-ui .topbar { display: none }
       .swagger-ui .info { margin-bottom: 50px }
       .swagger-ui .info .title { font-size: 2.5em }
@@ -121,25 +129,25 @@ All successful responses return JSON with appropriate HTTP status codes:
       .swagger-ui .model-box { background: #fafafa; }
       .swagger-ui .parameter__name.required::after { color: red; content: " *"; }
     `,
-    swaggerOptions: {
-      docExpansion: 'none',     // Collapse all by default
-      filter: true,              // Enable search/filter
-      showRequestDuration: true, // Show request duration
-      syntaxHighlight: {
-        activate: true,
-        theme: 'monokai'        // Code syntax highlighting theme
+      swaggerOptions: {
+        docExpansion: 'none', // Collapse all by default
+        filter: true, // Enable search/filter
+        showRequestDuration: true, // Show request duration
+        syntaxHighlight: {
+          activate: true,
+          theme: 'monokai', // Code syntax highlighting theme
+        },
+        tryItOutEnabled: true, // Enable "Try it out" by default
+        requestSnippetsEnabled: true,
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        defaultModelsExpandDepth: 2,
+        defaultModelExpandDepth: 2,
+        displayOperationId: false,
+        tagsSorter: 'alpha',
+        operationsSorter: 'alpha',
       },
-      tryItOutEnabled: true,    // Enable "Try it out" by default
-      requestSnippetsEnabled: true,
-      persistAuthorization: true,
-      displayRequestDuration: true,
-      defaultModelsExpandDepth: 2,
-      defaultModelExpandDepth: 2,
-      displayOperationId: false,
-      tagsSorter: 'alpha',
-      operationsSorter: 'alpha'
-    }
-  });
+    });
   }
 
   // Get port from environment or default to 3790
@@ -170,7 +178,7 @@ All successful responses return JSON with appropriate HTTP status codes:
 }
 
 // Start the server with error handling
-bootstrap().catch((error) => {
+bootstrap().catch(error => {
   console.error('❌ Failed to start CAGE backend:', error);
   process.exit(1);
 });

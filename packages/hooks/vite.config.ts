@@ -5,18 +5,18 @@ export default defineConfig({
     lib: {
       entry: 'src/cage-hook-handler.ts',
       formats: ['es'], // ESM only
-      fileName: 'cage-hook-handler'
+      fileName: 'cage-hook-handler',
     },
     rollupOptions: {
       external: ['fs', 'path', 'os', 'child_process', 'url'],
       output: {
-        format: 'es'
-      }
+        format: 'es',
+      },
     },
     target: 'node18', // For Node.js 18+
-    ssr: true // Server-side rendering mode for CLI
+    ssr: true, // Server-side rendering mode for CLI
   },
   resolve: {
-    conditions: ['node', 'import', 'module', 'default']
-  }
+    conditions: ['node', 'import', 'module', 'default'],
+  },
 });

@@ -32,18 +32,18 @@ describe('EventDetail', () => {
       arguments: {
         file_path: '/path/to/file.ts',
         old_string: 'const foo = "old";',
-        new_string: 'const foo = "new";'
+        new_string: 'const foo = "new";',
       },
       result: {
         success: true,
         linesChanged: 1,
-        diff: '@@ -1 +1 @@\n-const foo = "old";\n+const foo = "new";'
+        diff: '@@ -1 +1 @@\n-const foo = "old";\n+const foo = "new";',
       },
       executionTime: 150,
     };
 
     // Mock the store implementation
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         selectedEvent: mockEvent,
       };
@@ -110,7 +110,9 @@ describe('EventDetail', () => {
 
     describe('When navigating tabs with keyboard', () => {
       it('Then right arrow should switch to Result tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('\u001B[C'); // Right arrow
         rerender(<EventDetail onBack={onBack} />);
@@ -119,7 +121,9 @@ describe('EventDetail', () => {
       });
 
       it('Then should show result content when on Result tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('\u001B[C'); // Right arrow to Result
         rerender(<EventDetail onBack={onBack} />);
@@ -132,7 +136,9 @@ describe('EventDetail', () => {
       });
 
       it('Then right arrow again should switch to Raw tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('\u001B[C'); // Right arrow to Result
         rerender(<EventDetail onBack={onBack} />);
@@ -143,7 +149,9 @@ describe('EventDetail', () => {
       });
 
       it('Then should show raw JSON when on Raw tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('\u001B[C'); // Right arrow to Result
         rerender(<EventDetail onBack={onBack} />);
@@ -158,7 +166,9 @@ describe('EventDetail', () => {
       });
 
       it('Then left arrow should move backwards through tabs', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         // Go to Raw tab
         stdin.write('\u001B[C'); // Result
@@ -174,7 +184,9 @@ describe('EventDetail', () => {
       });
 
       it('Then should wrap around at tab boundaries', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         // Go past Raw should wrap to Arguments
         stdin.write('\u001B[C'); // Result
@@ -188,7 +200,9 @@ describe('EventDetail', () => {
       });
 
       it('Then left from Arguments should wrap to Raw', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('\u001B[D'); // Left from Arguments should wrap to Raw
         rerender(<EventDetail onBack={onBack} />);
@@ -199,7 +213,9 @@ describe('EventDetail', () => {
 
     describe('When using number keys for tab navigation', () => {
       it('Then 1 should switch to Arguments tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         // Go to Result first
         stdin.write('\u001B[C');
@@ -213,7 +229,9 @@ describe('EventDetail', () => {
       });
 
       it('Then 2 should switch to Result tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('2');
         rerender(<EventDetail onBack={onBack} />);
@@ -222,7 +240,9 @@ describe('EventDetail', () => {
       });
 
       it('Then 3 should switch to Raw tab', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('3');
         rerender(<EventDetail onBack={onBack} />);
@@ -233,7 +253,9 @@ describe('EventDetail', () => {
 
     describe('When pressing copy key', () => {
       it('Then c should show copy success message', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('c');
         rerender(<EventDetail onBack={onBack} />);
@@ -243,7 +265,9 @@ describe('EventDetail', () => {
 
       it('Then copy message should disappear after delay', () => {
         // This test would need timer mocking in a real implementation
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('c');
         rerender(<EventDetail onBack={onBack} />);
@@ -254,7 +278,9 @@ describe('EventDetail', () => {
 
     describe('When pressing export key', () => {
       it('Then e should show export options', () => {
-        const { stdin, lastFrame, rerender } = render(<EventDetail onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <EventDetail onBack={onBack} />
+        );
 
         stdin.write('e');
         rerender(<EventDetail onBack={onBack} />);
@@ -293,12 +319,14 @@ describe('EventDetail', () => {
           },
         };
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            selectedEvent: userEvent,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              selectedEvent: userEvent,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<EventDetail onBack={onBack} />);
         const frame = lastFrame();
@@ -320,12 +348,14 @@ describe('EventDetail', () => {
           },
         };
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            selectedEvent: eventWithoutResult,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              selectedEvent: eventWithoutResult,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<EventDetail onBack={onBack} />);
         const frame = lastFrame();
@@ -348,12 +378,14 @@ describe('EventDetail', () => {
           executionTime: 5,
         };
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            selectedEvent: errorEvent,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              selectedEvent: errorEvent,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<EventDetail onBack={onBack} />);
         const frame = lastFrame();
@@ -366,12 +398,14 @@ describe('EventDetail', () => {
 
     describe('When no event is selected', () => {
       it('Then should show no event message', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            selectedEvent: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              selectedEvent: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<EventDetail onBack={onBack} />);
 
@@ -379,12 +413,14 @@ describe('EventDetail', () => {
       });
 
       it('Then should still show back navigation', () => {
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            selectedEvent: null,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              selectedEvent: null,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<EventDetail onBack={onBack} />);
 
@@ -413,21 +449,23 @@ describe('EventDetail', () => {
           arguments: {
             files: [
               { path: '/file1.ts', changes: 3 },
-              { path: '/file2.ts', changes: 1 }
+              { path: '/file2.ts', changes: 1 },
             ],
             config: {
               backup: true,
-              format: 'prettier'
-            }
-          }
+              format: 'prettier',
+            },
+          },
         };
 
-        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-          const state = {
-            selectedEvent: complexEvent,
-          };
-          return selector ? selector(state) : state;
-        });
+        (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(
+          selector => {
+            const state = {
+              selectedEvent: complexEvent,
+            };
+            return selector ? selector(state) : state;
+          }
+        );
 
         const { lastFrame } = render(<EventDetail onBack={onBack} />);
         const frame = lastFrame();

@@ -16,10 +16,7 @@ interface AppProps {
  * Main App component that uses the ViewManager for navigation
  * Shows logo first, then delegates all view management to ViewManager
  */
-export const App: React.FC<AppProps> = ({
-  showLogo = true,
-  onExit
-}) => {
+export const App: React.FC<AppProps> = ({ showLogo = true, onExit }) => {
   const [logoComplete, setLogoComplete] = useState(!showLogo);
 
   const handleLogoComplete = useCallback(() => {

@@ -27,7 +27,9 @@ export interface EventAnimationState {
   isAnimating: boolean;
 }
 
-export function useEventAnimation(config: EventAnimationConfig): EventAnimationState {
+export function useEventAnimation(
+  config: EventAnimationConfig
+): EventAnimationState {
   const {
     eventId,
     isNewEvent,
@@ -39,7 +41,7 @@ export function useEventAnimation(config: EventAnimationConfig): EventAnimationS
     pulseDuration = 500,
     disabled = false,
     onAnimationStart,
-    onAnimationComplete
+    onAnimationComplete,
   } = config;
 
   const [isNew, setIsNew] = useState(isNewEvent && !disabled);
@@ -210,7 +212,7 @@ export function useEventAnimation(config: EventAnimationConfig): EventAnimationS
     pulseDuration,
     pulseRepeat,
     onAnimationStart,
-    onAnimationComplete
+    onAnimationComplete,
   ]);
 
   const highlightClass = isNew ? customClass : '';
@@ -223,6 +225,6 @@ export function useEventAnimation(config: EventAnimationConfig): EventAnimationS
     offsetY,
     isPulsing,
     pulseCount,
-    isAnimating
+    isAnimating,
   };
 }

@@ -30,7 +30,7 @@ export function EventsTailCommand({ count = 10 }: TailProps): JSX.Element {
   const [state, setState] = useState<TailState>({
     status: 'loading',
     message: `Loading last ${count} events...`,
-    events: []
+    events: [],
   });
 
   useEffect(() => {
@@ -42,18 +42,21 @@ export function EventsTailCommand({ count = 10 }: TailProps): JSX.Element {
             status: 'error',
             message: 'CAGE is not initialized',
             error: 'Please run "cage init" first',
-            events: []
+            events: [],
           });
           return;
         }
 
-        const eventsDir = join(process.cwd(), config.eventsDir || '.cage/events');
+        const eventsDir = join(
+          process.cwd(),
+          config.eventsDir || '.cage/events'
+        );
 
         if (!existsSync(eventsDir)) {
           setState({
             status: 'done',
             message: 'No events found',
-            events: []
+            events: [],
           });
           return;
         }
@@ -74,7 +77,10 @@ export function EventsTailCommand({ count = 10 }: TailProps): JSX.Element {
             for (const file of eventFiles) {
               const filePath = join(datePath, file);
               const content = await readFile(filePath, 'utf-8');
-              const lines = content.trim().split('\n').filter(line => line.trim());
+              const lines = content
+                .trim()
+                .split('\n')
+                .filter(line => line.trim());
 
               for (const line of lines) {
                 try {
@@ -92,21 +98,23 @@ export function EventsTailCommand({ count = 10 }: TailProps): JSX.Element {
         }
 
         // Sort by timestamp descending and take the last N events
-        allEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        allEvents.sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
         const recentEvents = allEvents.slice(0, count);
 
         setState({
           status: 'done',
           message: `Last ${recentEvents.length} events:`,
-          events: recentEvents
+          events: recentEvents,
         });
-
       } catch (err) {
         setState({
           status: 'error',
           message: 'Failed to load events',
           error: err instanceof Error ? err.message : 'Unknown error',
-          events: []
+          events: [],
         });
       }
     };

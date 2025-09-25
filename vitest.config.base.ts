@@ -17,21 +17,21 @@ export default defineConfig({
         'dist/',
         '**/*.config.ts',
         '**/*.d.ts',
-        '**/index.ts' // Exclude barrel exports
+        '**/index.ts', // Exclude barrel exports
       ],
       thresholds: {
         lines: 80,
         functions: 80,
         branches: 80,
-        statements: 80
-      }
+        statements: 80,
+      },
     },
     testTimeout: 10000,
-    hookTimeout: 10000
+    hookTimeout: 10000,
   },
   resolve: {
     alias: {
-      '@cage/shared': resolve(__dirname, './packages/shared/src')
-    }
-  }
+      '@cage/shared': resolve(__dirname, './packages/shared/src'),
+    },
+  },
 });

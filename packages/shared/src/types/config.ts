@@ -29,7 +29,7 @@ export const CageConfigSchema = z.object({
 
   // Environment configuration
   env: z.enum(['development', 'production', 'test']).optional(),
-  debug: z.boolean().optional()
+  debug: z.boolean().optional(),
 });
 
 export type CageConfig = z.infer<typeof CageConfigSchema>;
@@ -52,7 +52,7 @@ export const defaultConfig: CageConfig = {
   maxEventSize: 1048576,
   enableMetrics: false,
   enableOfflineMode: true,
-  offlineLogPath: '.cage/hooks-offline.log'
+  offlineLogPath: '.cage/hooks-offline.log',
 };
 
 /**
@@ -68,12 +68,12 @@ export const HookConfigSchema = z.object({
     'SubagentStop',
     'SessionStart',
     'SessionEnd',
-    'PreCompact'
+    'PreCompact',
   ]),
   enabled: z.boolean().default(true),
   timeout: z.number().positive().optional(),
   retryOnFailure: z.boolean().default(false),
-  maxRetries: z.number().min(0).default(0)
+  maxRetries: z.number().min(0).default(0),
 });
 
 export type HookConfig = z.infer<typeof HookConfigSchema>;
@@ -82,7 +82,7 @@ export type HookConfig = z.infer<typeof HookConfigSchema>;
  * Complete hooks configuration
  */
 export const HooksConfigSchema = z.object({
-  hooks: z.array(HookConfigSchema).default([])
+  hooks: z.array(HookConfigSchema).default([]),
 });
 
 export type HooksConfig = z.infer<typeof HooksConfigSchema>;

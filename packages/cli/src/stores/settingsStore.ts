@@ -39,7 +39,10 @@ export interface SettingsState {
   maxEventsBuffer: number;
 
   // Actions
-  updateSetting: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
+  updateSetting: <K extends keyof SettingsState>(
+    key: K,
+    value: SettingsState[K]
+  ) => void;
   loadFromFile: (path: string) => Promise<void>;
   exportToFile: (path: string) => Promise<void>;
   resetToDefaults: () => void;
@@ -62,7 +65,10 @@ const defaultKeyBindings: KeyBindings = {
   end: ['end', 'G'],
 };
 
-const defaultSettings: Omit<SettingsState, 'updateSetting' | 'loadFromFile' | 'exportToFile' | 'resetToDefaults'> = {
+const defaultSettings: Omit<
+  SettingsState,
+  'updateSetting' | 'loadFromFile' | 'exportToFile' | 'resetToDefaults'
+> = {
   theme: 'auto',
   animationsEnabled: true,
   soundEnabled: false,
@@ -84,7 +90,7 @@ export const useSettingsStore = create<SettingsState>()(
       ...defaultSettings,
 
       updateSetting: (key, value) =>
-        set((state) => ({
+        set(state => ({
           ...state,
           [key]: value,
         })),
@@ -94,7 +100,7 @@ export const useSettingsStore = create<SettingsState>()(
           const { readFileSync } = await import('fs');
           const content = readFileSync(path, 'utf-8');
           const settings = JSON.parse(content);
-          set((state) => ({
+          set(state => ({
             ...state,
             ...settings,
           }));
@@ -135,7 +141,7 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'cage-settings',
-      partialize: (state) => ({
+      partialize: state => ({
         theme: state.theme,
         animationsEnabled: state.animationsEnabled,
         compactMode: state.compactMode,

@@ -12,11 +12,16 @@ interface ConfigurationMenuProps {
   onBack: () => void;
 }
 
-export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) => {
-  const [selectedSection, setSelectedSection] = useState<ConfigSection>('theme');
+export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({
+  onBack,
+}) => {
+  const [selectedSection, setSelectedSection] =
+    useState<ConfigSection>('theme');
   const [focusArea, setFocusArea] = useState<FocusArea>('sections');
   const [selectedAction, setSelectedAction] = useState<ActionButton>('apply');
-  const [editingSection, setEditingSection] = useState<ConfigSection | null>(null);
+  const [editingSection, setEditingSection] = useState<ConfigSection | null>(
+    null
+  );
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -26,31 +31,50 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
   const [tempPortValue, setTempPortValue] = useState('');
 
   const theme = useTheme();
-  const { settings, updateSettings, resetSettings, exportSettings, importSettings } = useSettingsStore();
+  const {
+    settings,
+    updateSettings,
+    resetSettings,
+    exportSettings,
+    importSettings,
+  } = useSettingsStore();
 
   // Local state for configuration editing
   const [localSettings, setLocalSettings] = useState(() => {
-    return settings ? { ...settings } : {
-      theme: 'dark',
-      serverConfig: {
-        port: 3790,
-        enabled: true,
-        autoStart: false,
-      },
-      displayPreferences: {
-        showTimestamps: true,
-        dateFormat: 'relative',
-        maxEvents: 1000,
-      },
-      keyBindings: {
-        navigation: 'vim',
-        customKeys: {},
-      },
-    };
+    return settings
+      ? { ...settings }
+      : {
+          theme: 'dark',
+          serverConfig: {
+            port: 3790,
+            enabled: true,
+            autoStart: false,
+          },
+          displayPreferences: {
+            showTimestamps: true,
+            dateFormat: 'relative',
+            maxEvents: 1000,
+          },
+          keyBindings: {
+            navigation: 'vim',
+            customKeys: {},
+          },
+        };
   });
 
-  const sections: ConfigSection[] = ['theme', 'server', 'display', 'keyBindings'];
-  const actions: ActionButton[] = ['apply', 'cancel', 'reset', 'import', 'export'];
+  const sections: ConfigSection[] = [
+    'theme',
+    'server',
+    'display',
+    'keyBindings',
+  ];
+  const actions: ActionButton[] = [
+    'apply',
+    'cancel',
+    'reset',
+    'import',
+    'export',
+  ];
 
   useSafeInput((input, key) => {
     if (showExitConfirm) {
@@ -83,7 +107,8 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
         if (key.upArrow || input === 'k') {
           const themes = ['dark', 'light', 'high-contrast'];
           const currentIndex = themes.indexOf(localSettings.theme);
-          const newIndex = currentIndex === 0 ? themes.length - 1 : currentIndex - 1;
+          const newIndex =
+            currentIndex === 0 ? themes.length - 1 : currentIndex - 1;
           setLocalSettings(prev => ({ ...prev, theme: themes[newIndex] }));
           setHasUnsavedChanges(true);
         } else if (key.downArrow || input === 'j') {
@@ -115,7 +140,7 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
           if (portNum > 0 && portNum <= 65535) {
             setLocalSettings(prev => ({
               ...prev,
-              serverConfig: { ...prev.serverConfig, port: portNum }
+              serverConfig: { ...prev.serverConfig, port: portNum },
             }));
             setHasUnsavedChanges(true);
             setEditingSection(null);
@@ -129,20 +154,31 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
       } else if (editingSection === 'keyBindings') {
         if (key.upArrow || input === 'k') {
           const navStyles = ['vim', 'arrow'];
-          const currentIndex = navStyles.indexOf(localSettings.keyBindings.navigation);
-          const newIndex = currentIndex === 0 ? navStyles.length - 1 : currentIndex - 1;
+          const currentIndex = navStyles.indexOf(
+            localSettings.keyBindings.navigation
+          );
+          const newIndex =
+            currentIndex === 0 ? navStyles.length - 1 : currentIndex - 1;
           setLocalSettings(prev => ({
             ...prev,
-            keyBindings: { ...prev.keyBindings, navigation: navStyles[newIndex] }
+            keyBindings: {
+              ...prev.keyBindings,
+              navigation: navStyles[newIndex],
+            },
           }));
           setHasUnsavedChanges(true);
         } else if (key.downArrow || input === 'j') {
           const navStyles = ['vim', 'arrow'];
-          const currentIndex = navStyles.indexOf(localSettings.keyBindings.navigation);
+          const currentIndex = navStyles.indexOf(
+            localSettings.keyBindings.navigation
+          );
           const newIndex = (currentIndex + 1) % navStyles.length;
           setLocalSettings(prev => ({
             ...prev,
-            keyBindings: { ...prev.keyBindings, navigation: navStyles[newIndex] }
+            keyBindings: {
+              ...prev.keyBindings,
+              navigation: navStyles[newIndex],
+            },
           }));
           setHasUnsavedChanges(true);
         } else if (key.return) {
@@ -157,7 +193,8 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
     if (focusArea === 'sections') {
       if (key.upArrow || input === 'k') {
         const currentIndex = sections.indexOf(selectedSection);
-        const newIndex = currentIndex === 0 ? sections.length - 1 : currentIndex - 1;
+        const newIndex =
+          currentIndex === 0 ? sections.length - 1 : currentIndex - 1;
         setSelectedSection(sections[newIndex]);
       } else if (key.downArrow || input === 'j') {
         const currentIndex = sections.indexOf(selectedSection);
@@ -175,7 +212,8 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
     } else if (focusArea === 'actions') {
       if (key.leftArrow) {
         const currentIndex = actions.indexOf(selectedAction);
-        const newIndex = currentIndex === 0 ? actions.length - 1 : currentIndex - 1;
+        const newIndex =
+          currentIndex === 0 ? actions.length - 1 : currentIndex - 1;
         setSelectedAction(actions[newIndex]);
       } else if (key.rightArrow) {
         const currentIndex = actions.indexOf(selectedAction);
@@ -258,10 +296,14 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
 
   const getSectionTitle = (section: ConfigSection): string => {
     switch (section) {
-      case 'theme': return 'Theme';
-      case 'server': return 'Server';
-      case 'display': return 'Display';
-      case 'keyBindings': return 'Key Bindings';
+      case 'theme':
+        return 'Theme';
+      case 'server':
+        return 'Server';
+      case 'display':
+        return 'Display';
+      case 'keyBindings':
+        return 'Key Bindings';
     }
   };
 
@@ -272,16 +314,37 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
       case 'theme':
         return (
           <Box flexDirection="column" marginY={1} paddingX={1}>
-            <Text color={theme.primary.aqua} bold>Select Theme</Text>
+            <Text color={theme.primary.aqua} bold>
+              Select Theme
+            </Text>
             <Box marginTop={1} flexDirection="column">
-              <Text color={localSettings.theme === 'dark' ? theme.status.success : theme.ui.text}>
+              <Text
+                color={
+                  localSettings.theme === 'dark'
+                    ? theme.status.success
+                    : theme.ui.text
+                }
+              >
                 {localSettings.theme === 'dark' ? '❯ ' : '  '}Dark
               </Text>
-              <Text color={localSettings.theme === 'light' ? theme.status.success : theme.ui.text}>
+              <Text
+                color={
+                  localSettings.theme === 'light'
+                    ? theme.status.success
+                    : theme.ui.text
+                }
+              >
                 {localSettings.theme === 'light' ? '❯ ' : '  '}Light
               </Text>
-              <Text color={localSettings.theme === 'high-contrast' ? theme.status.success : theme.ui.text}>
-                {localSettings.theme === 'high-contrast' ? '❯ ' : '  '}High Contrast
+              <Text
+                color={
+                  localSettings.theme === 'high-contrast'
+                    ? theme.status.success
+                    : theme.ui.text
+                }
+              >
+                {localSettings.theme === 'high-contrast' ? '❯ ' : '  '}High
+                Contrast
               </Text>
             </Box>
           </Box>
@@ -289,10 +352,14 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
       case 'server':
         return (
           <Box flexDirection="column" marginY={1} paddingX={1}>
-            <Text color={theme.primary.aqua} bold>Server Configuration</Text>
+            <Text color={theme.primary.aqua} bold>
+              Server Configuration
+            </Text>
             <Box marginTop={1}>
               <Text color={theme.ui.textMuted}>Port: </Text>
-              <Text color={theme.ui.text}>{tempPortValue || localSettings.serverConfig.port}</Text>
+              <Text color={theme.ui.text}>
+                {tempPortValue || localSettings.serverConfig.port}
+              </Text>
             </Box>
             {validationError && (
               <Box marginTop={1}>
@@ -300,34 +367,58 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
               </Box>
             )}
             <Box marginTop={1}>
-              <Text color={theme.ui.textMuted}>Press Enter to save, Escape to cancel</Text>
+              <Text color={theme.ui.textMuted}>
+                Press Enter to save, Escape to cancel
+              </Text>
             </Box>
           </Box>
         );
       case 'display':
         return (
           <Box flexDirection="column" marginY={1} paddingX={1}>
-            <Text color={theme.primary.aqua} bold>Display Preferences</Text>
+            <Text color={theme.primary.aqua} bold>
+              Display Preferences
+            </Text>
             <Box marginTop={1}>
               <Text color={theme.ui.textMuted}>Show Timestamps: </Text>
-              <Text color={theme.ui.text}>{localSettings.displayPreferences.showTimestamps ? 'Yes' : 'No'}</Text>
+              <Text color={theme.ui.text}>
+                {localSettings.displayPreferences.showTimestamps ? 'Yes' : 'No'}
+              </Text>
             </Box>
             <Box>
               <Text color={theme.ui.textMuted}>Date Format: </Text>
-              <Text color={theme.ui.text}>{localSettings.displayPreferences.dateFormat}</Text>
+              <Text color={theme.ui.text}>
+                {localSettings.displayPreferences.dateFormat}
+              </Text>
             </Box>
           </Box>
         );
       case 'keyBindings':
         return (
           <Box flexDirection="column" marginY={1} paddingX={1}>
-            <Text color={theme.primary.aqua} bold>Key Bindings</Text>
+            <Text color={theme.primary.aqua} bold>
+              Key Bindings
+            </Text>
             <Box marginTop={1} flexDirection="column">
-              <Text color={localSettings.keyBindings.navigation === 'vim' ? theme.status.success : theme.ui.text}>
-                {localSettings.keyBindings.navigation === 'vim' ? '❯ ' : '  '}vim
+              <Text
+                color={
+                  localSettings.keyBindings.navigation === 'vim'
+                    ? theme.status.success
+                    : theme.ui.text
+                }
+              >
+                {localSettings.keyBindings.navigation === 'vim' ? '❯ ' : '  '}
+                vim
               </Text>
-              <Text color={localSettings.keyBindings.navigation === 'arrow' ? theme.status.success : theme.ui.text}>
-                {localSettings.keyBindings.navigation === 'arrow' ? '❯ ' : '  '}arrow
+              <Text
+                color={
+                  localSettings.keyBindings.navigation === 'arrow'
+                    ? theme.status.success
+                    : theme.ui.text
+                }
+              >
+                {localSettings.keyBindings.navigation === 'arrow' ? '❯ ' : '  '}
+                arrow
               </Text>
             </Box>
           </Box>
@@ -340,7 +431,9 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
 
     return (
       <Box flexDirection="column" marginY={1} paddingX={1}>
-        <Text color={theme.status.warning}>You have unsaved changes. Exit anyway? (y/N)</Text>
+        <Text color={theme.status.warning}>
+          You have unsaved changes. Exit anyway? (y/N)
+        </Text>
       </Box>
     );
   };
@@ -350,9 +443,13 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
 
     return (
       <Box flexDirection="column" marginY={1} paddingX={1}>
-        <Text color={theme.primary.aqua} bold>Export Settings</Text>
+        <Text color={theme.primary.aqua} bold>
+          Export Settings
+        </Text>
         <Box marginTop={1}>
-          <Text color={theme.ui.textMuted}>Settings will be exported to clipboard</Text>
+          <Text color={theme.ui.textMuted}>
+            Settings will be exported to clipboard
+          </Text>
         </Box>
       </Box>
     );
@@ -363,7 +460,9 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
 
     return (
       <Box flexDirection="column" marginY={1} paddingX={1}>
-        <Text color={theme.primary.aqua} bold>Import Settings</Text>
+        <Text color={theme.primary.aqua} bold>
+          Import Settings
+        </Text>
         <Box marginTop={1}>
           <Text color={theme.ui.textMuted}>Paste settings JSON to import</Text>
         </Box>
@@ -375,67 +474,76 @@ export const ConfigurationMenu: React.FC<ConfigurationMenuProps> = ({ onBack }) 
     <Box flexDirection="column" flexGrow={1}>
       {/* Main Content */}
       <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
+        {/* Success message */}
+        {successMessage && (
+          <Box marginBottom={1} paddingX={1}>
+            <Text color={theme.status.success}>{successMessage}</Text>
+          </Box>
+        )}
 
-      {/* Success message */}
-      {successMessage && (
-        <Box marginBottom={1} paddingX={1}>
-          <Text color={theme.status.success}>{successMessage}</Text>
-        </Box>
-      )}
+        {/* Exit confirmation dialog */}
+        {renderExitConfirmDialog()}
 
-      {/* Exit confirmation dialog */}
-      {renderExitConfirmDialog()}
+        {/* Export dialog */}
+        {renderExportDialog()}
 
-      {/* Export dialog */}
-      {renderExportDialog()}
+        {/* Import dialog */}
+        {renderImportDialog()}
 
-      {/* Import dialog */}
-      {renderImportDialog()}
+        {/* Editing section dialog */}
+        {renderEditingSection()}
 
-      {/* Editing section dialog */}
-      {renderEditingSection()}
-
-      {/* Main content - only show if not in dialog mode */}
-      {!editingSection && !showExitConfirm && !showExportDialog && !showImportDialog && (
-        <>
-          {/* Configuration sections */}
-          <Box flexDirection="column" marginBottom={1}>
-            {sections.map((section) => (
-              <Box key={section} paddingX={1} marginBottom={1}>
-                <Text color={
-                  focusArea === 'sections' && selectedSection === section
-                    ? theme.status.success
-                    : theme.ui.text
-                }>
-                  {focusArea === 'sections' && selectedSection === section ? '❯ ' : '  '}
-                  {getSectionTitle(section)}
-                </Text>
-                <Box marginLeft={4}>
-                  <Text color={theme.ui.textMuted}>{getSectionDisplay(section)}</Text>
-                </Box>
+        {/* Main content - only show if not in dialog mode */}
+        {!editingSection &&
+          !showExitConfirm &&
+          !showExportDialog &&
+          !showImportDialog && (
+            <>
+              {/* Configuration sections */}
+              <Box flexDirection="column" marginBottom={1}>
+                {sections.map(section => (
+                  <Box key={section} paddingX={1} marginBottom={1}>
+                    <Text
+                      color={
+                        focusArea === 'sections' && selectedSection === section
+                          ? theme.status.success
+                          : theme.ui.text
+                      }
+                    >
+                      {focusArea === 'sections' && selectedSection === section
+                        ? '❯ '
+                        : '  '}
+                      {getSectionTitle(section)}
+                    </Text>
+                    <Box marginLeft={4}>
+                      <Text color={theme.ui.textMuted}>
+                        {getSectionDisplay(section)}
+                      </Text>
+                    </Box>
+                  </Box>
+                ))}
               </Box>
-            ))}
-          </Box>
 
-          {/* Action buttons */}
-          <Box marginTop={1} justifyContent="center" gap={2}>
-            {actions.map((action) => (
-              <Text
-                key={action}
-                color={
-                  focusArea === 'actions' && selectedAction === action
-                    ? theme.status.success
-                    : theme.ui.text
-                }
-              >
-                {focusArea === 'actions' && selectedAction === action ? '❯ ' : '  '}
-                {action.charAt(0).toUpperCase() + action.slice(1)}
-              </Text>
-            ))}
-          </Box>
-
-        </>
-      )}
+              {/* Action buttons */}
+              <Box marginTop={1} justifyContent="center" gap={2}>
+                {actions.map(action => (
+                  <Text
+                    key={action}
+                    color={
+                      focusArea === 'actions' && selectedAction === action
+                        ? theme.status.success
+                        : theme.ui.text
+                    }
+                  >
+                    {focusArea === 'actions' && selectedAction === action
+                      ? '❯ '
+                      : '  '}
+                    {action.charAt(0).toUpperCase() + action.slice(1)}
+                  </Text>
+                ))}
+              </Box>
+            </>
+          )}
       </Box>
     </Box>
   );

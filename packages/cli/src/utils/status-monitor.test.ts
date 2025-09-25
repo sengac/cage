@@ -28,25 +28,37 @@ describe('StatusMonitor', () => {
         status: 'running',
         port: 3790,
         pid: 1234,
-        uptime: 60000
+        uptime: 60000,
       },
-      fullStatus: undefined
+      fullStatus: undefined,
     });
 
     const mockHooksStatus: RealHooksStatus = {
       isInstalled: true,
       installedHooks: [
-        { type: 'preToolUse', enabled: true, name: 'preToolUse', eventCount: 0 },
-        { type: 'postToolUse', enabled: false, name: 'postToolUse', eventCount: 0 }
+        {
+          type: 'preToolUse',
+          enabled: true,
+          name: 'preToolUse',
+          eventCount: 0,
+        },
+        {
+          type: 'postToolUse',
+          enabled: false,
+          name: 'postToolUse',
+          eventCount: 0,
+        },
       ],
-      totalEvents: 0
+      totalEvents: 0,
     };
-    vi.mocked(hooksStatus.getRealHooksStatus).mockResolvedValue(mockHooksStatus);
+    vi.mocked(hooksStatus.getRealHooksStatus).mockResolvedValue(
+      mockHooksStatus
+    );
 
     vi.mocked(eventsStatus.getEventsCounts).mockResolvedValue({
       total: 100,
       today: 50,
-      byType: {}
+      byType: {},
     });
   });
 
@@ -141,7 +153,7 @@ describe('StatusMonitor', () => {
     vi.mocked(eventsStatus.getEventsCounts).mockResolvedValue({
       total: 200,
       today: 150,
-      byType: {}
+      byType: {},
     });
 
     // Advance time by 10 seconds and trigger update
@@ -160,7 +172,9 @@ describe('StatusMonitor', () => {
     monitor.on('statusError', errorHandler);
 
     // Mock error
-    vi.mocked(serverStatus.getRealServerStatus).mockRejectedValue(new Error('Connection failed'));
+    vi.mocked(serverStatus.getRealServerStatus).mockRejectedValue(
+      new Error('Connection failed')
+    );
 
     await monitor.start();
 

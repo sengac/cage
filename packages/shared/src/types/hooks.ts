@@ -18,7 +18,7 @@ export const PreToolUsePayloadSchema = z.object({
   sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   toolName: z.string(), // Mapped from 'tool' field
-  arguments: z.record(z.string(), z.unknown()) // Claude Code sends this correctly
+  arguments: z.record(z.string(), z.unknown()), // Claude Code sends this correctly
 });
 
 export type PreToolUsePayload = z.infer<typeof PreToolUsePayloadSchema>;
@@ -34,7 +34,7 @@ export const PostToolUsePayloadSchema = z.object({
   arguments: z.record(z.string(), z.unknown()),
   result: z.unknown().nullable(),
   executionTime: z.number(), // milliseconds
-  error: z.string().optional()
+  error: z.string().optional(),
 });
 
 export type PostToolUsePayload = z.infer<typeof PostToolUsePayloadSchema>;
@@ -47,16 +47,24 @@ export const UserPromptSubmitPayloadSchema = z.object({
   sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   prompt: z.string(),
-  context: z.object({
-    previousMessages: z.array(z.object({
-      role: z.enum(['user', 'assistant', 'system']),
-      content: z.string()
-    })).optional(),
-    currentFile: z.string().optional()
-  }).optional()
+  context: z
+    .object({
+      previousMessages: z
+        .array(
+          z.object({
+            role: z.enum(['user', 'assistant', 'system']),
+            content: z.string(),
+          })
+        )
+        .optional(),
+      currentFile: z.string().optional(),
+    })
+    .optional(),
 });
 
-export type UserPromptSubmitPayload = z.infer<typeof UserPromptSubmitPayloadSchema>;
+export type UserPromptSubmitPayload = z.infer<
+  typeof UserPromptSubmitPayloadSchema
+>;
 
 /**
  * Notification hook payload
@@ -66,7 +74,7 @@ export const NotificationPayloadSchema = z.object({
   sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   level: z.enum(['info', 'warning', 'error']),
-  message: z.string()
+  message: z.string(),
 });
 
 export type NotificationPayload = z.infer<typeof NotificationPayloadSchema>;
@@ -79,7 +87,7 @@ export const StopPayloadSchema = z.object({
   sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   reason: z.string(),
-  finalState: z.record(z.string(), z.unknown()).optional()
+  finalState: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type StopPayload = z.infer<typeof StopPayloadSchema>;
@@ -93,11 +101,13 @@ export const SubagentStopPayloadSchema = z.object({
   timestamp: z.string(), // ISO 8601 timestamp
   subagentId: z.string(),
   parentSessionId: z.string(),
-  result: z.object({
-    success: z.boolean(),
-    output: z.string().optional(),
-    metrics: z.record(z.string(), z.unknown()).optional()
-  }).optional()
+  result: z
+    .object({
+      success: z.boolean(),
+      output: z.string().optional(),
+      metrics: z.record(z.string(), z.unknown()).optional(),
+    })
+    .optional(),
 });
 
 export type SubagentStopPayload = z.infer<typeof SubagentStopPayloadSchema>;
@@ -110,11 +120,13 @@ export const SessionStartPayloadSchema = z.object({
   sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   projectPath: z.string(),
-  environment: z.object({
-    nodeVersion: z.string().optional(),
-    platform: z.string().optional(),
-    cwd: z.string().optional()
-  }).optional()
+  environment: z
+    .object({
+      nodeVersion: z.string().optional(),
+      platform: z.string().optional(),
+      cwd: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type SessionStartPayload = z.infer<typeof SessionStartPayloadSchema>;
@@ -127,12 +139,14 @@ export const SessionEndPayloadSchema = z.object({
   sessionId: z.string().optional(), // Not provided by Claude Code currently
   timestamp: z.string(), // ISO 8601 timestamp
   duration: z.number(), // milliseconds
-  summary: z.object({
-    toolsUsed: z.array(z.string()).optional(),
-    filesModified: z.array(z.string()).optional(),
-    errors: z.number().optional(),
-    warnings: z.number().optional()
-  }).optional()
+  summary: z
+    .object({
+      toolsUsed: z.array(z.string()).optional(),
+      filesModified: z.array(z.string()).optional(),
+      errors: z.number().optional(),
+      warnings: z.number().optional(),
+    })
+    .optional(),
 });
 
 export type SessionEndPayload = z.infer<typeof SessionEndPayloadSchema>;
@@ -146,7 +160,7 @@ export const PreCompactPayloadSchema = z.object({
   timestamp: z.string(), // ISO 8601 timestamp
   reason: z.string(),
   currentTokenCount: z.number().optional(),
-  maxTokenCount: z.number().optional()
+  maxTokenCount: z.number().optional(),
 });
 
 export type PreCompactPayload = z.infer<typeof PreCompactPayloadSchema>;
@@ -157,40 +171,40 @@ export type PreCompactPayload = z.infer<typeof PreCompactPayloadSchema>;
 export const HookPayloadSchema = z.discriminatedUnion('type', [
   z.object({
     ...PreToolUsePayloadSchema.shape,
-    type: z.literal('PreToolUse')
+    type: z.literal('PreToolUse'),
   }),
   z.object({
     ...PostToolUsePayloadSchema.shape,
-    type: z.literal('PostToolUse')
+    type: z.literal('PostToolUse'),
   }),
   z.object({
     ...UserPromptSubmitPayloadSchema.shape,
-    type: z.literal('UserPromptSubmit')
+    type: z.literal('UserPromptSubmit'),
   }),
   z.object({
     ...NotificationPayloadSchema.shape,
-    type: z.literal('Notification')
+    type: z.literal('Notification'),
   }),
   z.object({
     ...StopPayloadSchema.shape,
-    type: z.literal('Stop')
+    type: z.literal('Stop'),
   }),
   z.object({
     ...SubagentStopPayloadSchema.shape,
-    type: z.literal('SubagentStop')
+    type: z.literal('SubagentStop'),
   }),
   z.object({
     ...SessionStartPayloadSchema.shape,
-    type: z.literal('SessionStart')
+    type: z.literal('SessionStart'),
   }),
   z.object({
     ...SessionEndPayloadSchema.shape,
-    type: z.literal('SessionEnd')
+    type: z.literal('SessionEnd'),
   }),
   z.object({
     ...PreCompactPayloadSchema.shape,
-    type: z.literal('PreCompact')
-  })
+    type: z.literal('PreCompact'),
+  }),
 ]);
 
 export type HookPayload = z.infer<typeof HookPayloadSchema>;
@@ -204,7 +218,7 @@ export const HookResponseSchema = z.object({
   message: z.string().optional(),
   warning: z.string().optional(),
   contextToInject: z.string().optional(),
-  data: z.record(z.string(), z.unknown()).optional()
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type HookResponse = z.infer<typeof HookResponseSchema>;
@@ -221,5 +235,5 @@ export enum HookType {
   SubagentStop = 'SubagentStop',
   SessionStart = 'SessionStart',
   SessionEnd = 'SessionEnd',
-  PreCompact = 'PreCompact'
+  PreCompact = 'PreCompact',
 }

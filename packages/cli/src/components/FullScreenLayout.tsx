@@ -23,15 +23,18 @@ export const FullScreenLayout: React.FC<FullScreenLayoutProps> = ({
   children,
   footer,
   showDefaultFooter = true,
-  isMainMenu = false
+  isMainMenu = false,
 }) => {
   // Handle ESC key for going back (if onBack is provided)
   // This is a fallback - respects focus ownership
-  useSafeInput((input, key) => {
-    if (onBack && (key.escape || input === 'q')) {
-      onBack();
-    }
-  }, { componentId: 'fullscreen-layout', respectFocus: true });
+  useSafeInput(
+    (input, key) => {
+      if (onBack && (key.escape || input === 'q')) {
+        onBack();
+      }
+    },
+    { componentId: 'fullscreen-layout', respectFocus: true }
+  );
 
   return (
     <Box flexDirection="column" flexGrow={1}>

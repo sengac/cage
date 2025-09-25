@@ -19,7 +19,16 @@ export interface SyntaxHighlighterProps {
 }
 
 interface TokenType {
-  type: 'keyword' | 'string' | 'number' | 'comment' | 'operator' | 'identifier' | 'type' | 'builtin' | 'plain';
+  type:
+    | 'keyword'
+    | 'string'
+    | 'number'
+    | 'comment'
+    | 'operator'
+    | 'identifier'
+    | 'type'
+    | 'builtin'
+    | 'plain';
   value: string;
   color?: string;
 }
@@ -38,7 +47,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   showFolding = false,
   showCopyButton = false,
   onCopy,
-  onLineSelect
+  onLineSelect,
 }) => {
   // Handle null/undefined code
   if (code == null) {
@@ -51,16 +60,35 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
     if (language) return language;
 
     // Auto-detect language based on patterns
-    if (code.includes('interface ') || code.includes(': string') || code.includes(': number')) {
+    if (
+      code.includes('interface ') ||
+      code.includes(': string') ||
+      code.includes(': number')
+    ) {
       return 'typescript';
     }
-    if (code.includes('function ') || code.includes('const ') || code.includes('let ') || code.includes('var ')) {
+    if (
+      code.includes('function ') ||
+      code.includes('const ') ||
+      code.includes('let ') ||
+      code.includes('var ')
+    ) {
       return 'javascript';
     }
-    if (code.includes('def ') || code.includes('import ') || code.includes('print(') || code.includes('True') || code.includes('False')) {
+    if (
+      code.includes('def ') ||
+      code.includes('import ') ||
+      code.includes('print(') ||
+      code.includes('True') ||
+      code.includes('False')
+    ) {
       return 'python';
     }
-    if (code.includes('#!/bin/bash') || code.includes('echo ') || code.includes('ls ')) {
+    if (
+      code.includes('#!/bin/bash') ||
+      code.includes('echo ') ||
+      code.includes('ls ')
+    ) {
       return 'shell';
     }
     if (code.trim().startsWith('{') || code.trim().startsWith('[')) {
@@ -71,10 +99,18 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         // Not valid JSON
       }
     }
-    if (code.includes('<div') || code.includes('<p>') || code.includes('class=')) {
+    if (
+      code.includes('<div') ||
+      code.includes('<p>') ||
+      code.includes('class=')
+    ) {
       return 'html';
     }
-    if (code.includes('display:') || code.includes('color:') || code.includes('.container')) {
+    if (
+      code.includes('display:') ||
+      code.includes('color:') ||
+      code.includes('.container')
+    ) {
       return 'css';
     }
 
@@ -93,7 +129,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
           type: 'cyan',
           builtin: 'yellow',
           identifier: 'black',
-          plain: 'black'
+          plain: 'black',
         };
       case 'high-contrast':
         return {
@@ -105,7 +141,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
           type: 'white',
           builtin: 'white',
           identifier: 'white',
-          plain: 'white'
+          plain: 'white',
         };
       default: // dark
         return {
@@ -117,7 +153,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
           type: 'cyan',
           builtin: 'yellow',
           identifier: 'white',
-          plain: 'white'
+          plain: 'white',
         };
     }
   };
@@ -127,10 +163,42 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
 
     // Define language-specific patterns
     const keywords = {
-      javascript: ['const', 'let', 'var', 'function', 'if', 'else', 'for', 'while', 'return'],
-      typescript: ['const', 'let', 'var', 'function', 'if', 'else', 'for', 'while', 'return', 'interface', 'type'],
-      python: ['def', 'class', 'if', 'else', 'for', 'while', 'return', 'True', 'False'],
-      shell: ['echo', 'ls', 'cd', 'pwd', 'mkdir', 'rm', 'cp', 'mv']
+      javascript: [
+        'const',
+        'let',
+        'var',
+        'function',
+        'if',
+        'else',
+        'for',
+        'while',
+        'return',
+      ],
+      typescript: [
+        'const',
+        'let',
+        'var',
+        'function',
+        'if',
+        'else',
+        'for',
+        'while',
+        'return',
+        'interface',
+        'type',
+      ],
+      python: [
+        'def',
+        'class',
+        'if',
+        'else',
+        'for',
+        'while',
+        'return',
+        'True',
+        'False',
+      ],
+      shell: ['echo', 'ls', 'cd', 'pwd', 'mkdir', 'rm', 'cp', 'mv'],
     };
 
     const langKeywords = keywords[lang as keyof typeof keywords] || [];
@@ -141,7 +209,10 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
     // Highlight keywords
     for (const keyword of langKeywords) {
       const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-      highlightedLine = highlightedLine.replace(regex, `__KEYWORD__${keyword}__END__`);
+      highlightedLine = highlightedLine.replace(
+        regex,
+        `__KEYWORD__${keyword}__END__`
+      );
     }
 
     // Split and render with colors
@@ -157,23 +228,43 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         isKeyword = false;
       } else if (part) {
         if (isKeyword) {
-          rendered.push(<Text key={i} color={colors.keyword}>{part}</Text>);
+          rendered.push(
+            <Text key={i} color={colors.keyword}>
+              {part}
+            </Text>
+          );
         } else {
           // Handle strings
           if (part.startsWith('"') && part.endsWith('"')) {
-            rendered.push(<Text key={i} color={colors.string}>{part}</Text>);
+            rendered.push(
+              <Text key={i} color={colors.string}>
+                {part}
+              </Text>
+            );
           }
           // Handle numbers
           else if (/^\d+\.?\d*$/.test(part.trim())) {
-            rendered.push(<Text key={i} color={colors.number}>{part}</Text>);
+            rendered.push(
+              <Text key={i} color={colors.number}>
+                {part}
+              </Text>
+            );
           }
           // Handle comments
           else if (part.startsWith('//') || part.startsWith('#')) {
-            rendered.push(<Text key={i} color={colors.comment}>{part}</Text>);
+            rendered.push(
+              <Text key={i} color={colors.comment}>
+                {part}
+              </Text>
+            );
           }
           // Plain text
           else {
-            rendered.push(<Text key={i} color={colors.plain}>{part}</Text>);
+            rendered.push(
+              <Text key={i} color={colors.plain}>
+                {part}
+              </Text>
+            );
           }
         }
       }
@@ -186,14 +277,21 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
     return text.replace(/\t/g, ' '.repeat(tabSize));
   };
 
-  const highlightSearchTerm = (text: string, searchTerm?: string): React.ReactNode => {
+  const highlightSearchTerm = (
+    text: string,
+    searchTerm?: string
+  ): React.ReactNode => {
     if (!searchTerm) return text;
 
     const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
     return parts.map((part, index) =>
-      part.toLowerCase() === searchTerm.toLowerCase() ?
-        <Text key={index} backgroundColor="yellow" color="black">{part}</Text> :
+      part.toLowerCase() === searchTerm.toLowerCase() ? (
+        <Text key={index} backgroundColor="yellow" color="black">
+          {part}
+        </Text>
+      ) : (
         part
+      )
     );
   };
 
@@ -210,7 +308,11 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         const expandedLine = expandTabs(line, tabSize);
 
         return (
-          <Box key={index} flexDirection="row" backgroundColor={isHighlighted ? 'blue' : undefined}>
+          <Box
+            key={index}
+            flexDirection="row"
+            backgroundColor={isHighlighted ? 'blue' : undefined}
+          >
             {showLineNumbers && (
               <Text color="gray">
                 {String(lineNumber).padStart(lineNumberWidth)}{' '}
@@ -218,7 +320,9 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
             )}
             <Text>
               {showFolding && line.includes('{') && ' ▼ '}
-              {searchTerm ? highlightSearchTerm(expandedLine, searchTerm) : tokenizeLine(expandedLine, detectedLanguage)}
+              {searchTerm
+                ? highlightSearchTerm(expandedLine, searchTerm)
+                : tokenizeLine(expandedLine, detectedLanguage)}
             </Text>
           </Box>
         );

@@ -10,9 +10,9 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       output: {
-        format: 'es' // ESM output format
-      }
-    }
+        format: 'es', // ESM output format
+      },
+    },
   },
   optimizeDeps: {
     include: [
@@ -20,22 +20,22 @@ export default defineConfig({
       'react',
       'react-dom',
       'react-router-dom',
-      'zustand'
-    ]
+      'zustand',
+    ],
   },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@cage/shared': fileURLToPath(new URL('../shared/src', import.meta.url))
-    }
+      '@cage/shared': fileURLToPath(new URL('../shared/src', import.meta.url)),
+    },
   },
   server: {
     port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:3001', // Backend server
-        changeOrigin: true
-      }
-    }
-  }
+        changeOrigin: true,
+      },
+    },
+  },
 });

@@ -43,7 +43,11 @@ export function exportToJSON(data: unknown, indent: number = 2): string {
   return JSON.stringify(data, replacer, indent);
 }
 
-export function exportToCSV(data: unknown[], headers?: string[], delimiter: string = ','): string {
+export function exportToCSV(
+  data: unknown[],
+  headers?: string[],
+  delimiter: string = ','
+): string {
   if (!data || data.length === 0) {
     return '';
   }
@@ -62,7 +66,11 @@ export function exportToCSV(data: unknown[], headers?: string[], delimiter: stri
     const escaped = str.replace(/"/g, '""');
 
     // Wrap in quotes if contains delimiter, newline, or quotes
-    if (escaped.includes(delimiter) || escaped.includes('\n') || escaped.includes('"')) {
+    if (
+      escaped.includes(delimiter) ||
+      escaped.includes('\n') ||
+      escaped.includes('"')
+    ) {
       return `"${escaped}"`;
     }
 
@@ -80,19 +88,28 @@ export function exportToCSV(data: unknown[], headers?: string[], delimiter: stri
 
   // Add data rows
   for (const item of data) {
-    const values = keys.map(key => escapeCSV((item as Record<string, unknown>)[key]));
+    const values = keys.map(key =>
+      escapeCSV((item as Record<string, unknown>)[key])
+    );
     rows.push(values.join(delimiter));
   }
 
   return rows.join('\n');
 }
 
-export function exportToText(data: unknown, template?: (obj: unknown) => string): string {
+export function exportToText(
+  data: unknown,
+  template?: (obj: unknown) => string
+): string {
   if (template) {
     return template(data);
   }
 
-  if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
+  if (
+    typeof data === 'string' ||
+    typeof data === 'number' ||
+    typeof data === 'boolean'
+  ) {
     return String(data);
   }
 
@@ -119,11 +136,17 @@ function formatObject(obj: unknown, indent: number = 0): string {
   }
 
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    if (value != null && typeof value === 'object' && !(value instanceof Date)) {
+    if (
+      value != null &&
+      typeof value === 'object' &&
+      !(value instanceof Date)
+    ) {
       lines.push(`${indentStr}${key}:`);
       lines.push(formatObject(value, indent + 1));
     } else {
-      lines.push(`${indentStr}${key}: ${value instanceof Date ? value.toISOString() : value}`);
+      lines.push(
+        `${indentStr}${key}: ${value instanceof Date ? value.toISOString() : value}`
+      );
     }
   }
 
@@ -132,7 +155,11 @@ function formatObject(obj: unknown, indent: number = 0): string {
 
 export async function exportToClipboard(text: string): Promise<boolean> {
   try {
-    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.clipboard &&
+      navigator.clipboard.writeText
+    ) {
       await navigator.clipboard.writeText(text);
       return true;
     }
@@ -142,7 +169,11 @@ export async function exportToClipboard(text: string): Promise<boolean> {
   }
 }
 
-export function exportToFile(filePath: string, data: string, encoding: string = 'utf-8'): void {
+export function exportToFile(
+  filePath: string,
+  data: string,
+  encoding: string = 'utf-8'
+): void {
   const dir = path.dirname(filePath);
 
   if (!fs.existsSync(dir)) {
@@ -174,7 +205,11 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
   return `${isNegative ? '-' : ''}${result} ${sizes[i]}`;
 }
 
-export function getExportFilename(prefix: string, extension?: string, timestampFormat?: string): string {
+export function getExportFilename(
+  prefix: string,
+  extension?: string,
+  timestampFormat?: string
+): string {
   const sanitize = (str: string) => str.replace(/[^a-zA-Z0-9-_]/g, '-');
 
   const sanitizedPrefix = sanitize(prefix);
@@ -191,12 +226,12 @@ function formatTimestamp(date: Date, format: string): string {
   const pad = (n: number) => String(n).padStart(2, '0');
 
   const replacements: Record<string, string> = {
-    'YYYY': String(date.getUTCFullYear()),
-    'MM': pad(date.getUTCMonth() + 1),
-    'DD': pad(date.getUTCDate()),
-    'HH': pad(date.getUTCHours()),
-    'mm': pad(date.getUTCMinutes()),
-    'ss': pad(date.getUTCSeconds())
+    YYYY: String(date.getUTCFullYear()),
+    MM: pad(date.getUTCMonth() + 1),
+    DD: pad(date.getUTCDate()),
+    HH: pad(date.getUTCHours()),
+    mm: pad(date.getUTCMinutes()),
+    ss: pad(date.getUTCSeconds()),
   };
 
   let result = format;
@@ -212,7 +247,10 @@ export interface ValidationResult {
   error?: string;
 }
 
-export function validateExportPath(filePath: string, allowedExtensions?: string[]): ValidationResult {
+export function validateExportPath(
+  filePath: string,
+  allowedExtensions?: string[]
+): ValidationResult {
   if (!filePath) {
     return { valid: false, error: 'Path cannot be empty' };
   }
@@ -246,20 +284,32 @@ export function exportEvents(options: ExportOptions): ExportResult {
     // Apply filters
     if (options.filter) {
       if (options.filter.type) {
-        events = events.filter((e: unknown) => (e as Record<string, unknown>).type === options.filter!.type);
+        events = events.filter(
+          (e: unknown) =>
+            (e as Record<string, unknown>).type === options.filter!.type
+        );
       }
       if (options.filter.tool) {
-        events = events.filter((e: unknown) => (e as Record<string, unknown>).tool === options.filter!.tool);
+        events = events.filter(
+          (e: unknown) =>
+            (e as Record<string, unknown>).tool === options.filter!.tool
+        );
       }
       if (options.filter.startDate || options.filter.endDate) {
         events = events.filter((e: unknown) => {
           const timestamp = (e as Record<string, unknown>).timestamp as string;
           const eventDate = new Date(timestamp);
 
-          if (options.filter!.startDate && eventDate < new Date(options.filter!.startDate)) {
+          if (
+            options.filter!.startDate &&
+            eventDate < new Date(options.filter!.startDate)
+          ) {
             return false;
           }
-          if (options.filter!.endDate && eventDate > new Date(options.filter!.endDate)) {
+          if (
+            options.filter!.endDate &&
+            eventDate > new Date(options.filter!.endDate)
+          ) {
             return false;
           }
           return true;
@@ -273,12 +323,12 @@ export function exportEvents(options: ExportOptions): ExportResult {
       const metadata = {
         exportDate: new Date().toISOString(),
         totalEvents: events.length,
-        format: options.format
+        format: options.format,
       };
 
       const exportData = {
         metadata,
-        events
+        events,
       };
 
       data = exportToJSON(exportData);
@@ -288,15 +338,22 @@ export function exportEvents(options: ExportOptions): ExportResult {
           data = exportToJSON(events);
           break;
         case 'csv':
-          data = exportToCSV(events as Record<string, unknown>[], ['id', 'type', 'tool', 'timestamp']);
+          data = exportToCSV(events as Record<string, unknown>[], [
+            'id',
+            'type',
+            'tool',
+            'timestamp',
+          ]);
           break;
         case 'text':
           const textTemplate = (events: unknown) => {
             const eventArray = events as unknown[];
-            return eventArray.map((e, i) => {
-              const event = e as Record<string, unknown>;
-              return `Event ${i + 1}\nType: ${event.type}\nTool: ${event.tool}\nTimestamp: ${event.timestamp}`;
-            }).join('\n\n');
+            return eventArray
+              .map((e, i) => {
+                const event = e as Record<string, unknown>;
+                return `Event ${i + 1}\nType: ${event.type}\nTool: ${event.tool}\nTimestamp: ${event.timestamp}`;
+              })
+              .join('\n\n');
           };
           data = textTemplate(events);
           break;
@@ -309,17 +366,22 @@ export function exportEvents(options: ExportOptions): ExportResult {
       success: true,
       data,
       format: options.format,
-      filteredCount: events.length
+      filteredCount: events.length,
     };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Export failed'
+      error: error instanceof Error ? error.message : 'Export failed',
     };
   }
 }
 
-export function exportConfig(config: unknown, format: string, includeMetadata: boolean = false, hideSensitive: boolean = false): ExportResult {
+export function exportConfig(
+  config: unknown,
+  format: string,
+  includeMetadata: boolean = false,
+  hideSensitive: boolean = false
+): ExportResult {
   if (!config) {
     return { success: false, error: 'No configuration' };
   }
@@ -329,13 +391,25 @@ export function exportConfig(config: unknown, format: string, includeMetadata: b
 
     if (hideSensitive) {
       const sensitiveKeys = ['apikey', 'password', 'secret', 'token'];
-      const hideSensitiveRecursive = (obj: Record<string, unknown>): Record<string, unknown> => {
+      const hideSensitiveRecursive = (
+        obj: Record<string, unknown>
+      ): Record<string, unknown> => {
         const result: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(obj)) {
-          if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
+          if (
+            sensitiveKeys.some(sensitive =>
+              key.toLowerCase().includes(sensitive)
+            )
+          ) {
             result[key] = '***';
-          } else if (value && typeof value === 'object' && !Array.isArray(value)) {
-            result[key] = hideSensitiveRecursive(value as Record<string, unknown>);
+          } else if (
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+          ) {
+            result[key] = hideSensitiveRecursive(
+              value as Record<string, unknown>
+            );
           } else {
             result[key] = value;
           }
@@ -351,7 +425,7 @@ export function exportConfig(config: unknown, format: string, includeMetadata: b
       exportData = {
         exportedAt: new Date().toISOString(),
         version: '1.0.0',
-        config: configData
+        config: configData,
       };
     }
 
@@ -371,7 +445,7 @@ export function exportConfig(config: unknown, format: string, includeMetadata: b
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Export failed'
+      error: error instanceof Error ? error.message : 'Export failed',
     };
   }
 }

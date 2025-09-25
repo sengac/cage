@@ -23,7 +23,6 @@ export interface FilterOptions {
   searchText?: string;
 }
 
-
 export type ViewType =
   | 'menu'
   | 'events'
@@ -105,7 +104,6 @@ interface AppState {
   streamBuffer: Event[];
   newEventCount: number;
 
-
   // UI
   isLoading: boolean;
   loadingMessage: string;
@@ -161,7 +159,8 @@ const applyFilters = (events: Event[], filters: FilterOptions): Event[] => {
     }
     if (filters.dateRange) {
       const eventDate = new Date(event.timestamp);
-      if (eventDate < filters.dateRange[0] || eventDate > filters.dateRange[1]) return false;
+      if (eventDate < filters.dateRange[0] || eventDate > filters.dateRange[1])
+        return false;
     }
     return true;
   });
@@ -198,31 +197,32 @@ export const useAppStore = create<AppState>()(
       statsError: null,
 
       // Navigation actions
-      navigate: (view) =>
-        set((state) => {
+      navigate: view =>
+        set(state => {
           state.navigationStack.push(state.currentView);
           state.previousView = state.currentView;
           state.currentView = view;
         }),
 
       goBack: () =>
-        set((state) => {
+        set(state => {
           const previous = state.navigationStack.pop();
           if (previous) {
             state.currentView = previous;
-            state.previousView = state.navigationStack[state.navigationStack.length - 1] || null;
+            state.previousView =
+              state.navigationStack[state.navigationStack.length - 1] || null;
           }
         }),
 
       // Event actions
-      setEvents: (events) =>
-        set((state) => {
+      setEvents: events =>
+        set(state => {
           state.events = events;
           state.filteredEvents = applyFilters(events, state.eventFilters);
         }),
 
-      addEvent: (event) =>
-        set((state) => {
+      addEvent: event =>
+        set(state => {
           if (state.isStreaming && !state.isPaused) {
             state.events.push(event);
             state.streamBuffer.push(event);
@@ -239,28 +239,28 @@ export const useAppStore = create<AppState>()(
         }),
 
       selectEvent: (event, index) =>
-        set((state) => {
+        set(state => {
           state.selectedEvent = event;
           if (index !== undefined) {
             state.selectedEventIndex = index;
           }
         }),
 
-      applyFilter: (filters) =>
-        set((state) => {
+      applyFilter: filters =>
+        set(state => {
           state.eventFilters = filters;
           state.filteredEvents = applyFilters(state.events, filters);
         }),
 
       clearFilter: () =>
-        set((state) => {
+        set(state => {
           state.eventFilters = {};
           state.filteredEvents = state.events;
         }),
 
       // Stream actions
       toggleStream: () =>
-        set((state) => {
+        set(state => {
           state.isStreaming = !state.isStreaming;
           if (state.isStreaming) {
             state.isPaused = false;
@@ -269,41 +269,40 @@ export const useAppStore = create<AppState>()(
         }),
 
       pauseStream: () =>
-        set((state) => {
+        set(state => {
           state.isPaused = !state.isPaused;
         }),
 
-
       // UI actions
       setLoading: (loading, message = '') =>
-        set((state) => {
+        set(state => {
           state.isLoading = loading;
           state.loadingMessage = message;
         }),
 
-      addError: (error) =>
-        set((state) => {
+      addError: error =>
+        set(state => {
           state.errors.push(error);
         }),
 
       clearErrors: () =>
-        set((state) => {
+        set(state => {
           state.errors = [];
         }),
 
       toggleHelp: () =>
-        set((state) => {
+        set(state => {
           state.showHelp = !state.showHelp;
         }),
 
       toggleDebugMode: () =>
-        set((state) => {
+        set(state => {
           state.debugMode = !state.debugMode;
         }),
 
       // Hooks actions
       refreshHooksStatus: () =>
-        set((state) => {
+        set(state => {
           // Mock implementation - would normally fetch from backend
           state.hooksStatus = {
             isInstalled: true,
@@ -321,13 +320,13 @@ export const useAppStore = create<AppState>()(
         }),
 
       installHooks: () =>
-        set((state) => {
+        set(state => {
           if (state.hooksStatus) {
             state.hooksStatus.isLoading = true;
           }
           // Simulate async installation
           setTimeout(() => {
-            set((innerState) => {
+            set(innerState => {
               if (innerState.hooksStatus) {
                 innerState.hooksStatus.isLoading = false;
                 innerState.hooksStatus.isInstalled = true;
@@ -341,13 +340,13 @@ export const useAppStore = create<AppState>()(
         }),
 
       uninstallHooks: () =>
-        set((state) => {
+        set(state => {
           if (state.hooksStatus) {
             state.hooksStatus.isLoading = true;
           }
           // Simulate async uninstallation
           setTimeout(() => {
-            set((innerState) => {
+            set(innerState => {
               if (innerState.hooksStatus) {
                 innerState.hooksStatus.isLoading = false;
                 innerState.hooksStatus.isInstalled = false;
@@ -361,10 +360,12 @@ export const useAppStore = create<AppState>()(
           }, 2000);
         }),
 
-      toggleHook: (hookName) =>
-        set((state) => {
+      toggleHook: hookName =>
+        set(state => {
           if (state.hooksStatus) {
-            const hook = state.hooksStatus.installedHooks.find(h => h.name === hookName);
+            const hook = state.hooksStatus.installedHooks.find(
+              h => h.name === hookName
+            );
             if (hook) {
               hook.enabled = !hook.enabled;
             }
@@ -372,13 +373,13 @@ export const useAppStore = create<AppState>()(
         }),
 
       verifyHooks: () =>
-        set((state) => {
+        set(state => {
           if (state.hooksStatus) {
             state.hooksStatus.isVerifying = true;
           }
           // Simulate async verification
           setTimeout(() => {
-            set((innerState) => {
+            set(innerState => {
               if (innerState.hooksStatus) {
                 innerState.hooksStatus.isVerifying = false;
                 innerState.hooksStatus.lastOperation = {
@@ -392,7 +393,7 @@ export const useAppStore = create<AppState>()(
 
       // Statistics actions
       refreshStatistics: () =>
-        set((state) => {
+        set(state => {
           state.isLoadingStats = true;
           state.statsError = null;
 
@@ -402,7 +403,8 @@ export const useAppStore = create<AppState>()(
           // Calculate event type distribution
           const eventsByType: Record<string, number> = {};
           events.forEach(event => {
-            eventsByType[event.eventType] = (eventsByType[event.eventType] || 0) + 1;
+            eventsByType[event.eventType] =
+              (eventsByType[event.eventType] || 0) + 1;
           });
 
           // Calculate hourly distribution
@@ -411,7 +413,10 @@ export const useAppStore = create<AppState>()(
             hourlyDistribution[i.toString().padStart(2, '0')] = 0;
           }
           events.forEach(event => {
-            const hour = new Date(event.timestamp).getHours().toString().padStart(2, '0');
+            const hour = new Date(event.timestamp)
+              .getHours()
+              .toString()
+              .padStart(2, '0');
             hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
           });
 
@@ -430,7 +435,8 @@ export const useAppStore = create<AppState>()(
           const toolUsageStats: Record<string, number> = {};
           events.forEach(event => {
             if (event.toolName) {
-              toolUsageStats[event.toolName] = (toolUsageStats[event.toolName] || 0) + 1;
+              toolUsageStats[event.toolName] =
+                (toolUsageStats[event.toolName] || 0) + 1;
             }
           });
 
@@ -445,16 +451,16 @@ export const useAppStore = create<AppState>()(
 
           const avgTimes = Object.entries(toolTimes).map(([tool, times]) => ({
             tool,
-            avgTime: times.reduce((a, b) => a + b, 0) / times.length
+            avgTime: times.reduce((a, b) => a + b, 0) / times.length,
           }));
 
-          const fastestTool = avgTimes.reduce((min, curr) =>
-            curr.avgTime < min.avgTime ? curr : min,
+          const fastestTool = avgTimes.reduce(
+            (min, curr) => (curr.avgTime < min.avgTime ? curr : min),
             { tool: 'None', avgTime: Infinity }
           );
 
-          const slowestTool = avgTimes.reduce((max, curr) =>
-            curr.avgTime > max.avgTime ? curr : max,
+          const slowestTool = avgTimes.reduce(
+            (max, curr) => (curr.avgTime > max.avgTime ? curr : max),
             { tool: 'None', avgTime: 0 }
           );
 
@@ -462,29 +468,34 @@ export const useAppStore = create<AppState>()(
             .filter(e => e.executionTime)
             .map(e => e.executionTime || 0);
 
-          const averageResponseTime = allExecutionTimes.length > 0
-            ? Math.round(allExecutionTimes.reduce((a, b) => a + b, 0) / allExecutionTimes.length)
-            : 0;
+          const averageResponseTime =
+            allExecutionTimes.length > 0
+              ? Math.round(
+                  allExecutionTimes.reduce((a, b) => a + b, 0) /
+                    allExecutionTimes.length
+                )
+              : 0;
 
           const errorCount = events.filter(e => e.error).length;
           const errorRate = events.length > 0 ? errorCount / events.length : 0;
 
           // Find peak activity
           const hourCounts = Object.entries(hourlyDistribution);
-          const mostActiveHour = hourCounts.reduce((max, [hour, count]) =>
-            count > max.count ? { hour, count } : max,
+          const mostActiveHour = hourCounts.reduce(
+            (max, [hour, count]) => (count > max.count ? { hour, count } : max),
             { hour: '00', count: 0 }
           );
 
           const dayCounts = Object.entries(dailyMap);
-          const mostActiveDay = dayCounts.reduce((max, [date, count]) =>
-            count > max.count ? { date, count } : max,
+          const mostActiveDay = dayCounts.reduce(
+            (max, [date, count]) => (count > max.count ? { date, count } : max),
             { date: '', count: 0 }
           );
 
           // Calculate session analytics
           const sessions = new Set(events.map(e => e.sessionId)).size;
-          const averageEventsPerSession = sessions > 0 ? events.length / sessions : 0;
+          const averageEventsPerSession =
+            sessions > 0 ? events.length / sessions : 0;
           // Mock average session duration (30m 47s = 1847 seconds)
           const averageSessionDuration = 1847;
 
@@ -497,8 +508,14 @@ export const useAppStore = create<AppState>()(
             toolUsageStats,
             performanceMetrics: {
               averageResponseTime,
-              fastestTool: { name: fastestTool.tool, avgTime: Math.round(fastestTool.avgTime) },
-              slowestTool: { name: slowestTool.tool, avgTime: Math.round(slowestTool.avgTime) },
+              fastestTool: {
+                name: fastestTool.tool,
+                avgTime: Math.round(fastestTool.avgTime),
+              },
+              slowestTool: {
+                name: slowestTool.tool,
+                avgTime: Math.round(slowestTool.avgTime),
+              },
               errorRate,
             },
             peakActivity: {
@@ -508,7 +525,8 @@ export const useAppStore = create<AppState>()(
             },
             sessionAnalytics: {
               totalSessions: sessions,
-              averageEventsPerSession: Math.round(averageEventsPerSession * 10) / 10,
+              averageEventsPerSession:
+                Math.round(averageEventsPerSession * 10) / 10,
               averageSessionDuration,
             },
             trends: {

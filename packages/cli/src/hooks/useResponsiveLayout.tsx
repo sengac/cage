@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useContext, createContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  createContext,
+} from 'react';
 import { useStdout, Text } from 'ink';
 import type { ReactNode } from 'react';
 
@@ -60,14 +66,16 @@ const DEFAULT_CONFIG: Required<ResponsiveConfig> = {
   breakpoints: {
     small: 100,
     medium: 140,
-    large: 180
+    large: 180,
   },
   minWidth: 80,
-  minHeight: 24
+  minHeight: 24,
 };
 
 // Context for sharing layout data
-const ResponsiveLayoutContext = createContext<ResponsiveLayoutData | null>(null);
+const ResponsiveLayoutContext = createContext<ResponsiveLayoutData | null>(
+  null
+);
 
 /**
  * Hook to get current terminal size
@@ -81,10 +89,13 @@ export function useTerminalSize(): TerminalDimensions {
     return {
       width,
       height,
-      isMinimumSize: width >= DEFAULT_CONFIG.minWidth && height >= DEFAULT_CONFIG.minHeight,
+      isMinimumSize:
+        width >= DEFAULT_CONFIG.minWidth && height >= DEFAULT_CONFIG.minHeight,
       isSmall: width < DEFAULT_CONFIG.breakpoints.small,
-      isMedium: width >= DEFAULT_CONFIG.breakpoints.small && width < DEFAULT_CONFIG.breakpoints.medium,
-      isLarge: width >= DEFAULT_CONFIG.breakpoints.medium
+      isMedium:
+        width >= DEFAULT_CONFIG.breakpoints.small &&
+        width < DEFAULT_CONFIG.breakpoints.medium,
+      isLarge: width >= DEFAULT_CONFIG.breakpoints.medium,
     };
   });
 
@@ -96,10 +107,14 @@ export function useTerminalSize(): TerminalDimensions {
       setDimensions({
         width,
         height,
-        isMinimumSize: width >= DEFAULT_CONFIG.minWidth && height >= DEFAULT_CONFIG.minHeight,
+        isMinimumSize:
+          width >= DEFAULT_CONFIG.minWidth &&
+          height >= DEFAULT_CONFIG.minHeight,
         isSmall: width < DEFAULT_CONFIG.breakpoints.small,
-        isMedium: width >= DEFAULT_CONFIG.breakpoints.small && width < DEFAULT_CONFIG.breakpoints.medium,
-        isLarge: width >= DEFAULT_CONFIG.breakpoints.medium
+        isMedium:
+          width >= DEFAULT_CONFIG.breakpoints.small &&
+          width < DEFAULT_CONFIG.breakpoints.medium,
+        isLarge: width >= DEFAULT_CONFIG.breakpoints.medium,
       });
     };
 
@@ -130,7 +145,9 @@ export function useBreakpoint(): BreakpointSize {
 /**
  * Main responsive layout hook
  */
-export function useResponsiveLayout(config?: ResponsiveConfig): ResponsiveLayoutData {
+export function useResponsiveLayout(
+  config?: ResponsiveConfig
+): ResponsiveLayoutData {
   const context = useContext(ResponsiveLayoutContext);
 
   // If we're inside a provider, use context
@@ -150,7 +167,8 @@ export function useResponsiveLayout(config?: ResponsiveConfig): ResponsiveLayout
     const isLarge = breakpoint === 'large';
 
     // Calculate layout properties
-    const orientation: LayoutOrientation = width >= 120 ? 'horizontal' : 'vertical';
+    const orientation: LayoutOrientation =
+      width >= 120 ? 'horizontal' : 'vertical';
     const columns = isLarge ? 3 : isMedium ? 2 : 1;
     const showSidebar = width >= 140;
 
@@ -159,14 +177,17 @@ export function useResponsiveLayout(config?: ResponsiveConfig): ResponsiveLayout
       top: isLarge ? 1 : 0,
       right: isLarge ? 2 : 1,
       bottom: isLarge ? 1 : 0,
-      left: isLarge ? 2 : 1
+      left: isLarge ? 2 : 1,
     };
 
     // Min size handling
-    const isMinimumSize = width >= mergedConfig.minWidth && height >= mergedConfig.minHeight;
+    const isMinimumSize =
+      width >= mergedConfig.minWidth && height >= mergedConfig.minHeight;
     const showMinSizeWarning = !isMinimumSize;
     const minSizeMessage = `Terminal too small. Minimum: ${mergedConfig.minWidth}x${mergedConfig.minHeight}`;
-    const resizePrompt = showMinSizeWarning ? 'Please resize your terminal' : '';
+    const resizePrompt = showMinSizeWarning
+      ? 'Please resize your terminal'
+      : '';
     const allowInteraction = isMinimumSize;
 
     // Scrolling and overflow
@@ -175,14 +196,16 @@ export function useResponsiveLayout(config?: ResponsiveConfig): ResponsiveLayout
 
     // Grid layout calculations
     const gridColumns = isLarge ? 3 : isMedium ? 2 : 1;
-    const itemWidth = Math.floor((width - padding.left - padding.right) / gridColumns);
+    const itemWidth = Math.floor(
+      (width - padding.left - padding.right) / gridColumns
+    );
 
     // Layout hints
     const hints = {
       showFullMenu: width >= 100,
       showCompactMenu: width < 100,
       showStatusBar: height >= 20,
-      showTitle: height >= 15
+      showTitle: height >= 15,
     };
 
     // Orientation detection
@@ -207,7 +230,7 @@ export function useResponsiveLayout(config?: ResponsiveConfig): ResponsiveLayout
       itemWidth,
       hints,
       isPortrait,
-      isLandscape
+      isLandscape,
     };
   }, [dimensions, breakpoint, mergedConfig]);
 }
@@ -217,7 +240,7 @@ export function useResponsiveLayout(config?: ResponsiveConfig): ResponsiveLayout
  */
 export function ResponsiveLayoutProvider({
   children,
-  config
+  config,
 }: {
   children: ReactNode;
   config?: ResponsiveConfig;
@@ -247,7 +270,7 @@ export function ResponsiveBox({
   hideOn = [],
   showOn = [],
   responsivePadding = false,
-  styles = {}
+  styles = {},
 }: ResponsiveBoxProps) {
   const layout = useResponsiveLayout();
 
@@ -264,16 +287,16 @@ export function ResponsiveBox({
   const breakpointStyles = styles[layout.breakpoint] || {};
 
   // Apply responsive padding if requested
-  const paddingProps = responsivePadding ? {
-    paddingTop: layout.padding.top,
-    paddingRight: layout.padding.right,
-    paddingBottom: layout.padding.bottom,
-    paddingLeft: layout.padding.left
-  } : {};
+  const paddingProps = responsivePadding
+    ? {
+        paddingTop: layout.padding.top,
+        paddingRight: layout.padding.right,
+        paddingBottom: layout.padding.bottom,
+        paddingLeft: layout.padding.left,
+      }
+    : {};
 
-  return (
-    <>{children}</>
-  );
+  return <>{children}</>;
 }
 
 /**
@@ -292,7 +315,7 @@ export function ResponsiveText({
   hideOn = [],
   truncate = false,
   wrap = false,
-  styles = {}
+  styles = {},
 }: ResponsiveTextProps) {
   const layout = useResponsiveLayout();
 

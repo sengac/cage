@@ -15,7 +15,7 @@ describe('TaskList', () => {
         activeForm: 'Implementing authentication system',
         priority: 'high',
         duration: null,
-        progress: 0
+        progress: 0,
       },
       {
         id: '2',
@@ -24,7 +24,7 @@ describe('TaskList', () => {
         activeForm: 'Writing unit tests for API endpoints',
         priority: 'medium',
         duration: 1200,
-        progress: 65
+        progress: 65,
       },
       {
         id: '3',
@@ -33,7 +33,7 @@ describe('TaskList', () => {
         activeForm: 'Updating documentation',
         priority: 'low',
         duration: 800,
-        progress: 100
+        progress: 100,
       },
       {
         id: '4',
@@ -42,7 +42,7 @@ describe('TaskList', () => {
         activeForm: 'Fixing navigation bug in header component',
         priority: 'high',
         duration: 600,
-        progress: 30
+        progress: 30,
       },
       {
         id: '5',
@@ -51,8 +51,8 @@ describe('TaskList', () => {
         activeForm: 'Optimizing database queries',
         priority: 'medium',
         duration: null,
-        progress: 0
-      }
+        progress: 0,
+      },
     ];
   });
 
@@ -113,7 +113,9 @@ describe('TaskList', () => {
 
         expect(lastFrame()).toContain('🔄 Write unit tests for API endpoints');
         expect(lastFrame()).toContain('[█████████████▓▓▓▓▓▓▓] 65%');
-        expect(lastFrame()).toContain('🔄 Fix navigation bug in header component');
+        expect(lastFrame()).toContain(
+          '🔄 Fix navigation bug in header component'
+        );
         expect(lastFrame()).toContain('[██████▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 30%');
       });
 
@@ -150,7 +152,9 @@ describe('TaskList', () => {
 
     describe('When displaying with different layouts', () => {
       it('Then should support compact layout', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} layout="compact" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} layout="compact" />
+        );
 
         expect(lastFrame()).toContain('Tasks: 5');
         // Compact layout should show fewer details
@@ -158,7 +162,9 @@ describe('TaskList', () => {
       });
 
       it('Then should support detailed layout', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} layout="detailed" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} layout="detailed" />
+        );
 
         expect(lastFrame()).toContain('Implement authentication system');
         expect(lastFrame()).toContain('Write unit tests for API endpoints');
@@ -166,7 +172,9 @@ describe('TaskList', () => {
       });
 
       it('Then should support minimal layout', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} layout="minimal" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} layout="minimal" />
+        );
 
         expect(lastFrame()).toContain('⏳');
         expect(lastFrame()).toContain('🔄');
@@ -177,7 +185,9 @@ describe('TaskList', () => {
 
     describe('When filtering tasks', () => {
       it('Then should show only pending tasks when filtered', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} filter="pending" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} filter="pending" />
+        );
 
         expect(lastFrame()).toContain('Implement authentication system');
         expect(lastFrame()).toContain('Optimize database queries');
@@ -186,7 +196,9 @@ describe('TaskList', () => {
       });
 
       it('Then should show only in-progress tasks when filtered', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} filter="in_progress" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} filter="in_progress" />
+        );
 
         expect(lastFrame()).toContain('Write unit tests for API endpoints');
         expect(lastFrame()).toContain('Fix navigation bug');
@@ -195,7 +207,9 @@ describe('TaskList', () => {
       });
 
       it('Then should show only completed tasks when filtered', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} filter="completed" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} filter="completed" />
+        );
 
         expect(lastFrame()).toContain('Update documentation');
         expect(lastFrame()).not.toContain('Implement authentication system');
@@ -203,7 +217,9 @@ describe('TaskList', () => {
       });
 
       it('Then should show only high priority tasks when filtered', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} filter="high_priority" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} filter="high_priority" />
+        );
 
         expect(lastFrame()).toContain('Implement authentication system');
         expect(lastFrame()).toContain('Fix navigation bug');
@@ -214,7 +230,9 @@ describe('TaskList', () => {
 
     describe('When sorting tasks', () => {
       it('Then should sort by priority when specified', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} sortBy="priority" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} sortBy="priority" />
+        );
 
         const content = lastFrame();
         const authIndex = content.indexOf('Implement authentication system');
@@ -227,7 +245,9 @@ describe('TaskList', () => {
       });
 
       it('Then should sort by status when specified', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} sortBy="status" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} sortBy="status" />
+        );
 
         const content = lastFrame();
         const completedIndex = content.indexOf('Update documentation');
@@ -240,7 +260,9 @@ describe('TaskList', () => {
       });
 
       it('Then should sort by progress when specified', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} sortBy="progress" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} sortBy="progress" />
+        );
 
         const content = lastFrame();
         const completedIndex = content.indexOf('Update documentation'); // 100%
@@ -255,7 +277,9 @@ describe('TaskList', () => {
 
     describe('When showing progress animations', () => {
       it('Then should animate progress bars for in-progress tasks', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} animated={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} animated={true} />
+        );
 
         expect(lastFrame()).toContain('🔄');
         expect(lastFrame()).toContain('65%');
@@ -267,13 +291,17 @@ describe('TaskList', () => {
           task.id === '2' ? { ...task, isActive: true } : task
         );
 
-        const { lastFrame } = render(<TaskList tasks={tasksWithActive} animated={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={tasksWithActive} animated={true} />
+        );
 
         expect(lastFrame()).toContain('⠋'); // Spinner character
       });
 
       it('Then should show completion animation for completed tasks', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} animated={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} animated={true} />
+        );
 
         expect(lastFrame()).toContain('✅');
         expect(lastFrame()).toContain('100%');
@@ -289,22 +317,29 @@ describe('TaskList', () => {
       });
 
       it('Then should show active form when in progress', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} layout="detailed" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} layout="detailed" />
+        );
 
         expect(lastFrame()).toContain('Writing unit tests for API endpoints');
-        expect(lastFrame()).toContain('Fixing navigation bug in header component');
+        expect(lastFrame()).toContain(
+          'Fixing navigation bug in header component'
+        );
       });
 
       it('Then should truncate long task messages', () => {
-        const longTaskList = [{
-          id: '1',
-          content: 'This is a very long task description that should be truncated when displayed in the task list component because it exceeds the maximum length',
-          status: 'pending',
-          activeForm: 'Working on this very long task',
-          priority: 'medium',
-          duration: null,
-          progress: 0
-        }];
+        const longTaskList = [
+          {
+            id: '1',
+            content:
+              'This is a very long task description that should be truncated when displayed in the task list component because it exceeds the maximum length',
+            status: 'pending',
+            activeForm: 'Working on this very long task',
+            priority: 'medium',
+            duration: null,
+            progress: 0,
+          },
+        ];
 
         const { lastFrame } = render(<TaskList tasks={longTaskList} />);
 
@@ -312,7 +347,9 @@ describe('TaskList', () => {
       });
 
       it('Then should show task IDs when requested', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} showIds={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} showIds={true} />
+        );
 
         expect(lastFrame()).toContain('#1');
         expect(lastFrame()).toContain('#2');
@@ -329,11 +366,15 @@ describe('TaskList', () => {
       });
 
       it('Then should show filtered empty message', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} filter="completed" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} filter="completed" />
+        );
 
         // Since we only have 1 completed task, if filtered differently might be empty
         const noCompletedTasks = mockTasks.filter(t => t.status === 'blocked');
-        const { lastFrame: emptyFrame } = render(<TaskList tasks={noCompletedTasks} filter="completed" />);
+        const { lastFrame: emptyFrame } = render(
+          <TaskList tasks={noCompletedTasks} filter="completed" />
+        );
 
         expect(emptyFrame()).toContain('No tasks found');
       });
@@ -350,20 +391,28 @@ describe('TaskList', () => {
       it('Then should support task selection', () => {
         const onTaskSelect = vi.fn();
         const { lastFrame } = render(
-          <TaskList tasks={mockTasks} onTaskSelect={onTaskSelect} selectedTaskId="2" />
+          <TaskList
+            tasks={mockTasks}
+            onTaskSelect={onTaskSelect}
+            selectedTaskId="2"
+          />
         );
 
         expect(lastFrame()).toMatch(/❯.*Write unit tests for API endpoints/);
       });
 
       it('Then should highlight selected task', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} selectedTaskId="1" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} selectedTaskId="1" />
+        );
 
         expect(lastFrame()).toMatch(/❯.*Implement authentication system/);
       });
 
       it('Then should show keyboard shortcuts when interactive', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} interactive={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} interactive={true} />
+        );
 
         expect(lastFrame()).toContain('↑↓ Navigate');
         expect(lastFrame()).toContain('↵ Select');
@@ -379,10 +428,12 @@ describe('TaskList', () => {
           completed: 'green',
           high: 'red',
           medium: 'orange',
-          low: 'gray'
+          low: 'gray',
         };
 
-        const { lastFrame } = render(<TaskList tasks={mockTasks} theme={customTheme} />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} theme={customTheme} />
+        );
 
         // Should still show tasks with custom styling
         expect(lastFrame()).toContain('Implement authentication system');
@@ -390,21 +441,27 @@ describe('TaskList', () => {
       });
 
       it('Then should support compact spacing', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} spacing="compact" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} spacing="compact" />
+        );
 
         expect(lastFrame()).toContain('Tasks: 5');
         // Compact spacing should have fewer blank lines
       });
 
       it('Then should support wide spacing', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} spacing="wide" />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} spacing="wide" />
+        );
 
         expect(lastFrame()).toContain('Tasks: 5');
         // Wide spacing should have more separation
       });
 
       it('Then should support borderless style', () => {
-        const { lastFrame } = render(<TaskList tasks={mockTasks} border={false} />);
+        const { lastFrame } = render(
+          <TaskList tasks={mockTasks} border={false} />
+        );
 
         expect(lastFrame()).toContain('TASK LIST');
         expect(lastFrame()).not.toContain('┌');
@@ -417,10 +474,12 @@ describe('TaskList', () => {
         const tasksWithTimestamps = mockTasks.map(task => ({
           ...task,
           createdAt: '2025-09-19T10:30:00Z',
-          updatedAt: '2025-09-19T11:45:00Z'
+          updatedAt: '2025-09-19T11:45:00Z',
         }));
 
-        const { lastFrame } = render(<TaskList tasks={tasksWithTimestamps} showTimestamps={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={tasksWithTimestamps} showTimestamps={true} />
+        );
 
         expect(lastFrame()).toContain('Created:');
         expect(lastFrame()).toContain('Updated:');
@@ -431,7 +490,9 @@ describe('TaskList', () => {
           task.id === '2' ? { ...task, dependencies: ['1'] } : task
         );
 
-        const { lastFrame } = render(<TaskList tasks={tasksWithDeps} showDependencies={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={tasksWithDeps} showDependencies={true} />
+        );
 
         expect(lastFrame()).toContain('Depends on: #1');
       });
@@ -439,10 +500,12 @@ describe('TaskList', () => {
       it('Then should show task assignees when present', () => {
         const tasksWithAssignees = mockTasks.map(task => ({
           ...task,
-          assignee: task.id === '1' ? 'Alice' : task.id === '2' ? 'Bob' : null
+          assignee: task.id === '1' ? 'Alice' : task.id === '2' ? 'Bob' : null,
         }));
 
-        const { lastFrame } = render(<TaskList tasks={tasksWithAssignees} showAssignees={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={tasksWithAssignees} showAssignees={true} />
+        );
 
         expect(lastFrame()).toContain('Assigned: Alice');
         expect(lastFrame()).toContain('Assigned: Bob');
@@ -451,10 +514,17 @@ describe('TaskList', () => {
       it('Then should show task tags when present', () => {
         const tasksWithTags = mockTasks.map(task => ({
           ...task,
-          tags: task.id === '1' ? ['backend', 'security'] : task.id === '2' ? ['testing'] : []
+          tags:
+            task.id === '1'
+              ? ['backend', 'security']
+              : task.id === '2'
+                ? ['testing']
+                : [],
         }));
 
-        const { lastFrame } = render(<TaskList tasks={tasksWithTags} showTags={true} />);
+        const { lastFrame } = render(
+          <TaskList tasks={tasksWithTags} showTags={true} />
+        );
 
         expect(lastFrame()).toContain('[backend]');
         expect(lastFrame()).toContain('[security]');
@@ -486,7 +556,7 @@ describe('TaskList', () => {
           activeForm: 'Working on new task',
           priority: 'high',
           duration: null,
-          progress: 0
+          progress: 0,
         };
 
         rerender(<TaskList tasks={[...mockTasks, newTask]} />);
@@ -496,11 +566,15 @@ describe('TaskList', () => {
       });
 
       it('Then should animate progress changes', () => {
-        const { rerender, lastFrame } = render(<TaskList tasks={mockTasks} animated={true} />);
+        const { rerender, lastFrame } = render(
+          <TaskList tasks={mockTasks} animated={true} />
+        );
 
         // Complete a task
         const completedTasks = mockTasks.map(task =>
-          task.id === '2' ? { ...task, status: 'completed', progress: 100 } : task
+          task.id === '2'
+            ? { ...task, status: 'completed', progress: 100 }
+            : task
         );
 
         rerender(<TaskList tasks={completedTasks} animated={true} />);

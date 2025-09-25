@@ -8,9 +8,12 @@ import { useAppStore } from '../../stores/appStore';
  * EventInspectorView - wraps the existing EventInspector component
  * Integrates with the new ViewManager system
  */
-export const EventInspectorView: React.FC<ViewProps> = ({ onBack, onNavigate }) => {
-  const selectEvent = useAppStore((state) => state.selectEvent);
-  const selectedEventIndex = useAppStore((state) => state.selectedEventIndex);
+export const EventInspectorView: React.FC<ViewProps> = ({
+  onBack,
+  onNavigate,
+}) => {
+  const selectEvent = useAppStore(state => state.selectEvent);
+  const selectedEventIndex = useAppStore(state => state.selectedEventIndex);
 
   const handleSelectEvent = (event: Event, index: number) => {
     // Store the selected event and index in the app store
@@ -19,9 +22,11 @@ export const EventInspectorView: React.FC<ViewProps> = ({ onBack, onNavigate }) 
     onNavigate('eventDetail');
   };
 
-  return <EventInspector
-    onSelectEvent={handleSelectEvent}
-    onBack={onBack}
-    initialSelectedIndex={selectedEventIndex}
-  />;
+  return (
+    <EventInspector
+      onSelectEvent={handleSelectEvent}
+      onBack={onBack}
+      initialSelectedIndex={selectedEventIndex}
+    />
+  );
 };

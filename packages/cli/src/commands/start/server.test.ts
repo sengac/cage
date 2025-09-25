@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { startServer } from './server';
@@ -40,31 +40,25 @@ describe('cage start command', () => {
         }
         return mockChildProcess as ChildProcess;
       }),
-      stderr: Object.assign(
-        Object.create(null),
-        {
-          on: vi.fn(),
-          destroy: vi.fn()
-        }
-      ),
-      stdout: Object.assign(
-        Object.create(null),
-        {
-          on: vi.fn((event, handler) => {
-            if (event === 'data') {
-              // Simulate server started message
-              setTimeout(() => {
-                handler(Buffer.from('Nest application successfully started'));
-              }, 100);
-            }
-          }),
-          destroy: vi.fn()
-        }
-      )
+      stderr: Object.assign(Object.create(null), {
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
+      stdout: Object.assign(Object.create(null), {
+        on: vi.fn((event, handler) => {
+          if (event === 'data') {
+            // Simulate server started message
+            setTimeout(() => {
+              handler(Buffer.from('Nest application successfully started'));
+            }, 100);
+          }
+        }),
+        destroy: vi.fn(),
+      }),
     };
 
     // Default mock implementations
-    vi.mocked(existsSync).mockImplementation((path) => {
+    vi.mocked(existsSync).mockImplementation(path => {
       if (path === mockCageDir) return true;
       if (path === mockBackendPath) return true;
       if (path === mockPidFile) return false; // No PID file initially
@@ -106,10 +100,10 @@ describe('cage start command', () => {
         [mockBackendPath],
         expect.objectContaining({
           env: expect.objectContaining({
-            PORT: '3790'
+            PORT: '3790',
           }),
           detached: true,
-          stdio: expect.any(Array)
+          stdio: expect.any(Array),
         })
       );
       expect(result.success).toBe(true);
@@ -141,7 +135,7 @@ describe('cage start command', () => {
 
     it('should fail if port is already in use', async () => {
       // Given - PID file exists with running process
-      vi.mocked(existsSync).mockImplementation((path) => {
+      vi.mocked(existsSync).mockImplementation(path => {
         if (path === mockPidFile) return true;
         if (path === mockCageDir) return true;
         if (path === mockBackendPath) return true;
@@ -169,7 +163,7 @@ describe('cage start command', () => {
 
     it('should handle backend not found', async () => {
       // Given
-      vi.mocked(existsSync).mockImplementation((path) => {
+      vi.mocked(existsSync).mockImplementation(path => {
         if (path === mockBackendPath) return false; // Backend not built
         if (path === mockCageDir) return true;
         return false;
@@ -186,7 +180,7 @@ describe('cage start command', () => {
 
     it('should create .cage directory if it does not exist', async () => {
       // Given
-      vi.mocked(existsSync).mockImplementation((path) => {
+      vi.mocked(existsSync).mockImplementation(path => {
         if (path === mockCageDir) return false; // No .cage dir
         if (path === mockBackendPath) return true;
         return false;
@@ -212,7 +206,7 @@ describe('cage start command', () => {
             setTimeout(() => handler(new Error('spawn failed')), 10);
           }
           return errorProcess as ChildProcess;
-        })
+        }),
       };
       vi.mocked(spawn).mockReturnValue(errorProcess as ChildProcess);
 
@@ -259,8 +253,8 @@ describe('cage start command', () => {
         expect.objectContaining({
           env: expect.objectContaining({
             PORT: '4000',
-            NODE_ENV: 'production'
-          })
+            NODE_ENV: 'production',
+          }),
         })
       );
     });
@@ -274,7 +268,7 @@ describe('cage start command', () => {
             setTimeout(() => handler(), 10);
           }
           return exitProcess as ChildProcess;
-        })
+        }),
       };
 
       // Mock process.kill to indicate process died

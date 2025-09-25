@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import { mkdtemp, rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -17,16 +17,18 @@ export async function setupIntegrationTests(): Promise<string> {
     testDir = await mkdtemp(join(tmpdir(), 'cage-integration-tests-'));
 
     // Start backend server
-    backendProcess = spawn('node', [
-      join(process.cwd(), 'packages/backend/dist/main.js')
-    ], {
-      env: {
-        ...process.env,
-        PORT: BACKEND_PORT.toString(),
-        TEST_BASE_DIR: testDir
-      },
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
+    backendProcess = spawn(
+      'node',
+      [join(process.cwd(), 'packages/backend/dist/main.js')],
+      {
+        env: {
+          ...process.env,
+          PORT: BACKEND_PORT.toString(),
+          TEST_BASE_DIR: testDir,
+        },
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }
+    );
 
     // Wait for backend to be ready
     await new Promise<void>((resolve, reject) => {
@@ -35,8 +37,10 @@ export async function setupIntegrationTests(): Promise<string> {
       }, 10000);
 
       if (backendProcess?.stdout) {
-        backendProcess.stdout.on('data', (data) => {
-          if (data.toString().includes('Nest application successfully started')) {
+        backendProcess.stdout.on('data', data => {
+          if (
+            data.toString().includes('Nest application successfully started')
+          ) {
             clearTimeout(timeout);
             resolve();
           }
@@ -44,7 +48,7 @@ export async function setupIntegrationTests(): Promise<string> {
       }
 
       if (backendProcess?.stderr) {
-        backendProcess.stderr.on('data', (data) => {
+        backendProcess.stderr.on('data', data => {
           console.error('Backend stderr:', data.toString());
         });
       }
@@ -72,7 +76,9 @@ export async function teardownIntegrationTests(): Promise<void> {
 
 export function getTestDir(): string {
   if (!testDir) {
-    throw new Error('Test directory not initialized. Call setupIntegrationTests first.');
+    throw new Error(
+      'Test directory not initialized. Call setupIntegrationTests first.'
+    );
   }
   return testDir;
 }

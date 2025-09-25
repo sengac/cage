@@ -5,7 +5,10 @@ import { format, formatDistanceToNow } from 'date-fns';
 import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
-import { getRealServerStatus, getRealServerStatusFormatted } from '../utils/real-server-status';
+import {
+  getRealServerStatus,
+  getRealServerStatusFormatted,
+} from '../utils/real-server-status';
 import { getStatusMonitor } from '../utils/status-monitor';
 import type { ServerStatus } from '../commands/server-management';
 import type { SystemStatus } from '../utils/status-monitor';
@@ -35,17 +38,21 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
   const [configPort, setConfigPort] = useState('');
   const [validationError, setValidationError] = useState('');
   const [showSuccess, setShowSuccess] = useState('');
-  const [realServerStatus, setRealServerStatus] = useState<'running' | 'stopped' | 'connecting' | 'error'>('stopped');
+  const [realServerStatus, setRealServerStatus] = useState<
+    'running' | 'stopped' | 'connecting' | 'error'
+  >('stopped');
   const [realServerInfo, setRealServerInfo] = useState<ServerInfo | null>(null);
-  const [fullServerStatus, setFullServerStatus] = useState<ServerStatus | null>(null);
+  const [fullServerStatus, setFullServerStatus] = useState<ServerStatus | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const statusMonitor = getStatusMonitor();
 
-  const isLoading = useAppStore((state) => state.isLoading);
-  const loadingMessage = useAppStore((state) => state.loadingMessage);
-  const errors = useAppStore((state) => state.errors);
-  const setAppLoading = useAppStore((state) => state.setLoading);
-  const addError = useAppStore((state) => state.addError);
+  const isLoading = useAppStore(state => state.isLoading);
+  const loadingMessage = useAppStore(state => state.loadingMessage);
+  const errors = useAppStore(state => state.errors);
+  const setAppLoading = useAppStore(state => state.setLoading);
+  const addError = useAppStore(state => state.addError);
 
   const theme = useTheme();
 
@@ -78,7 +85,10 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
       handleStatusUpdate(initialStatus);
     } else {
       // Force immediate update for initial load
-      statusMonitor.forceUpdate().then(handleStatusUpdate).catch(handleStatusError);
+      statusMonitor
+        .forceUpdate()
+        .then(handleStatusUpdate)
+        .catch(handleStatusError);
     }
 
     // Cleanup
@@ -159,9 +169,10 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
       const port = parseInt(configPort || '3790');
 
       // Stop first if running
-      const stopPromise = realServerStatus === 'running'
-        ? stopServer()
-        : Promise.resolve({ success: true, message: 'Server not running' });
+      const stopPromise =
+        realServerStatus === 'running'
+          ? stopServer()
+          : Promise.resolve({ success: true, message: 'Server not running' });
 
       stopPromise.then(() => {
         // Wait a moment then start
@@ -226,9 +237,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     if (loading) {
       return (
         <Box marginY={1} paddingX={1}>
-          <Text color={theme.ui.textMuted}>
-            Loading server status...
-          </Text>
+          <Text color={theme.ui.textMuted}>Loading server status...</Text>
         </Box>
       );
     }
@@ -236,9 +245,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     if (!realServerInfo) {
       return (
         <Box marginY={1} paddingX={1}>
-          <Text color={theme.ui.textMuted}>
-            Server is not running
-          </Text>
+          <Text color={theme.ui.textMuted}>Server is not running</Text>
         </Box>
       );
     }
@@ -250,7 +257,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
           <Text color={theme.ui.text}>{realServerInfo.port}</Text>
           {realServerInfo.pid && (
             <>
-              <Text color={theme.ui.textMuted}>  PID: </Text>
+              <Text color={theme.ui.textMuted}> PID: </Text>
               <Text color={theme.ui.text}>{realServerInfo.pid}</Text>
             </>
           )}
@@ -258,7 +265,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
         {realServerInfo.uptime && (
           <Box marginBottom={1}>
             <Text color={theme.ui.textMuted}>Uptime: </Text>
-            <Text color={theme.ui.text}>{formatUptime(realServerInfo.uptime)}</Text>
+            <Text color={theme.ui.text}>
+              {formatUptime(realServerInfo.uptime)}
+            </Text>
           </Box>
         )}
         {realServerInfo.memoryUsage && (
@@ -270,7 +279,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
         {(realServerInfo as ExtendedServerInfo).cpuUsage && (
           <Box>
             <Text color={theme.ui.textMuted}>CPU: </Text>
-            <Text color={theme.ui.text}>{(realServerInfo as ExtendedServerInfo).cpuUsage}%</Text>
+            <Text color={theme.ui.text}>
+              {(realServerInfo as ExtendedServerInfo).cpuUsage}%
+            </Text>
           </Box>
         )}
       </Box>
@@ -281,7 +292,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     if (!configMode) {
       return (
         <Box flexDirection="column" marginY={1} paddingX={1}>
-          <Text color={theme.ui.textMuted} bold>Configuration</Text>
+          <Text color={theme.ui.textMuted} bold>
+            Configuration
+          </Text>
           <Box marginTop={1}>
             <Text color={theme.ui.textMuted}>Port: </Text>
             <Text color={theme.ui.text}>{realServerInfo?.port || 3790}</Text>
@@ -292,7 +305,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
 
     return (
       <Box flexDirection="column" marginY={1} paddingX={1}>
-        <Text color={theme.primary.aqua} bold>Configuration Mode</Text>
+        <Text color={theme.primary.aqua} bold>
+          Configuration Mode
+        </Text>
         <Box marginTop={1}>
           <Text color={theme.ui.textMuted}>Port: </Text>
           <Text color={theme.ui.text}>{configPort}</Text>
@@ -313,7 +328,9 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     if (!showLogs) {
       return (
         <Box marginY={1} paddingX={1}>
-          <Text color={theme.ui.textMuted} bold>Recent Logs</Text>
+          <Text color={theme.ui.textMuted} bold>
+            Recent Logs
+          </Text>
           <Box marginTop={1}>
             <Text color={theme.ui.textDim}>Press 'l' to view logs</Text>
           </Box>
@@ -322,22 +339,36 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     }
 
     const mockLogs = [
-      { level: 'INFO', timestamp: new Date(), message: 'Server started successfully' },
-      { level: 'DEBUG', timestamp: new Date(), message: 'Loading configuration' },
-      { level: 'INFO', timestamp: new Date(), message: 'Listening on port 3000' },
+      {
+        level: 'INFO',
+        timestamp: new Date(),
+        message: 'Server started successfully',
+      },
+      {
+        level: 'DEBUG',
+        timestamp: new Date(),
+        message: 'Loading configuration',
+      },
+      {
+        level: 'INFO',
+        timestamp: new Date(),
+        message: 'Listening on port 3000',
+      },
     ];
 
     return (
       <Box flexDirection="column" marginY={1} paddingX={1}>
-        <Text color={theme.ui.textMuted} bold>Recent Logs</Text>
+        <Text color={theme.ui.textMuted} bold>
+          Recent Logs
+        </Text>
         <Box marginTop={1} flexDirection="column">
           {mockLogs.map((log, index) => (
             <Box key={index} marginBottom={1}>
               <Text color={theme.ui.textDim}>
                 {format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}
               </Text>
-              <Text color={theme.ui.textMuted}>  [{log.level}]</Text>
-              <Text color={theme.ui.text}>  {log.message}</Text>
+              <Text color={theme.ui.textMuted}> [{log.level}]</Text>
+              <Text color={theme.ui.text}> {log.message}</Text>
             </Box>
           ))}
         </Box>
@@ -360,11 +391,11 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
           {isConnecting
             ? 'Please wait...'
             : isRunning
-            ? 's Stop Server  r Restart'
-            : isError
-            ? 's Start Server  r Retry'
-            : 's Start Server'
-          }  c Config  l Logs  ESC Back
+              ? 's Stop Server  r Restart'
+              : isError
+                ? 's Start Server  r Retry'
+                : 's Start Server'}{' '}
+          c Config l Logs ESC Back
         </Text>
       </Box>
     );
@@ -374,7 +405,7 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     return (
       <Box flexDirection="column" flexGrow={1}>
         <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
-        {renderConfiguration()}
+          {renderConfiguration()}
         </Box>
       </Box>
     );
@@ -384,101 +415,118 @@ export const ServerManager: React.FC<ServerManagerProps> = ({ onBack }) => {
     <Box flexDirection="column" flexGrow={1}>
       {/* Main Content */}
       <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
+        {/* Status */}
+        <Box marginBottom={1} paddingX={1}>
+          <Text color={theme.ui.textMuted}>Status: </Text>
+          <Text color={getStatusColor()}>{getStatusText()}</Text>
+          {isLoading && (
+            <>
+              <Text color={theme.ui.textMuted}> </Text>
+              <Text color={theme.status.warning}>{figures.ellipsis}</Text>
+            </>
+          )}
+        </Box>
 
-      {/* Status */}
-      <Box marginBottom={1} paddingX={1}>
-        <Text color={theme.ui.textMuted}>Status: </Text>
-        <Text color={getStatusColor()}>
-          {getStatusText()}
-        </Text>
-        {isLoading && (
-          <>
-            <Text color={theme.ui.textMuted}>  </Text>
-            <Text color={theme.status.warning}>{figures.ellipsis}</Text>
-          </>
+        {/* Loading message */}
+        {isLoading && loadingMessage && (
+          <Box marginBottom={1} paddingX={1}>
+            <Text color={theme.ui.text}>{loadingMessage}</Text>
+          </Box>
         )}
-      </Box>
 
-      {/* Loading message */}
-      {isLoading && loadingMessage && (
-        <Box marginBottom={1} paddingX={1}>
-          <Text color={theme.ui.text}>{loadingMessage}</Text>
-        </Box>
-      )}
+        {/* Error messages */}
+        {errors.length > 0 && (
+          <Box marginBottom={1} paddingX={1}>
+            {errors.map((error, index) => (
+              <Text key={index} color={theme.status.error}>
+                {error.message}
+              </Text>
+            ))}
+          </Box>
+        )}
 
-      {/* Error messages */}
-      {errors.length > 0 && (
-        <Box marginBottom={1} paddingX={1}>
-          {errors.map((error, index) => (
-            <Text key={index} color={theme.status.error}>
-              {error.message}
+        {/* Success message */}
+        {showSuccess && (
+          <Box marginBottom={1} paddingX={1}>
+            <Text color={theme.status.success}>{showSuccess}</Text>
+          </Box>
+        )}
+
+        {/* Server Information */}
+        {renderServerInfo()}
+
+        {/* Configuration */}
+        {renderConfiguration()}
+
+        {/* Extended Status Information */}
+        {fullServerStatus && (
+          <Box flexDirection="column" marginY={1} paddingX={1}>
+            <Text color={theme.ui.textMuted} bold>
+              System Status
             </Text>
-          ))}
-        </Box>
-      )}
 
-      {/* Success message */}
-      {showSuccess && (
-        <Box marginBottom={1} paddingX={1}>
-          <Text color={theme.status.success}>{showSuccess}</Text>
-        </Box>
-      )}
+            {/* Hooks Status */}
+            <Box marginTop={1}>
+              <Text color={theme.ui.textMuted}>Hooks: </Text>
+              <Text
+                color={
+                  fullServerStatus.hooks.installed
+                    ? theme.status.success
+                    : theme.status.warning
+                }
+              >
+                {fullServerStatus.hooks.installed
+                  ? 'Installed'
+                  : 'Not Installed'}
+              </Text>
+              {fullServerStatus.hooks.count && (
+                <>
+                  <Text color={theme.ui.textMuted}> (</Text>
+                  <Text color={theme.ui.text}>
+                    {fullServerStatus.hooks.count} types
+                  </Text>
+                  <Text color={theme.ui.textMuted}>)</Text>
+                </>
+              )}
+            </Box>
 
-      {/* Server Information */}
-      {renderServerInfo()}
+            {/* Events Status */}
+            <Box marginTop={1}>
+              <Text color={theme.ui.textMuted}>Events: </Text>
+              <Text color={theme.ui.text}>
+                {fullServerStatus.events.total} total
+              </Text>
+              {fullServerStatus.events.today !== undefined && (
+                <>
+                  <Text color={theme.ui.textMuted}>, </Text>
+                  <Text color={theme.ui.text}>
+                    {fullServerStatus.events.today} today
+                  </Text>
+                </>
+              )}
+            </Box>
 
-      {/* Configuration */}
-      {renderConfiguration()}
+            {/* Warnings */}
+            {fullServerStatus.server.warning && (
+              <Box marginTop={1}>
+                <Text color={theme.status.warning}>
+                  ⚠ {fullServerStatus.server.warning}
+                </Text>
+              </Box>
+            )}
 
-      {/* Extended Status Information */}
-      {fullServerStatus && (
-        <Box flexDirection="column" marginY={1} paddingX={1}>
-          <Text color={theme.ui.textMuted} bold>System Status</Text>
-
-          {/* Hooks Status */}
-          <Box marginTop={1}>
-            <Text color={theme.ui.textMuted}>Hooks: </Text>
-            <Text color={fullServerStatus.hooks.installed ? theme.status.success : theme.status.warning}>
-              {fullServerStatus.hooks.installed ? 'Installed' : 'Not Installed'}
-            </Text>
-            {fullServerStatus.hooks.count && (
-              <>
-                <Text color={theme.ui.textMuted}> (</Text>
-                <Text color={theme.ui.text}>{fullServerStatus.hooks.count} types</Text>
-                <Text color={theme.ui.textMuted}>)</Text>
-              </>
+            {fullServerStatus.offline.count > 0 && (
+              <Box marginTop={1}>
+                <Text color={theme.status.warning}>
+                  ⚠ {fullServerStatus.offline.count} offline log entries
+                </Text>
+              </Box>
             )}
           </Box>
+        )}
 
-          {/* Events Status */}
-          <Box marginTop={1}>
-            <Text color={theme.ui.textMuted}>Events: </Text>
-            <Text color={theme.ui.text}>{fullServerStatus.events.total} total</Text>
-            {fullServerStatus.events.today !== undefined && (
-              <>
-                <Text color={theme.ui.textMuted}>, </Text>
-                <Text color={theme.ui.text}>{fullServerStatus.events.today} today</Text>
-              </>
-            )}
-          </Box>
-
-          {/* Warnings */}
-          {fullServerStatus.server.warning && (
-            <Box marginTop={1}>
-              <Text color={theme.status.warning}>⚠ {fullServerStatus.server.warning}</Text>
-            </Box>
-          )}
-
-          {fullServerStatus.offline.count > 0 && (
-            <Box marginTop={1}>
-              <Text color={theme.status.warning}>⚠ {fullServerStatus.offline.count} offline log entries</Text>
-            </Box>
-          )}
-        </Box>
-      )}
-
-      {/* Logs */}
-      {renderLogs()}
+        {/* Logs */}
+        {renderLogs()}
       </Box>
     </Box>
   );

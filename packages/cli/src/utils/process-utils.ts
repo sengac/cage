@@ -22,7 +22,9 @@ export function findProcessesOnPort(port: number): ProcessInfo[] {
   try {
     if (platform() === 'win32') {
       // Windows: use netstat to find process
-      const output = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf-8' }).trim();
+      const output = execSync(`netstat -ano | findstr :${port}`, {
+        encoding: 'utf-8',
+      }).trim();
       const lines = output.split('\n');
 
       for (const line of lines) {
@@ -40,16 +42,23 @@ export function findProcessesOnPort(port: number): ProcessInfo[] {
     } else {
       // macOS/Linux: use lsof to find process
       try {
-        const output = execSync(`lsof -i :${port} -t`, { encoding: 'utf-8' }).trim();
+        const output = execSync(`lsof -i :${port} -t`, {
+          encoding: 'utf-8',
+        }).trim();
         logger.debug(`lsof output: ${output}`);
-        const pids = output.split('\n').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+        const pids = output
+          .split('\n')
+          .map(p => parseInt(p.trim()))
+          .filter(p => !isNaN(p));
 
         for (const pid of pids) {
           if (!processes.find(p => p.pid === pid)) {
             // Try to get command name
             let command: string | undefined;
             try {
-              command = execSync(`ps -p ${pid} -o comm=`, { encoding: 'utf-8' }).trim();
+              command = execSync(`ps -p ${pid} -o comm=`, {
+                encoding: 'utf-8',
+              }).trim();
             } catch {
               // Ignore if we can't get command name
             }
@@ -103,7 +112,7 @@ export function isProcessRunning(pid: number): boolean {
       // Windows: use tasklist to check if process exists
       execSync(`tasklist /FI "PID eq ${pid}" 2>nul | find "${pid}" >nul`, {
         stdio: 'ignore',
-        shell: true
+        shell: true,
       });
       return true;
     } else {
@@ -122,12 +131,17 @@ export function isProcessRunning(pid: number): boolean {
  * @param force Use force kill
  * @returns Number of processes killed
  */
-export function killProcessesOnPort(port: number, force: boolean = false): number {
+export function killProcessesOnPort(
+  port: number,
+  force: boolean = false
+): number {
   const processes = findProcessesOnPort(port);
   let killedCount = 0;
 
   for (const proc of processes) {
-    logger.info(`Killing process ${proc.pid} (${proc.command || 'unknown'}) on port ${port}`);
+    logger.info(
+      `Killing process ${proc.pid} (${proc.command || 'unknown'}) on port ${port}`
+    );
     if (killProcess(proc.pid, force)) {
       killedCount++;
     }

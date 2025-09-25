@@ -8,7 +8,7 @@ import {
   EventQuerySchema,
   type Event,
   type EventLogEntry,
-  type EventQuery
+  type EventQuery,
 } from './events';
 
 describe('Event Types', () => {
@@ -21,8 +21,8 @@ describe('Event Types', () => {
         sessionId: 'session-456',
         data: {
           toolName: 'Read',
-          arguments: { file_path: '/test.txt' }
-        }
+          arguments: { file_path: '/test.txt' },
+        },
       };
 
       const result = EventSchema.safeParse(event);
@@ -41,13 +41,13 @@ describe('Event Types', () => {
         sessionId: 'session-456',
         data: {
           toolName: 'Write',
-          result: { success: true }
+          result: { success: true },
         },
         metadata: {
           agentType: 'claude',
           version: '1.0.0',
-          environment: 'development'
-        }
+          environment: 'development',
+        },
       };
 
       const result = EventSchema.safeParse(event);
@@ -60,7 +60,7 @@ describe('Event Types', () => {
 
     it('should reject event without required fields', () => {
       const event = {
-        type: 'PreToolUse'
+        type: 'PreToolUse',
         // Missing id, timestamp, sessionId, data
       };
 
@@ -77,13 +77,13 @@ describe('Event Types', () => {
         type: 'UserPromptSubmit',
         sessionId: 'session-456',
         data: {
-          prompt: 'Help me write a function'
+          prompt: 'Help me write a function',
         },
         metadata: {
-          agentType: 'claude'
+          agentType: 'claude',
         },
         writtenAt: new Date().toISOString(),
-        checksum: 'sha256:abcdef123456'
+        checksum: 'sha256:abcdef123456',
       };
 
       const result = EventLogEntrySchema.safeParse(entry);
@@ -101,8 +101,8 @@ describe('Event Types', () => {
         type: 'Stop',
         sessionId: 'session-456',
         data: {
-          reason: 'Task completed'
-        }
+          reason: 'Task completed',
+        },
       };
 
       const result = EventLogEntrySchema.safeParse(entry);
@@ -115,7 +115,7 @@ describe('Event Types', () => {
     it('should validate a basic query', () => {
       const query = {
         from: '2025-01-01T00:00:00Z',
-        to: '2025-01-31T23:59:59Z'
+        to: '2025-01-31T23:59:59Z',
       };
 
       const result = EventQuerySchema.safeParse(query);
@@ -133,7 +133,7 @@ describe('Event Types', () => {
         types: ['PreToolUse', 'PostToolUse'],
         sessionIds: ['session-123', 'session-456'],
         limit: 100,
-        offset: 20
+        offset: 20,
       };
 
       const result = EventQuerySchema.safeParse(query);
@@ -148,7 +148,7 @@ describe('Event Types', () => {
     it('should provide defaults for limit', () => {
       const query = {
         from: '2025-01-01T00:00:00Z',
-        to: '2025-01-31T23:59:59Z'
+        to: '2025-01-31T23:59:59Z',
       };
 
       const result = EventQuerySchema.safeParse(query);
@@ -162,7 +162,7 @@ describe('Event Types', () => {
     it('should reject invalid date format', () => {
       const query = {
         from: 'invalid-date',
-        to: '2025-01-31T23:59:59Z'
+        to: '2025-01-31T23:59:59Z',
       };
 
       const result = EventQuerySchema.safeParse(query);

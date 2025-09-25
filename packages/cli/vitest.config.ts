@@ -15,7 +15,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@cage/shared': resolve(__dirname, '../shared/src')
-    }
-  }
+      '@cage/shared': resolve(__dirname, '../shared/src'),
+    },
+  },
 });

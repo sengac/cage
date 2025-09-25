@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'http';
 import { AppModule } from '../../src/app.module';
@@ -18,7 +18,7 @@ describe('Feature: Backend Event Processing - SessionEnd', () => {
 
     // Set global prefix like in main.ts
     app.setGlobalPrefix('api', {
-      exclude: ['/health']
+      exclude: ['/health'],
     });
     await app.init();
     httpServer = app.getHttpServer();
@@ -39,8 +39,8 @@ describe('Feature: Backend Event Processing - SessionEnd', () => {
         summary: {
           totalTools: 15,
           duration: 3600000,
-          tokensUsed: 1250
-        }
+          tokensUsed: 1250,
+        },
       };
 
       const startTime = Date.now();

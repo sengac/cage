@@ -12,7 +12,7 @@ import {
   uninstallHooksLocally,
   getInstalledHooksLocally,
   createHookScript,
-  installHookHandler
+  installHookHandler,
 } from './hooks-installer';
 import type { HookType } from '@cage/shared';
 
@@ -44,7 +44,8 @@ describe('Local .claude Directory Hook Management', () => {
     process.chdir(testDir);
 
     // Create a mock hook handler for all tests that need it
-    const mockHandlerContent = '#!/usr/bin/env node\nconsole.log("mock cage-hook-handler");';
+    const mockHandlerContent =
+      '#!/usr/bin/env node\nconsole.log("mock cage-hook-handler");';
     const mockHandlerPath = join(testDir, 'mock-cage-hook-handler.js');
     await writeFile(mockHandlerPath, mockHandlerContent);
 
@@ -69,7 +70,9 @@ describe('Local .claude Directory Hook Management', () => {
   describe('getLocalClaudeSettingsPath', () => {
     it('should return settings.json path in local .claude directory', () => {
       const settingsPath = getLocalClaudeSettingsPath();
-      expect(settingsPath).toBe(join(process.cwd(), '.claude', 'settings.json'));
+      expect(settingsPath).toBe(
+        join(process.cwd(), '.claude', 'settings.json')
+      );
     });
   });
 
@@ -86,12 +89,12 @@ describe('Local .claude Directory Hook Management', () => {
                 {
                   type: 'command',
                   command: '$CLAUDE_PROJECT_DIR/.claude/hooks/quality-check.js',
-                  timeout: 180
-                }
-              ]
-            }
-          ]
-        }
+                  timeout: 180,
+                },
+              ],
+            },
+          ],
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -119,10 +122,15 @@ describe('Local .claude Directory Hook Management', () => {
       await saveLocalClaudeSettings(testSettings);
 
       // Verify directory was created
-      await expect(access(join(testDir, '.claude'), constants.F_OK)).resolves.toBeUndefined();
+      await expect(
+        access(join(testDir, '.claude'), constants.F_OK)
+      ).resolves.toBeUndefined();
 
       // Verify settings were saved
-      const content = await readFile(join(testDir, '.claude', 'settings.json'), 'utf-8');
+      const content = await readFile(
+        join(testDir, '.claude', 'settings.json'),
+        'utf-8'
+      );
       expect(JSON.parse(content)).toEqual(testSettings);
     });
 
@@ -140,11 +148,17 @@ describe('Local .claude Directory Hook Management', () => {
       await saveLocalClaudeSettings(newSettings);
 
       // Verify backup was created
-      const backupContent = await readFile(join(testDir, '.claude', 'settings.json.backup'), 'utf-8');
+      const backupContent = await readFile(
+        join(testDir, '.claude', 'settings.json.backup'),
+        'utf-8'
+      );
       expect(JSON.parse(backupContent)).toEqual(originalSettings);
 
       // Verify new settings were saved
-      const newContent = await readFile(join(testDir, '.claude', 'settings.json'), 'utf-8');
+      const newContent = await readFile(
+        join(testDir, '.claude', 'settings.json'),
+        'utf-8'
+      );
       expect(JSON.parse(newContent)).toEqual(newSettings);
     });
   });
@@ -152,17 +166,27 @@ describe('Local .claude Directory Hook Management', () => {
   describe('hook installation', () => {
     it('should create wrapper scripts with proper hook handler reference', async () => {
       // Create a mock hook handler file for testing
-      const mockHandlerContent = '#!/usr/bin/env node\nconsole.log("cage-hook-handler");';
+      const mockHandlerContent =
+        '#!/usr/bin/env node\nconsole.log("cage-hook-handler");';
       const mockHandlerDir = join(testDir, '.claude', 'hooks', 'cage');
       await mkdir(mockHandlerDir, { recursive: true });
-      await writeFile(join(mockHandlerDir, 'cage-hook-handler.js'), mockHandlerContent);
+      await writeFile(
+        join(mockHandlerDir, 'cage-hook-handler.js'),
+        mockHandlerContent
+      );
 
       // Create a wrapper script
       const hookType: HookType = 'PostToolUse';
       await createHookScript(hookType, 3790);
 
       // Verify wrapper script was created
-      const scriptPath = join(testDir, '.claude', 'hooks', 'cage', 'posttooluse.mjs');
+      const scriptPath = join(
+        testDir,
+        '.claude',
+        'hooks',
+        'cage',
+        'posttooluse.mjs'
+      );
       await expect(access(scriptPath, constants.F_OK)).resolves.toBeUndefined();
 
       // Verify wrapper script content references the handler
@@ -179,7 +203,13 @@ describe('Local .claude Directory Hook Management', () => {
       await createHookScript(hookType, port);
 
       // Verify wrapper script was created
-      const scriptPath = join(testDir, '.claude', 'hooks', 'cage', `${hookType.toLowerCase()}.mjs`);
+      const scriptPath = join(
+        testDir,
+        '.claude',
+        'hooks',
+        'cage',
+        `${hookType.toLowerCase()}.mjs`
+      );
       await expect(access(scriptPath, constants.F_OK)).resolves.toBeUndefined();
       await expect(access(scriptPath, constants.X_OK)).resolves.toBeUndefined();
 
@@ -207,10 +237,24 @@ describe('Local .claude Directory Hook Management', () => {
       expect(settings.hooks?.SubagentStop).toBeDefined();
 
       // Verify hook scripts were created
-      const hookTypes = ['PostToolUse', 'PreToolUse', 'UserPromptSubmit', 'Stop', 'SubagentStop'];
+      const hookTypes = [
+        'PostToolUse',
+        'PreToolUse',
+        'UserPromptSubmit',
+        'Stop',
+        'SubagentStop',
+      ];
       for (const hookType of hookTypes) {
-        const scriptPath = join(testDir, '.claude', 'hooks', 'cage', `${hookType.toLowerCase()}.mjs`);
-        await expect(access(scriptPath, constants.F_OK)).resolves.toBeUndefined();
+        const scriptPath = join(
+          testDir,
+          '.claude',
+          'hooks',
+          'cage',
+          `${hookType.toLowerCase()}.mjs`
+        );
+        await expect(
+          access(scriptPath, constants.F_OK)
+        ).resolves.toBeUndefined();
       }
     });
 
@@ -226,12 +270,12 @@ describe('Local .claude Directory Hook Management', () => {
                 {
                   type: 'command',
                   command: '$CLAUDE_PROJECT_DIR/.claude/hooks/existing-hook.js',
-                  timeout: 180
-                }
-              ]
-            }
-          ]
-        }
+                  timeout: 180,
+                },
+              ],
+            },
+          ],
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -247,8 +291,8 @@ describe('Local .claude Directory Hook Management', () => {
       expect(settings.hooks?.PostToolUse?.length).toBeGreaterThan(1);
 
       // Check that existing hook is still there
-      const existingHook = settings.hooks?.PostToolUse?.find(
-        (h: HookEntry) => h.hooks?.[0]?.command?.includes('existing-hook.js')
+      const existingHook = settings.hooks?.PostToolUse?.find((h: HookEntry) =>
+        h.hooks?.[0]?.command?.includes('existing-hook.js')
       );
       expect(existingHook).toBeDefined();
     });
@@ -259,9 +303,10 @@ describe('Local .claude Directory Hook Management', () => {
       const existingSettings = {
         hooks: {
           PostToolUse: {
-            "Edit|MultiEdit|Write": "$CLAUDE_PROJECT_DIR/.claude/hooks/cli-app/quality-check.js"
-          }
-        }
+            'Edit|MultiEdit|Write':
+              '$CLAUDE_PROJECT_DIR/.claude/hooks/cli-app/quality-check.js',
+          },
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -295,7 +340,9 @@ describe('Local .claude Directory Hook Management', () => {
       // Find backup files with timestamp
       const { readdir } = await import('fs/promises');
       const files = await readdir(join(testDir, '.claude'));
-      const backupFiles = files.filter(f => f.startsWith('settings.json.backup'));
+      const backupFiles = files.filter(f =>
+        f.startsWith('settings.json.backup')
+      );
 
       // Should have at least one backup (might be .backup or .backup.timestamp)
       expect(backupFiles.length).toBeGreaterThan(0);
@@ -309,14 +356,17 @@ describe('Local .claude Directory Hook Management', () => {
           PreToolUse: [
             {
               matcher: '*',
-              hooks: [{
-                type: 'command',
-                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/pre-hook.js',
-                timeout: 180
-              }]
-            }
-          ]
-        }
+              hooks: [
+                {
+                  type: 'command',
+                  command:
+                    '$CLAUDE_PROJECT_DIR/.claude/hooks/custom/pre-hook.js',
+                  timeout: 180,
+                },
+              ],
+            },
+          ],
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -357,20 +407,24 @@ describe('Local .claude Directory Hook Management', () => {
           PostToolUse: [
             {
               matcher: 'Edit',
-              hooks: [{
-                type: 'command',
-                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/hook1.js'
-              }]
+              hooks: [
+                {
+                  type: 'command',
+                  command: '$CLAUDE_PROJECT_DIR/.claude/hooks/hook1.js',
+                },
+              ],
             },
             {
               matcher: '*',
-              hooks: [{
-                type: 'command',
-                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/hook2.js'
-              }]
-            }
-          ]
-        }
+              hooks: [
+                {
+                  type: 'command',
+                  command: '$CLAUDE_PROJECT_DIR/.claude/hooks/hook2.js',
+                },
+              ],
+            },
+          ],
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -403,9 +457,10 @@ describe('Local .claude Directory Hook Management', () => {
       const settings = await loadLocalClaudeSettings();
 
       // Check that Cage-specific hooks are removed
-      const cageHooks = settings.hooks?.PostToolUse?.filter(
-        (h: HookEntry) => h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
-      ) || [];
+      const cageHooks =
+        settings.hooks?.PostToolUse?.filter((h: HookEntry) =>
+          h.hooks?.[0]?.command?.includes('.claude/hooks/cage/')
+        ) || [];
       expect(cageHooks.length).toBe(0);
     });
 
@@ -421,12 +476,12 @@ describe('Local .claude Directory Hook Management', () => {
                 {
                   type: 'command',
                   command: '$CLAUDE_PROJECT_DIR/.claude/hooks/custom-hook.js',
-                  timeout: 180
-                }
-              ]
-            }
-          ]
-        }
+                  timeout: 180,
+                },
+              ],
+            },
+          ],
+        },
       };
       await writeFile(
         join(testDir, '.claude', 'settings.json'),
@@ -439,8 +494,8 @@ describe('Local .claude Directory Hook Management', () => {
 
       // Verify non-Cage hooks are still there
       const settings = await loadLocalClaudeSettings();
-      const customHook = settings.hooks?.PostToolUse?.find(
-        (h: HookEntry) => h.hooks?.[0]?.command?.includes('custom-hook.js')
+      const customHook = settings.hooks?.PostToolUse?.find((h: HookEntry) =>
+        h.hooks?.[0]?.command?.includes('custom-hook.js')
       );
       expect(customHook).toBeDefined();
     });

@@ -51,7 +51,7 @@ const HELP_CATEGORIES: HelpCategory[] = [
       'cage events    - Monitor and view events',
       'cage hooks     - Configure Claude Code hooks',
       'cage server    - Manage server status',
-    ]
+    ],
   },
   {
     id: 'navigation',
@@ -95,7 +95,7 @@ const HELP_CATEGORIES: HelpCategory[] = [
       '',
       'Breadcrumb Trail:',
       'Home > Help > Navigation',
-    ]
+    ],
   },
   {
     id: 'components',
@@ -145,7 +145,7 @@ const HELP_CATEGORIES: HelpCategory[] = [
       '• Use filters to focus on specific data',
       '• Navigate with arrow keys or j/k',
       '• Press ESC to return to main menu',
-    ]
+    ],
   },
   {
     id: 'keyboard-shortcuts',
@@ -198,7 +198,7 @@ const HELP_CATEGORIES: HelpCategory[] = [
       'Ctrl+C - Force quit',
       'Shift+? - Context help',
       'Alt+Tab - Switch views',
-    ]
+    ],
   },
   {
     id: 'troubleshooting',
@@ -246,18 +246,20 @@ const HELP_CATEGORIES: HelpCategory[] = [
       '',
       'Q: How do I backup my configuration?',
       'A: Use "cage config export" command',
-    ]
-  }
+    ],
+  },
 ];
 
 export const HelpSystem: React.FC<HelpSystemProps> = ({
   onBack,
   context = '',
   mode = 'full',
-  tooltip = ''
+  tooltip = '',
 }) => {
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
-  const [viewMode, setViewMode] = useState<ViewMode>(mode === 'overlay' ? 'overlay' : tooltip ? 'tooltip' : 'main');
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    mode === 'overlay' ? 'overlay' : tooltip ? 'tooltip' : 'main'
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -320,9 +322,11 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
 
     // Main view navigation
     if (key.downArrow || input === 'j') {
-      setSelectedCategoryIndex((prev) => (prev + 1) % HELP_CATEGORIES.length);
+      setSelectedCategoryIndex(prev => (prev + 1) % HELP_CATEGORIES.length);
     } else if (key.upArrow || input === 'k') {
-      setSelectedCategoryIndex((prev) => (prev - 1 + HELP_CATEGORIES.length) % HELP_CATEGORIES.length);
+      setSelectedCategoryIndex(
+        prev => (prev - 1 + HELP_CATEGORIES.length) % HELP_CATEGORIES.length
+      );
     } else if (key.return) {
       setViewMode('detail');
     } else if (input === '/') {
@@ -340,20 +344,32 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
     const tooltipContent = getTooltipContent(tooltip);
 
     return (
-      <Box flexDirection="column" padding={1} borderStyle="single" borderColor="cyan">
-        <Text bold color="cyan">{tooltipContent.title}</Text>
+      <Box
+        flexDirection="column"
+        padding={1}
+        borderStyle="single"
+        borderColor="cyan"
+      >
+        <Text bold color="cyan">
+          {tooltipContent.title}
+        </Text>
         <Text>{tooltipContent.description}</Text>
-        {tooltipContent.shortcut && <Text color="gray">Shortcut: {tooltipContent.shortcut}</Text>}
+        {tooltipContent.shortcut && (
+          <Text color="gray">Shortcut: {tooltipContent.shortcut}</Text>
+        )}
       </Box>
     );
   };
 
   const getTooltipContent = (tooltipId: string) => {
-    const tooltips: Record<string, { title: string; description: string; shortcut?: string }> = {
+    const tooltips: Record<
+      string,
+      { title: string; description: string; shortcut?: string }
+    > = {
       'filter-button': {
         title: 'Filter Button',
         description: 'Click to open filter options',
-        shortcut: 'f'
+        shortcut: 'f',
       },
       'event-count': {
         title: 'Event Count',
@@ -362,15 +378,27 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
       'status-indicator': {
         title: 'Status Indicator',
         description: 'Shows current system status',
-      }
+      },
     };
 
-    return tooltips[tooltipId] || { title: 'Help', description: 'No information available' };
+    return (
+      tooltips[tooltipId] || {
+        title: 'Help',
+        description: 'No information available',
+      }
+    );
   };
 
   const renderOverlay = (): JSX.Element => (
-    <Box flexDirection="column" padding={1} borderStyle="double" borderColor="cyan">
-      <Text bold color="cyan">Quick Help</Text>
+    <Box
+      flexDirection="column"
+      padding={1}
+      borderStyle="double"
+      borderColor="cyan"
+    >
+      <Text bold color="cyan">
+        Quick Help
+      </Text>
       <Text></Text>
       <Text>↑↓ Navigate</Text>
       <Text>↵ Select</Text>
@@ -394,14 +422,16 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
 
     return (
       <Box flexDirection="column">
-        <Text bold color="cyan">Search Results</Text>
+        <Text bold color="cyan">
+          Search Results
+        </Text>
         <Text>Search: "{searchTerm}"</Text>
         <Text>Found {results.length} results</Text>
         <Text></Text>
         {results.map((result, index) => (
           <Box key={index} marginBottom={1}>
             <Text bold>{result.category}</Text>
-            <Text>  {result.snippet}</Text>
+            <Text> {result.snippet}</Text>
           </Box>
         ))}
       </Box>
@@ -416,7 +446,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
         if (line.toLowerCase().includes(term.toLowerCase())) {
           results.push({
             category: category.title,
-            snippet: line.length > 80 ? line.substring(0, 80) + '...' : line
+            snippet: line.length > 80 ? line.substring(0, 80) + '...' : line,
           });
         }
       });
@@ -434,7 +464,9 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
         <Text color="gray">{breadcrumb}</Text>
         <Text></Text>
         {category.content.map((line, index) => (
-          <Text key={index} bold={line === category.content[0]}>{line}</Text>
+          <Text key={index} bold={line === category.content[0]}>
+            {line}
+          </Text>
         ))}
       </Box>
     );
@@ -443,58 +475,58 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
   const renderMainView = (): JSX.Element => {
     return (
       <Box flexDirection="column" flexGrow={1}>
-
         {/* Main Content */}
         <Box flexDirection="column" paddingX={2} paddingY={1} flexGrow={1}>
+          {/* Context indicator */}
+          {context && (
+            <Box marginBottom={1}>
+              <Text>Context: {getContextDisplayName(context)}</Text>
+              {renderContextHelp(context)}
+            </Box>
+          )}
 
-        {/* Context indicator */}
-        {context && (
+          {/* Location indicator */}
           <Box marginBottom={1}>
-            <Text>Context: {getContextDisplayName(context)}</Text>
-            {renderContextHelp(context)}
+            <Text color="gray">Location: Main Help Menu</Text>
           </Box>
-        )}
 
-        {/* Location indicator */}
-        <Box marginBottom={1}>
-          <Text color="gray">Location: Main Help Menu</Text>
-        </Box>
-
-        {/* Categories */}
-        <Box flexDirection="column" marginBottom={1}>
-          {HELP_CATEGORIES.map((category, index) => {
-            const isSelected = index === selectedCategoryIndex;
-            const prefix = isSelected ? '❯ ' : '  ';
-
-            return (
-              <Box key={category.id} flexDirection="column" marginBottom={1}>
-                <Text color={isSelected ? 'cyan' : 'white'}>
-                  {prefix}{category.title}
-                </Text>
-                <Text color="gray">    {category.description}</Text>
-              </Box>
-            );
-          })}
-        </Box>
-
-        {/* Advanced help toggle */}
-        {showAdvanced && (
+          {/* Categories */}
           <Box flexDirection="column" marginBottom={1}>
-            <Text bold color="yellow">Advanced Help</Text>
-            <Text>Developer Mode</Text>
-            <Text>System Diagnostics</Text>
-            <Text>API Documentation</Text>
+            {HELP_CATEGORIES.map((category, index) => {
+              const isSelected = index === selectedCategoryIndex;
+              const prefix = isSelected ? '❯ ' : '  ';
+
+              return (
+                <Box key={category.id} flexDirection="column" marginBottom={1}>
+                  <Text color={isSelected ? 'cyan' : 'white'}>
+                    {prefix}
+                    {category.title}
+                  </Text>
+                  <Text color="gray"> {category.description}</Text>
+                </Box>
+              );
+            })}
           </Box>
-        )}
 
-        {/* Available actions */}
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold>Available Actions:</Text>
-          <Text>↵ View details</Text>
-          <Text>/ Search help</Text>
-          <Text>ESC Go back</Text>
-        </Box>
+          {/* Advanced help toggle */}
+          {showAdvanced && (
+            <Box flexDirection="column" marginBottom={1}>
+              <Text bold color="yellow">
+                Advanced Help
+              </Text>
+              <Text>Developer Mode</Text>
+              <Text>System Diagnostics</Text>
+              <Text>API Documentation</Text>
+            </Box>
+          )}
 
+          {/* Available actions */}
+          <Box flexDirection="column" marginBottom={1}>
+            <Text bold>Available Actions:</Text>
+            <Text>↵ View details</Text>
+            <Text>/ Search help</Text>
+            <Text>ESC Go back</Text>
+          </Box>
         </Box>
       </Box>
     );

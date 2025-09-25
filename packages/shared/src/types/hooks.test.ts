@@ -11,7 +11,7 @@ import {
   SessionStartPayloadSchema,
   SessionEndPayloadSchema,
   PreCompactPayloadSchema,
-  HookResponseSchema
+  HookResponseSchema,
 } from './hooks';
 
 describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => {
@@ -21,7 +21,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = PreToolUsePayloadSchema.safeParse(payload);
@@ -48,7 +48,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         result: { success: true, bytesWritten: 4 },
         executionTime: 150,
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = PostToolUsePayloadSchema.safeParse(payload);
@@ -67,7 +67,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         executionTime: 50,
         error: 'File not found',
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = PostToolUsePayloadSchema.safeParse(payload);
@@ -85,12 +85,12 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         context: {
           previousMessages: [
             { role: 'user', content: 'Hello' },
-            { role: 'assistant', content: 'Hi there!' }
+            { role: 'assistant', content: 'Hi there!' },
           ],
-          currentFile: '/src/app.ts'
+          currentFile: '/src/app.ts',
         },
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = UserPromptSubmitPayloadSchema.safeParse(payload);
@@ -105,7 +105,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
       const payload = {
         prompt: 'Simple question',
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = UserPromptSubmitPayloadSchema.safeParse(payload);
@@ -118,14 +118,14 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
       const payloads = [
         { level: 'info', message: 'Task completed' },
         { level: 'warning', message: 'Low disk space' },
-        { level: 'error', message: 'Operation failed' }
+        { level: 'error', message: 'Operation failed' },
       ];
 
       payloads.forEach(p => {
         const payload = {
           ...p,
           sessionId: 'session-123',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
 
         const result = NotificationPayloadSchema.safeParse(payload);
@@ -142,7 +142,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         level: 'critical', // Invalid level
         message: 'Test',
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = NotificationPayloadSchema.safeParse(payload);
@@ -157,10 +157,10 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         finalState: {
           filesModified: 3,
           testsRun: 10,
-          testsPassed: 10
+          testsPassed: 10,
         },
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = StopPayloadSchema.safeParse(payload);
@@ -182,11 +182,11 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
           output: 'Analysis complete',
           metrics: {
             duration: 5000,
-            resourcesUsed: ['file-reader', 'analyzer']
-          }
+            resourcesUsed: ['file-reader', 'analyzer'],
+          },
         },
         sessionId: 'subagent-session-789',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = SubagentStopPayloadSchema.safeParse(payload);
@@ -206,9 +206,9 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         environment: {
           nodeVersion: '20.0.0',
           platform: 'darwin',
-          cwd: '/home/user/project'
+          cwd: '/home/user/project',
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = SessionStartPayloadSchema.safeParse(payload);
@@ -229,9 +229,9 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
           toolsUsed: ['Read', 'Write', 'Bash'],
           filesModified: ['app.ts', 'test.ts'],
           errors: 0,
-          warnings: 2
+          warnings: 2,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = SessionEndPayloadSchema.safeParse(payload);
@@ -250,7 +250,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         reason: 'Context limit approaching',
         currentTokenCount: 95000,
         maxTokenCount: 100000,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const result = PreCompactPayloadSchema.safeParse(payload);
@@ -266,7 +266,7 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
     it('should validate standard hook response', () => {
       const response = {
         success: true,
-        message: 'Hook processed successfully'
+        message: 'Hook processed successfully',
       };
 
       const result = HookResponseSchema.safeParse(response);
@@ -283,14 +283,16 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
         message: 'Context injected',
         contextToInject: 'Remember to follow coding standards',
         data: {
-          customField: 'value'
-        }
+          customField: 'value',
+        },
       };
 
       const result = HookResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.contextToInject).toBe('Remember to follow coding standards');
+        expect(result.data.contextToInject).toBe(
+          'Remember to follow coding standards'
+        );
         expect(result.data.data?.customField).toBe('value');
       }
     });
@@ -299,14 +301,16 @@ describe('Hook Payload Schemas - Complete Coverage for All 9 Hook Types', () => 
       const response = {
         success: false,
         message: 'Low disk space',
-        warning: 'Low disk space, events not persisted'
+        warning: 'Low disk space, events not persisted',
       };
 
       const result = HookResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.success).toBe(false);
-        expect(result.data.warning).toBe('Low disk space, events not persisted');
+        expect(result.data.warning).toBe(
+          'Low disk space, events not persisted'
+        );
       }
     });
   });

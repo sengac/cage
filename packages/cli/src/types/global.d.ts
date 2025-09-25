@@ -4,7 +4,10 @@ declare global {
   namespace JSX {
     interface Element extends ReactElement {}
     interface IntrinsicElements {
-      [elemName: string]: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>;
+      [elemName: string]: DetailedHTMLProps<
+        HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
     }
   }
 }

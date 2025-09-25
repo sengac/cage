@@ -40,7 +40,7 @@ export function EventsListCommand({ from, to }: ListProps): JSX.Element {
     status: 'loading',
     message: 'Loading events...',
     summary: null,
-    events: []
+    events: [],
   });
 
   useEffect(() => {
@@ -53,19 +53,22 @@ export function EventsListCommand({ from, to }: ListProps): JSX.Element {
             message: 'CAGE is not initialized',
             error: 'Please run "cage init" first',
             summary: null,
-            events: []
+            events: [],
           });
           return;
         }
 
-        const eventsDir = join(process.cwd(), config.eventsDir || '.cage/events');
+        const eventsDir = join(
+          process.cwd(),
+          config.eventsDir || '.cage/events'
+        );
 
         if (!existsSync(eventsDir)) {
           setState({
             status: 'done',
             message: 'No events found',
             summary: null,
-            events: []
+            events: [],
           });
           return;
         }
@@ -91,7 +94,10 @@ export function EventsListCommand({ from, to }: ListProps): JSX.Element {
             for (const file of eventFiles) {
               const filePath = join(datePath, file);
               const content = await readFile(filePath, 'utf-8');
-              const lines = content.trim().split('\n').filter(line => line.trim());
+              const lines = content
+                .trim()
+                .split('\n')
+                .filter(line => line.trim());
 
               for (const line of lines) {
                 try {
@@ -121,23 +127,22 @@ export function EventsListCommand({ from, to }: ListProps): JSX.Element {
           date: fromDate === toDate ? fromDate : `${fromDate} to ${toDate}`,
           totalEvents: allEvents.length,
           eventTypes,
-          sessions: sessions.size
+          sessions: sessions.size,
         };
 
         setState({
           status: 'done',
           message: `Events from ${summary.date}`,
           summary,
-          events: allEvents.slice(0, 50) // Limit to first 50 events for display
+          events: allEvents.slice(0, 50), // Limit to first 50 events for display
         });
-
       } catch (err) {
         setState({
           status: 'error',
           message: 'Failed to load events',
           error: err instanceof Error ? err.message : 'Unknown error',
           summary: null,
-          events: []
+          events: [],
         });
       }
     };
@@ -169,7 +174,10 @@ export function EventsListCommand({ from, to }: ListProps): JSX.Element {
       <Box marginTop={1} flexDirection="column">
         <Text bold>Event types:</Text>
         {Object.entries(state.summary.eventTypes).map(([type, count]) => (
-          <Text key={type}>  {type}: {count}</Text>
+          <Text key={type}>
+            {' '}
+            {type}: {count}
+          </Text>
         ))}
       </Box>
 

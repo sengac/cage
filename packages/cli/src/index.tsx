@@ -18,7 +18,9 @@ const program = new Command();
 
 program
   .name('cage')
-  .description('Code Alignment Guard Engine - Enhances AI coding assistants through quality guidance and contextual assistance')
+  .description(
+    'Code Alignment Guard Engine - Enhances AI coding assistants through quality guidance and contextual assistance'
+  )
   .version('0.0.1');
 
 program
@@ -28,14 +30,12 @@ program
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<InitCommand />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
 // Hook commands
-const hooks = program
-  .command('hooks')
-  .description('Manage Claude Code hooks');
+const hooks = program.command('hooks').description('Manage Claude Code hooks');
 
 hooks
   .command('setup')
@@ -44,7 +44,7 @@ hooks
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<HooksSetupCommand />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -55,7 +55,7 @@ hooks
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<HooksStatusCommand />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -68,11 +68,11 @@ events
   .command('stream')
   .description('Stream events in real-time')
   .option('-t, --type <type>', 'Filter by event type')
-  .action((options) => {
+  .action(options => {
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<EventsStreamCommand filter={options.type} />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -80,12 +80,12 @@ events
   .command('tail')
   .description('Tail recent events')
   .option('-n, --lines <number>', 'Number of lines to show', '10')
-  .action((options) => {
+  .action(options => {
     const count = parseInt(options.lines, 10);
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<EventsTailCommand count={count} />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -94,11 +94,11 @@ events
   .description('List events within a date range')
   .option('-f, --from <date>', 'Start date (YYYY-MM-DD)')
   .option('-t, --to <date>', 'End date (YYYY-MM-DD)')
-  .action((options) => {
+  .action(options => {
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<EventsListCommand from={options.from} to={options.to} />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -109,7 +109,7 @@ events
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<EventsStatsCommand />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -118,11 +118,11 @@ program
   .command('start')
   .description('Start the CAGE backend server')
   .option('-p, --port <port>', 'Port to run on', '3790')
-  .action((options) => {
+  .action(options => {
     const stdin = process.stdin.isTTY ? process.stdin : undefined;
     render(<ServerStartCommand port={options.port} />, {
       stdin,
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     });
   });
 
@@ -130,7 +130,7 @@ program
   .command('stop')
   .description('Stop the CAGE backend server')
   .option('-f, --force', 'Force kill the server')
-  .action(async (options) => {
+  .action(async options => {
     await stopCommand(options);
   });
 
@@ -138,7 +138,7 @@ program
   .command('status')
   .description('Check CAGE system status')
   .option('-j, --json', 'Output as JSON')
-  .action(async (options) => {
+  .action(async options => {
     await statusCommand(options);
   });
 
@@ -146,7 +146,7 @@ program
 const logs = program
   .command('logs <type>')
   .description('View various CAGE logs')
-  .action(async (type) => {
+  .action(async type => {
     // TODO: Implement logs command
     console.log(`Logs command for ${type} not yet implemented`);
   });
@@ -165,15 +165,11 @@ if (process.argv.length === 2 || (debugMode && remainingArgs.length === 0)) {
 
   // Launch interactive TUI with debug mode if enabled
   const { waitUntilExit } = render(
-    <DebugMode
-      debugMode={debugMode}
-      logFile={logFile}
-      remainingArgs={[]}
-    />,
+    <DebugMode debugMode={debugMode} logFile={logFile} remainingArgs={[]} />,
     {
       stdin,
       // Disable raw mode if stdin doesn't support it
-      isRawModeSupported: process.stdin.isTTY !== undefined
+      isRawModeSupported: process.stdin.isTTY !== undefined,
     }
   );
   waitUntilExit().then(() => {

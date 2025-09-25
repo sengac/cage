@@ -54,6 +54,7 @@
     "ink-use-stdout-dimensions": "latest",
     "marked": "latest",
     "nanoid": "latest",
+    "open": "^10.2.0",
     "prismjs": "latest",
     "react": "^19.1.1",
     "strip-ansi": "latest",

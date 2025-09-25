@@ -13,7 +13,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should render with line numbers by default', () => {
       const code = 'const x = 1;\nconst y = 2;';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} showLineNumbers={true} />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} showLineNumbers={true} />
+      );
 
       expect(lastFrame()).toContain('1');
       expect(lastFrame()).toContain('2');
@@ -23,7 +25,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should render without line numbers when disabled', () => {
       const code = 'const x = 1;';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} showLineNumbers={false} />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} showLineNumbers={false} />
+      );
 
       const frame = lastFrame();
       expect(frame).toContain('const x = 1;');
@@ -64,7 +68,8 @@ describe('SyntaxHighlighter', () => {
     });
 
     it('should auto-detect TypeScript', () => {
-      const code = 'interface User { name: string; }\nconst user: User = { name: "test" };';
+      const code =
+        'interface User { name: string; }\nconst user: User = { name: "test" };';
       const { lastFrame } = render(<SyntaxHighlighter code={code} />);
 
       expect(lastFrame()).toContain('interface');
@@ -129,21 +134,27 @@ describe('SyntaxHighlighter', () => {
   describe('Explicit Language Setting', () => {
     it('should use explicitly set language', () => {
       const code = 'const x = 1;';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="javascript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="javascript" />
+      );
 
       expect(lastFrame()).toContain('const x = 1;');
     });
 
     it('should override auto-detection with explicit language', () => {
       const code = 'function test() {}';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="python" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="python" />
+      );
 
       expect(lastFrame()).toContain('function test() {}');
     });
 
     it('should handle unsupported language gracefully', () => {
       const code = 'some code';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="unknown" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="unknown" />
+      );
 
       expect(lastFrame()).toContain('some code');
     });
@@ -159,21 +170,27 @@ describe('SyntaxHighlighter', () => {
 
     it('should apply dark theme', () => {
       const code = 'const x = 1;';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} theme="dark" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} theme="dark" />
+      );
 
       expect(lastFrame()).toContain('const x = 1;');
     });
 
     it('should apply light theme', () => {
       const code = 'const x = 1;';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} theme="light" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} theme="light" />
+      );
 
       expect(lastFrame()).toContain('const x = 1;');
     });
 
     it('should apply high contrast theme', () => {
       const code = 'const x = 1;';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} theme="high-contrast" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} theme="high-contrast" />
+      );
 
       expect(lastFrame()).toContain('const x = 1;');
     });
@@ -181,8 +198,12 @@ describe('SyntaxHighlighter', () => {
 
   describe('Line Numbers', () => {
     it('should display line numbers with proper padding', () => {
-      const code = Array.from({ length: 10 }, (_, i) => `line ${i + 1}`).join('\n');
-      const { lastFrame } = render(<SyntaxHighlighter code={code} showLineNumbers={true} />);
+      const code = Array.from({ length: 10 }, (_, i) => `line ${i + 1}`).join(
+        '\n'
+      );
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} showLineNumbers={true} />
+      );
 
       const frame = lastFrame();
       expect(frame).toContain('1');
@@ -192,8 +213,12 @@ describe('SyntaxHighlighter', () => {
     });
 
     it('should handle large line numbers with proper padding', () => {
-      const code = Array.from({ length: 100 }, (_, i) => `line ${i + 1}`).join('\n');
-      const { lastFrame } = render(<SyntaxHighlighter code={code} showLineNumbers={true} />);
+      const code = Array.from({ length: 100 }, (_, i) => `line ${i + 1}`).join(
+        '\n'
+      );
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} showLineNumbers={true} />
+      );
 
       const frame = lastFrame();
       expect(frame).toMatch(/\s*100\s/);
@@ -203,7 +228,11 @@ describe('SyntaxHighlighter', () => {
     it('should start line numbers from custom start', () => {
       const code = 'first line\nsecond line';
       const { lastFrame } = render(
-        <SyntaxHighlighter code={code} showLineNumbers={true} startLineNumber={5} />
+        <SyntaxHighlighter
+          code={code}
+          showLineNumbers={true}
+          startLineNumber={5}
+        />
       );
 
       const frame = lastFrame();
@@ -216,7 +245,11 @@ describe('SyntaxHighlighter', () => {
     it('should handle zero and negative start line numbers', () => {
       const code = 'test line';
       const { lastFrame } = render(
-        <SyntaxHighlighter code={code} showLineNumbers={true} startLineNumber={0} />
+        <SyntaxHighlighter
+          code={code}
+          showLineNumbers={true}
+          startLineNumber={0}
+        />
       );
 
       expect(lastFrame()).toContain('0');
@@ -227,7 +260,9 @@ describe('SyntaxHighlighter', () => {
   describe('Syntax Highlighting Features', () => {
     it('should highlight JavaScript keywords', () => {
       const code = 'const function if else return';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="javascript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="javascript" />
+      );
 
       expect(lastFrame()).toContain('const');
       expect(lastFrame()).toContain('function');
@@ -238,7 +273,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should highlight TypeScript types', () => {
       const code = 'string number boolean interface type';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="typescript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="typescript" />
+      );
 
       expect(lastFrame()).toContain('string');
       expect(lastFrame()).toContain('number');
@@ -249,7 +286,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should highlight string literals', () => {
       const code = '"hello" \'world\' `template`';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="javascript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="javascript" />
+      );
 
       expect(lastFrame()).toContain('"hello"');
       expect(lastFrame()).toContain("'world'");
@@ -258,7 +297,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should highlight numbers', () => {
       const code = '123 45.67 0xFF 0b1010';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="javascript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="javascript" />
+      );
 
       expect(lastFrame()).toContain('123');
       expect(lastFrame()).toContain('45.67');
@@ -268,7 +309,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should highlight comments', () => {
       const code = '// single line\n/* multi line */';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="javascript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="javascript" />
+      );
 
       expect(lastFrame()).toContain('// single line');
       expect(lastFrame()).toContain('/* multi line */');
@@ -276,7 +319,9 @@ describe('SyntaxHighlighter', () => {
 
     it('should highlight operators', () => {
       const code = '+ - * / = == === != !== && ||';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} language="javascript" />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} language="javascript" />
+      );
 
       expect(lastFrame()).toContain('+');
       expect(lastFrame()).toContain('===');
@@ -310,8 +355,12 @@ describe('SyntaxHighlighter', () => {
     });
 
     it('should handle null and undefined code', () => {
-      const { lastFrame: frame1 } = render(<SyntaxHighlighter code={null as any} />);
-      const { lastFrame: frame2 } = render(<SyntaxHighlighter code={undefined as any} />);
+      const { lastFrame: frame1 } = render(
+        <SyntaxHighlighter code={null as any} />
+      );
+      const { lastFrame: frame2 } = render(
+        <SyntaxHighlighter code={undefined as any} />
+      );
 
       expect(frame1()).toBeDefined();
       expect(frame2()).toBeDefined();
@@ -320,7 +369,10 @@ describe('SyntaxHighlighter', () => {
 
   describe('Performance', () => {
     it('should handle large files efficiently', () => {
-      const code = Array.from({ length: 1000 }, (_, i) => `line ${i + 1}: const x = ${i};`).join('\n');
+      const code = Array.from(
+        { length: 1000 },
+        (_, i) => `line ${i + 1}: const x = ${i};`
+      ).join('\n');
       const { lastFrame } = render(<SyntaxHighlighter code={code} />);
 
       expect(lastFrame()).toContain('line 1:');
@@ -353,21 +405,28 @@ describe('SyntaxHighlighter', () => {
   describe('Customization Options', () => {
     it('should support custom tab size', () => {
       const code = '\tindented line';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} tabSize={4} />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} tabSize={4} />
+      );
 
       expect(lastFrame()).toContain('indented line');
     });
 
     it('should support word wrap option', () => {
-      const code = 'very long line that should wrap when the wrap option is enabled';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} wrap={true} />);
+      const code =
+        'very long line that should wrap when the wrap option is enabled';
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} wrap={true} />
+      );
 
       expect(lastFrame()).toContain('very long line');
     });
 
     it('should support custom width', () => {
       const code = 'test line';
-      const { lastFrame } = render(<SyntaxHighlighter code={code} width={50} />);
+      const { lastFrame } = render(
+        <SyntaxHighlighter code={code} width={50} />
+      );
 
       expect(lastFrame()).toContain('test line');
     });

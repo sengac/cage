@@ -36,7 +36,9 @@ export function parseDebugFlag(args: string[]): ParsedDebugFlags {
   // Check environment variables first
   if (process.env.CAGE_DEBUG === '1') {
     debugMode = true;
-    logFile = process.env.CAGE_DEBUG_LOG || path.join(process.cwd(), '.cage', 'debug.log');
+    logFile =
+      process.env.CAGE_DEBUG_LOG ||
+      path.join(process.cwd(), '.cage', 'debug.log');
   }
 
   // Parse CLI args (overrides env vars)
@@ -62,14 +64,17 @@ export function parseDebugFlag(args: string[]): ParsedDebugFlags {
   return {
     debugMode,
     logFile,
-    remainingArgs
+    remainingArgs,
   };
 }
 
 /**
  * Append a log message to the debug file
  */
-export async function appendDebugLog(logFile: string, message: string): Promise<void> {
+export async function appendDebugLog(
+  logFile: string,
+  message: string
+): Promise<void> {
   try {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${message}\n`;
@@ -88,7 +93,10 @@ export async function appendDebugLog(logFile: string, message: string): Promise<
 /**
  * Log an error to the debug file
  */
-export async function logDebugError(logFile: string, error: Error): Promise<void> {
+export async function logDebugError(
+  logFile: string,
+  error: Error
+): Promise<void> {
   const errorMessage = `[ERROR] ${error.message}\n${error.stack || ''}`;
   await appendDebugLog(logFile, errorMessage);
 }
@@ -101,7 +109,7 @@ export function DebugMode({
   logFile,
   remainingArgs = [],
   debugStore,
-  enablePerformanceMonitoring = false
+  enablePerformanceMonitoring = false,
 }: DebugModeProps) {
   const store = debugStore || useDebugStore();
   const startTime = React.useRef(Date.now());
@@ -127,7 +135,10 @@ export function DebugMode({
 
         // Log performance metrics if enabled
         if (enablePerformanceMonitoring) {
-          await appendDebugLog(logFile, '[PERF] Performance monitoring enabled');
+          await appendDebugLog(
+            logFile,
+            '[PERF] Performance monitoring enabled'
+          );
         }
       }
     };
@@ -140,7 +151,9 @@ export function DebugMode({
     return () => {
       if (debugMode && logFile && remainingArgs.length > 0) {
         const executionTime = Date.now() - startTime.current;
-        appendDebugLog(logFile, `Execution time: ${executionTime}ms`).catch(() => {});
+        appendDebugLog(logFile, `Execution time: ${executionTime}ms`).catch(
+          () => {}
+        );
       }
     };
   }, [debugMode, logFile, remainingArgs, store, enablePerformanceMonitoring]);

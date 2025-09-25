@@ -6,19 +6,19 @@ import { ApiProperty } from '@nestjs/swagger';
 export class DatabaseHealthDto {
   @ApiProperty({
     description: 'Database connection status',
-    example: 'healthy'
+    example: 'healthy',
   })
   status: 'healthy' | 'unhealthy';
 
   @ApiProperty({
     description: 'Response time in milliseconds',
-    example: 5
+    example: 5,
   })
   responseTime: number;
 
   @ApiProperty({
     description: 'Number of active connections',
-    example: 2
+    example: 2,
   })
   connections: number;
 }
@@ -29,31 +29,31 @@ export class DatabaseHealthDto {
 export class FileSystemHealthDto {
   @ApiProperty({
     description: 'File system status',
-    example: 'healthy'
+    example: 'healthy',
   })
   status: 'healthy' | 'unhealthy';
 
   @ApiProperty({
     description: 'Events directory path',
-    example: '.cage/events'
+    example: '.cage/events',
   })
   eventsDir: string;
 
   @ApiProperty({
     description: 'Whether the events directory is writable',
-    example: true
+    example: true,
   })
   writable: boolean;
 
   @ApiProperty({
     description: 'Available disk space in bytes',
-    example: 50000000000
+    example: 50000000000,
   })
   availableSpace: number;
 
   @ApiProperty({
     description: 'Number of event files',
-    example: 42
+    example: 42,
   })
   eventFiles: number;
 }
@@ -64,31 +64,31 @@ export class FileSystemHealthDto {
 export class MemoryHealthDto {
   @ApiProperty({
     description: 'RSS memory in bytes',
-    example: 104857600
+    example: 104857600,
   })
   rss: number;
 
   @ApiProperty({
     description: 'Heap total in bytes',
-    example: 73728000
+    example: 73728000,
   })
   heapTotal: number;
 
   @ApiProperty({
     description: 'Heap used in bytes',
-    example: 52428800
+    example: 52428800,
   })
   heapUsed: number;
 
   @ApiProperty({
     description: 'External memory in bytes',
-    example: 1048576
+    example: 1048576,
   })
   external: number;
 
   @ApiProperty({
     description: 'Array buffers in bytes',
-    example: 262144
+    example: 262144,
   })
   arrayBuffers: number;
 }
@@ -99,19 +99,19 @@ export class MemoryHealthDto {
 export class DependenciesHealthDto {
   @ApiProperty({
     description: 'Claude Code hooks installation status',
-    example: 'installed'
+    example: 'installed',
   })
   claudeHooks: 'installed' | 'not_installed' | 'checking';
 
   @ApiProperty({
     description: 'Number of active hook types',
-    example: 9
+    example: 9,
   })
   activeHooks: number;
 
   @ApiProperty({
     description: 'Event processing queue size',
-    example: 0
+    example: 0,
   })
   queueSize: number;
 }
@@ -123,87 +123,87 @@ export class HealthResponseDto {
   @ApiProperty({
     description: 'Overall health status',
     example: 'healthy',
-    enum: ['healthy', 'degraded', 'unhealthy']
+    enum: ['healthy', 'degraded', 'unhealthy'],
   })
   status: 'healthy' | 'degraded' | 'unhealthy';
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of the health check',
-    example: '2025-01-24T10:30:00.000Z'
+    example: '2025-01-24T10:30:00.000Z',
   })
   timestamp: string;
 
   @ApiProperty({
     description: 'Server uptime in seconds',
-    example: 3600
+    example: 3600,
   })
   uptime: number;
 
   @ApiProperty({
     description: 'Server version',
-    example: '0.0.1'
+    example: '0.0.1',
   })
   version: string;
 
   @ApiProperty({
     description: 'Node.js version',
-    example: 'v20.0.0'
+    example: 'v20.0.0',
   })
   nodeVersion: string;
 
   @ApiProperty({
     description: 'Environment (development/production)',
-    example: 'production'
+    example: 'production',
   })
   environment: string;
 
   @ApiProperty({
     description: 'Server process ID',
-    example: 12345
+    example: 12345,
   })
   pid: number;
 
   @ApiProperty({
     description: 'Server port',
-    example: 3790
+    example: 3790,
   })
   port: number;
 
   @ApiProperty({
     description: 'Memory usage information',
-    type: MemoryHealthDto
+    type: MemoryHealthDto,
   })
   memory: MemoryHealthDto;
 
   @ApiProperty({
     description: 'File system health',
-    type: FileSystemHealthDto
+    type: FileSystemHealthDto,
   })
   fileSystem: FileSystemHealthDto;
 
   @ApiProperty({
     description: 'Dependencies health',
-    type: DependenciesHealthDto
+    type: DependenciesHealthDto,
   })
   dependencies: DependenciesHealthDto;
 
   @ApiProperty({
     description: 'Response time of this health check in milliseconds',
-    example: 15
+    example: 15,
   })
   responseTime: number;
 
   @ApiProperty({
     description: 'Any health warnings',
     type: [String],
-    example: ['High memory usage detected']
+    example: ['High memory usage detected'],
   })
   warnings: string[];
 
   @ApiProperty({
     description: 'Any health errors',
     type: [String],
-    example: []
+    example: [],
   })
   errors: string[];
 }

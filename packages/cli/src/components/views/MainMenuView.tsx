@@ -4,6 +4,7 @@ import { useSafeInput } from '../../hooks/useSafeInput';
 import { useTheme } from '../../hooks/useTheme';
 import type { ViewProps } from '../../types/viewSystem';
 import figures from 'figures';
+import { openOpenAPIDocumentation } from '../../utils/openBrowser';
 
 interface MenuItem {
   label: string;
@@ -59,13 +60,17 @@ export const MainMenuView: React.FC<ViewProps> = ({ onNavigate, onBack }) => {
 
   useSafeInput((input, key) => {
     if (key.upArrow || input === 'k') {
-      setSelectedIndex((prev) => (prev === 0 ? menuItems.length - 1 : prev - 1));
+      setSelectedIndex(prev => (prev === 0 ? menuItems.length - 1 : prev - 1));
     } else if (key.downArrow || input === 'j') {
-      setSelectedIndex((prev) => (prev === menuItems.length - 1 ? 0 : prev + 1));
+      setSelectedIndex(prev => (prev === menuItems.length - 1 ? 0 : prev + 1));
     } else if (key.return) {
       onNavigate(menuItems[selectedIndex].value);
     } else if (input === '?') {
       onNavigate('help');
+    } else if (input === '*') {
+      openOpenAPIDocumentation().catch(() => {
+        // Error is already logged in the function
+      });
     }
     // ESC/q handled by FullScreenLayout, not here
   });
@@ -77,7 +82,11 @@ export const MainMenuView: React.FC<ViewProps> = ({ onNavigate, onBack }) => {
 
     // Add unique index to key to ensure no duplicates
     return (
-      <Box key={`${item.value}-${index}`} flexDirection="column" marginBottom={1}>
+      <Box
+        key={`${item.value}-${index}`}
+        flexDirection="column"
+        marginBottom={1}
+      >
         <Box>
           <Text color={textColor}>
             {indicator} {item.label}

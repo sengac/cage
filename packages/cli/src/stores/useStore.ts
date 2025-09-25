@@ -10,14 +10,15 @@ interface DebugStore {
   clearDebugLogs: () => void;
 }
 
-export const useDebugStore = create<DebugStore>((set) => ({
+export const useDebugStore = create<DebugStore>(set => ({
   debugMode: false,
   logFile: null,
   debugLogs: [],
-  enableDebugMode: (enabled) => set({ debugMode: enabled }),
-  setLogFile: (file) => set({ logFile: file }),
-  addDebugLog: (message) => set((state) => ({
-    debugLogs: [...state.debugLogs, message]
-  })),
-  clearDebugLogs: () => set({ debugLogs: [] })
+  enableDebugMode: enabled => set({ debugMode: enabled }),
+  setLogFile: file => set({ logFile: file }),
+  addDebugLog: message =>
+    set(state => ({
+      debugLogs: [...state.debugLogs, message],
+    })),
+  clearDebugLogs: () => set({ debugLogs: [] }),
 }));

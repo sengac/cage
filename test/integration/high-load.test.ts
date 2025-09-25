@@ -45,10 +45,13 @@ describe('Integration: High Load', { concurrent: false }, () => {
     await mkdir(join(testDir, '.cage/events'), { recursive: true });
 
     // Create cage config in our test directory
-    await writeFile(join(testDir, 'cage.config.json'), JSON.stringify({
-      port: backendPort,
-      logLevel: 'info'
-    }));
+    await writeFile(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify({
+        port: backendPort,
+        logLevel: 'info',
+      })
+    );
   });
 
   it('should handle 200 events rapidly without loss', async () => {
@@ -57,7 +60,9 @@ describe('Integration: High Load', { concurrent: false }, () => {
     const concurrency = 20; // Number of concurrent hooks
     const startTime = Date.now();
 
-    console.log(`Starting high load test: ${totalEvents} events with concurrency ${concurrency}`);
+    console.log(
+      `Starting high load test: ${totalEvents} events with concurrency ${concurrency}`
+    );
 
     // Generate all event payloads with proper fields for each hook type
     const eventPayloads = Array.from({ length: totalEvents }, (_, i) => {
@@ -66,11 +71,11 @@ describe('Integration: High Load', { concurrent: false }, () => {
         toolName: isWrite ? 'Write' : 'Read',
         arguments: {
           file_path: `/test-${i}.txt`,
-          ...(isWrite && { content: `content-${i}` })
+          ...(isWrite && { content: `content-${i}` }),
         },
         sessionId,
         timestamp: new Date().toISOString(),
-        eventIndex: i
+        eventIndex: i,
       };
       // Add executionTime for post-tool-use events
       if (i % 2 === 1) {
@@ -93,7 +98,8 @@ describe('Integration: High Load', { concurrent: false }, () => {
       const batchPromises = batch.map(async (payload, batchIndex) => {
         try {
           const eventIndex = payload.eventIndex as number;
-          const hookType = eventIndex % 2 === 0 ? 'pre-tool-use' : 'post-tool-use';
+          const hookType =
+            eventIndex % 2 === 0 ? 'pre-tool-use' : 'post-tool-use';
           await triggerHook(hookType, payload);
           processedCount++;
 
@@ -131,7 +137,9 @@ describe('Integration: High Load', { concurrent: false }, () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Verify events were logged to the backend (request high limit to avoid pagination)
-    const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=2000`);
+    const response = await fetch(
+      `http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=2000`
+    );
     expect(response.ok).toBe(true);
 
     const responseData = await response.json();
@@ -141,15 +149,25 @@ describe('Integration: High Load', { concurrent: false }, () => {
 
     // Verify events are in the shared file system
     const today = new Date().toISOString().split('T')[0];
-    const eventsFile = join(sharedTestDir, '.cage/events', today, 'events.jsonl');
+    const eventsFile = join(
+      sharedTestDir,
+      '.cage/events',
+      today,
+      'events.jsonl'
+    );
     expect(existsSync(eventsFile)).toBe(true);
 
     const logContent = await readFile(eventsFile, 'utf-8');
-    const loggedEvents = logContent.trim().split('\n').filter(line => line.trim());
+    const loggedEvents = logContent
+      .trim()
+      .split('\n')
+      .filter(line => line.trim());
 
     // Verify no events were corrupted during high load
     const parsedEvents = loggedEvents.map(line => JSON.parse(line));
-    const eventsForSession = parsedEvents.filter(e => e.sessionId === sessionId);
+    const eventsForSession = parsedEvents.filter(
+      e => e.sessionId === sessionId
+    );
 
     // We should have all events for this session
     expect(eventsForSession.length).toBe(totalEvents);
@@ -175,7 +193,7 @@ describe('Integration: High Load', { concurrent: false }, () => {
         arguments: { file_path: `/chronological-${i}.txt` },
         sessionId,
         timestamp,
-        eventIndex: i
+        eventIndex: i,
       };
     });
 
@@ -197,7 +215,9 @@ describe('Integration: High Load', { concurrent: false }, () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Verify chronological order is maintained
-    const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=${totalEvents}`);
+    const response = await fetch(
+      `http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}&limit=${totalEvents}`
+    );
     expect(response.ok).toBe(true);
 
     const { events } = await response.json();
@@ -205,16 +225,23 @@ describe('Integration: High Load', { concurrent: false }, () => {
 
     // Check that events are in reverse chronological order (newest first - API default)
     for (let i = 1; i < events.length; i++) {
-      const prevTime = new Date(events[i-1].timestamp);
+      const prevTime = new Date(events[i - 1].timestamp);
       const currTime = new Date(events[i].timestamp);
       expect(prevTime >= currTime).toBe(true); // Previous should be newer or equal
     }
 
     // Verify file-based logging maintains order too
     const today = new Date().toISOString().split('T')[0];
-    const eventsFile = join(sharedTestDir, '.cage/events', today, 'events.jsonl');
+    const eventsFile = join(
+      sharedTestDir,
+      '.cage/events',
+      today,
+      'events.jsonl'
+    );
     const logContent = await readFile(eventsFile, 'utf-8');
-    const loggedEvents = logContent.trim().split('\n')
+    const loggedEvents = logContent
+      .trim()
+      .split('\n')
       .map(line => JSON.parse(line))
       .filter(e => e.sessionId === sessionId);
 
@@ -233,7 +260,9 @@ describe('Integration: High Load', { concurrent: false }, () => {
     const totalEvents = 200;
     const maxResponseTime = 2000; // 2 seconds is reasonable for concurrent load
 
-    console.log(`Testing hook response times during load of ${totalEvents} events`);
+    console.log(
+      `Testing hook response times during load of ${totalEvents} events`
+    );
 
     const responseTimes: number[] = [];
     const promises: Promise<void>[] = [];
@@ -244,7 +273,7 @@ describe('Integration: High Load', { concurrent: false }, () => {
         toolName: 'Read',
         arguments: { file_path: `/performance-${i}.txt` },
         sessionId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const promise = (async () => {
@@ -266,13 +295,18 @@ describe('Integration: High Load', { concurrent: false }, () => {
     await Promise.all(promises);
 
     // Calculate statistics
-    const avgResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+    const avgResponseTime =
+      responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
     const maxActualResponseTime = Math.max(...responseTimes);
-    const slowHooks = responseTimes.filter(time => time > maxResponseTime).length;
+    const slowHooks = responseTimes.filter(
+      time => time > maxResponseTime
+    ).length;
 
     console.log(`Average response time: ${avgResponseTime.toFixed(2)}ms`);
     console.log(`Max response time: ${maxActualResponseTime}ms`);
-    console.log(`Hooks slower than ${maxResponseTime}ms: ${slowHooks}/${totalEvents}`);
+    console.log(
+      `Hooks slower than ${maxResponseTime}ms: ${slowHooks}/${totalEvents}`
+    );
 
     // Performance assertions
     // Be very lenient with timing - just ensure it's not completely broken
@@ -281,7 +315,9 @@ describe('Integration: High Load', { concurrent: false }, () => {
 
     // Verify all events were still captured
     await new Promise(resolve => setTimeout(resolve, 500));
-    const response = await fetch(`http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}`);
+    const response = await fetch(
+      `http://localhost:${backendPort}/api/events/list?sessionId=${sessionId}`
+    );
     expect(response.ok).toBe(true);
     const { total } = await response.json();
     expect(total).toBe(totalEvents);
@@ -290,25 +326,29 @@ describe('Integration: High Load', { concurrent: false }, () => {
   }, 45000);
 
   // Helper function
-  async function triggerHook(hookType: string, payload: Record<string, unknown>): Promise<void> {
-    const hookHandler = spawn('node', [
-      join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'),
-      hookType
-    ], {
-      cwd: testDir,
-      env: {
-        ...process.env,
-        TEST_BASE_DIR: testDir,
-        CLAUDE_PROJECT_DIR: testDir
-      },
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
+  async function triggerHook(
+    hookType: string,
+    payload: Record<string, unknown>
+  ): Promise<void> {
+    const hookHandler = spawn(
+      'node',
+      [join(originalCwd, 'packages/hooks/dist/cage-hook-handler.js'), hookType],
+      {
+        cwd: testDir,
+        env: {
+          ...process.env,
+          TEST_BASE_DIR: testDir,
+          CLAUDE_PROJECT_DIR: testDir,
+        },
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }
+    );
 
     hookHandler.stdin.write(JSON.stringify(payload));
     hookHandler.stdin.end();
 
-    const exitCode = await new Promise<number>((resolve) => {
-      hookHandler.on('exit', (code) => resolve(code || 0));
+    const exitCode = await new Promise<number>(resolve => {
+      hookHandler.on('exit', code => resolve(code || 0));
     });
 
     if (exitCode !== 0) {

@@ -13,9 +13,7 @@ interface HeaderProps {
  * Provides consistent styling and layout across all screens
  * Always shows the server status in the top right
  */
-export const Header: React.FC<HeaderProps> = ({
-  title
-}) => {
+export const Header: React.FC<HeaderProps> = ({ title }) => {
   const theme = useTheme();
 
   return (

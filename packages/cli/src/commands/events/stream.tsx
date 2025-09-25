@@ -29,7 +29,7 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
     status: 'connecting',
     message: 'Connecting to event stream...',
     events: [],
-    filter
+    filter,
   });
 
   useEffect(() => {
@@ -41,32 +41,39 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
             status: 'error',
             message: 'CAGE is not initialized',
             error: 'Please run "cage init" first',
-            events: []
+            events: [],
           });
           return;
         }
 
         // Connect to real SSE endpoint
-        const eventSource = new EventSource(`http://localhost:${config.port}/api/events/stream`);
+        const eventSource = new EventSource(
+          `http://localhost:${config.port}/api/events/stream`
+        );
 
         eventSource.onopen = () => {
           setState({
             status: 'connected',
-            message: filter ? `Streaming events (filtered: ${filter})...` : 'Streaming events...',
+            message: filter
+              ? `Streaming events (filtered: ${filter})...`
+              : 'Streaming events...',
             events: [],
-            filter
+            filter,
           });
         };
 
-        eventSource.onmessage = (event) => {
+        eventSource.onmessage = event => {
           try {
             const eventData: StreamEvent = JSON.parse(event.data);
 
             // Apply filter if specified
-            if (!filter || eventData.eventType.toLowerCase().includes(filter.toLowerCase())) {
+            if (
+              !filter ||
+              eventData.eventType.toLowerCase().includes(filter.toLowerCase())
+            ) {
               setState(prev => ({
                 ...prev,
-                events: [...prev.events, eventData].slice(-50) // Keep last 50 events
+                events: [...prev.events, eventData].slice(-50), // Keep last 50 events
               }));
             }
           } catch (parseError) {
@@ -74,13 +81,13 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
           }
         };
 
-        eventSource.onerror = (error) => {
+        eventSource.onerror = error => {
           console.error('SSE connection error:', error);
           setState({
             status: 'error',
             message: 'Connection to event stream failed',
             error: 'Failed to connect to backend SSE endpoint',
-            events: []
+            events: [],
           });
           eventSource.close();
         };
@@ -89,13 +96,12 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
         return () => {
           eventSource.close();
         };
-
       } catch (err) {
         setState({
           status: 'error',
           message: 'Failed to connect to event stream',
           error: err instanceof Error ? err.message : 'Unknown error',
-          events: []
+          events: [],
         });
       }
     };
@@ -121,9 +127,7 @@ export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
       <Text color="cyan">{state.message}</Text>
       <Text color="gray">Press Ctrl+C to stop streaming</Text>
 
-      {state.filter && (
-        <Text color="yellow">Filtering: {state.filter}</Text>
-      )}
+      {state.filter && <Text color="yellow">Filtering: {state.filter}</Text>}
 
       <Box marginTop={1} flexDirection="column">
         {state.events.length === 0 ? (

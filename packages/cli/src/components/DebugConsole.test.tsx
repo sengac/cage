@@ -17,7 +17,7 @@ describe('Feature: Debug Console', () => {
     onBack = vi.fn();
 
     // Mock appStore with test events
-    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useAppStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         events: [
           {
@@ -27,14 +27,14 @@ describe('Feature: Debug Console', () => {
             sessionId: 'test-session',
             toolName: 'Read',
             arguments: { file_path: '/test/file.ts' },
-            executionTime: 45
+            executionTime: 45,
           },
           {
             id: '2',
             timestamp: new Date().toISOString(),
             eventType: 'Backend',
             sessionId: 'test-session',
-            error: 'Connection refused'
+            error: 'Connection refused',
           },
           {
             id: '3',
@@ -42,13 +42,13 @@ describe('Feature: Debug Console', () => {
             eventType: 'PostToolUse',
             sessionId: 'test-session',
             toolName: 'Write',
-            executionTime: 1250
+            executionTime: 1250,
           },
           {
             id: '4',
             timestamp: new Date().toISOString(),
             eventType: 'UserPromptSubmit',
-            sessionId: 'test-session'
+            sessionId: 'test-session',
           },
           {
             id: '5',
@@ -56,33 +56,32 @@ describe('Feature: Debug Console', () => {
             eventType: 'FileOperation',
             sessionId: 'test-session',
             toolName: 'Edit',
-            executionTime: 78
+            executionTime: 78,
           },
           {
             id: '6',
             timestamp: new Date().toISOString(),
             eventType: 'Performance',
             sessionId: 'test-session',
-            executionTime: 2000
-          }
-        ]
+            executionTime: 2000,
+          },
+        ],
       };
       return selector ? selector(state) : state;
     });
 
     // Mock debugStore
-    (useDebugStore as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+    (useDebugStore as ReturnType<typeof vi.fn>).mockImplementation(selector => {
       const state = {
         debugMode: false,
         debugLogs: [],
         enableDebugMode: vi.fn(),
         addDebugLog: vi.fn(),
-        clearDebugLogs: vi.fn()
+        clearDebugLogs: vi.fn(),
       };
       return selector ? selector(state) : state;
     });
   });
-
 
   describe('Scenario: View debug output', () => {
     describe('Given debug mode is enabled', () => {
@@ -198,7 +197,6 @@ describe('Feature: Debug Console', () => {
   });
 
   describe('Navigation and keyboard shortcuts', () => {
-
     it('Should navigate with arrow keys or j/k', async () => {
       const { stdin, lastFrame } = render(<DebugConsole onBack={onBack} />);
 

@@ -29,7 +29,7 @@ import {
   LogLevel,
 
   // Utils
-  generateEventId
+  generateEventId,
 } from './index';
 
 describe('Shared package exports', () => {

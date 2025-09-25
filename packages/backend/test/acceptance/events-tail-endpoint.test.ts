@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'http';
 import { AppModule } from '../../src/app.module';
@@ -25,7 +25,7 @@ describe('Feature: Events Tail API Endpoint', () => {
 
     // Set global prefix like in main.ts
     app.setGlobalPrefix('api', {
-      exclude: ['/health']
+      exclude: ['/health'],
     });
 
     await app.init();
@@ -43,20 +43,20 @@ describe('Feature: Events Tail API Endpoint', () => {
         sessionId: 'test-session-tail',
         timestamp: '2025-01-15T10:00:00Z',
         toolName: 'Read',
-        arguments: { file: 'test1.js' }
+        arguments: { file: 'test1.js' },
       },
       {
         sessionId: 'test-session-tail',
         timestamp: '2025-01-15T10:01:00Z',
         toolName: 'Write',
-        arguments: { file: 'test2.js' }
+        arguments: { file: 'test2.js' },
       },
       {
         sessionId: 'test-session-tail',
         timestamp: '2025-01-15T10:02:00Z',
         toolName: 'Edit',
-        arguments: { file: 'test3.js' }
-      }
+        arguments: { file: 'test3.js' },
+      },
     ];
 
     // Create events through the PreToolUse endpoint to generate logs

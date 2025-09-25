@@ -22,7 +22,7 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({
   content,
   showDefaults = true,
-  isMainMenu = false
+  isMainMenu = false,
 }) => {
   const theme = useTheme();
 
@@ -38,14 +38,14 @@ export const Footer: React.FC<FooterProps> = ({
       if (isMainMenu) {
         return (
           <Text color={theme.ui.textDim}>
-            ↑↓ Navigate  ↵ Select  ESC Exit  ? Help
+            ↑↓ Navigate ↵ Select ESC Exit ? Help * API Docs
           </Text>
         );
       }
 
       return (
         <Text color={theme.ui.textDim}>
-          {figures.arrowLeft} Back (ESC)  ↑↓ Navigate  ↵ Select  ? Help
+          {figures.arrowLeft} Back (ESC) ↑↓ Navigate ↵ Select ? Help
         </Text>
       );
     }

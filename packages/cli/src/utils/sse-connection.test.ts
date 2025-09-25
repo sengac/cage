@@ -3,11 +3,11 @@ import { MockEventSource } from '../__mocks__/EventSource';
 
 import {
   SSEConnection,
-  SSEConnectionOptions,
-  SSEConnectionState,
+  type SSEConnectionOptions,
+  type SSEConnectionState,
   SSEMessage,
-  SSEReconnectStrategy,
-  ConnectionStats
+  type SSEReconnectStrategy,
+  ConnectionStats,
 } from './sse-connection';
 
 // Mock the global EventSource
@@ -49,7 +49,7 @@ describe('SSEConnection', () => {
         maxReconnectDelay: 30000,
         reconnectAttempts: 5,
         heartbeatInterval: 15000,
-        headers: { 'Authorization': 'Bearer token' }
+        headers: { Authorization: 'Bearer token' },
       };
 
       connection = new SSEConnection('http://localhost:3790/events', options);
@@ -118,15 +118,21 @@ describe('SSEConnection', () => {
       const onMessage = vi.fn();
       connection!.onMessage(onMessage);
 
-      const messageData = { type: 'ToolUse', tool: 'Edit', timestamp: '2025-01-01T00:00:00Z' };
+      const messageData = {
+        type: 'ToolUse',
+        tool: 'Edit',
+        timestamp: '2025-01-01T00:00:00Z',
+      };
       mockEventSource.simulateMessage(messageData);
 
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-        id: expect.any(String),
-        event: 'message',
-        data: messageData,
-        timestamp: expect.any(Number)
-      }));
+      expect(onMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: expect.any(String),
+          event: 'message',
+          data: messageData,
+          timestamp: expect.any(Number),
+        })
+      );
     });
 
     it('should handle malformed JSON messages', () => {
@@ -136,9 +142,11 @@ describe('SSEConnection', () => {
       // Simulate a message with invalid JSON
       mockEventSource.simulateMessage('invalid json{');
 
-      expect(onError).toHaveBeenCalledWith(expect.objectContaining({
-        message: expect.stringContaining('Failed to parse message')
-      }));
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('Failed to parse message'),
+        })
+      );
     });
 
     it('should handle custom event types', () => {
@@ -150,19 +158,25 @@ describe('SSEConnection', () => {
       // Simulate a custom event
       mockEventSource.simulateCustomEvent('tool-use', messageData);
 
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-        event: 'tool-use',
-        data: messageData
-      }));
+      expect(onMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'tool-use',
+          data: messageData,
+        })
+      );
     });
 
     it('should buffer messages when specified', async () => {
       // Create a new connection with buffer
-      const bufferedConnection = new SSEConnection('http://localhost:3790/events', {
-        bufferSize: 100
-      });
+      const bufferedConnection = new SSEConnection(
+        'http://localhost:3790/events',
+        {
+          bufferSize: 100,
+        }
+      );
       const connectPromise = bufferedConnection.connect();
-      const bufferedEventSource = MockEventSource.instances[MockEventSource.instances.length - 1];
+      const bufferedEventSource =
+        MockEventSource.instances[MockEventSource.instances.length - 1];
       bufferedEventSource.simulateOpen();
       await connectPromise;
 
@@ -179,11 +193,15 @@ describe('SSEConnection', () => {
 
     it('should respect buffer size limit', async () => {
       // Create a new connection with limited buffer
-      const bufferedConnection = new SSEConnection('http://localhost:3790/events', {
-        bufferSize: 3
-      });
+      const bufferedConnection = new SSEConnection(
+        'http://localhost:3790/events',
+        {
+          bufferSize: 3,
+        }
+      );
       const connectPromise = bufferedConnection.connect();
-      const bufferedEventSource = MockEventSource.instances[MockEventSource.instances.length - 1];
+      const bufferedEventSource =
+        MockEventSource.instances[MockEventSource.instances.length - 1];
       bufferedEventSource.simulateOpen();
       await connectPromise;
 
@@ -205,7 +223,7 @@ describe('SSEConnection', () => {
     it('should auto-reconnect on connection loss', async () => {
       connection = new SSEConnection('http://localhost:3790/events', {
         reconnect: true,
-        reconnectDelay: 1000
+        reconnectDelay: 1000,
       });
 
       const onReconnecting = vi.fn();
@@ -219,10 +237,12 @@ describe('SSEConnection', () => {
       // Simulate connection loss
       mockEventSource.simulateError(false); // Don't close connection yet, let error handler do it
 
-      expect(onReconnecting).toHaveBeenCalledWith(expect.objectContaining({
-        attempt: 1,
-        delay: 1000
-      }));
+      expect(onReconnecting).toHaveBeenCalledWith(
+        expect.objectContaining({
+          attempt: 1,
+          delay: 1000,
+        })
+      );
 
       // Advance timer to trigger reconnection
       vi.advanceTimersByTime(1000);
@@ -235,7 +255,7 @@ describe('SSEConnection', () => {
       connection = new SSEConnection('http://localhost:3790/events', {
         reconnect: true,
         reconnectDelay: 1000,
-        reconnectStrategy: 'exponential' as SSEReconnectStrategy
+        reconnectStrategy: 'exponential' as SSEReconnectStrategy,
       });
 
       const onReconnecting = vi.fn();
@@ -248,10 +268,12 @@ describe('SSEConnection', () => {
 
       // First reconnection attempt
       mockEventSource.simulateError(false);
-      expect(onReconnecting).toHaveBeenCalledWith(expect.objectContaining({
-        attempt: 1,
-        delay: 1000
-      }));
+      expect(onReconnecting).toHaveBeenCalledWith(
+        expect.objectContaining({
+          attempt: 1,
+          delay: 1000,
+        })
+      );
 
       // Advance time to trigger first reconnection
       vi.advanceTimersByTime(1000);
@@ -272,17 +294,20 @@ describe('SSEConnection', () => {
 
       // Now check for second reconnection attempt with exponential backoff
       expect(onReconnecting).toHaveBeenCalledTimes(2);
-      expect(onReconnecting).toHaveBeenNthCalledWith(2, expect.objectContaining({
-        attempt: 2,
-        delay: 2000 // Exponential backoff
-      }));
+      expect(onReconnecting).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          attempt: 2,
+          delay: 2000, // Exponential backoff
+        })
+      );
     });
 
     it('should respect max reconnection attempts', async () => {
       connection = new SSEConnection('http://localhost:3790/events', {
         reconnect: true,
         reconnectDelay: 100,
-        reconnectAttempts: 2
+        reconnectAttempts: 2,
       });
 
       const onError = vi.fn();
@@ -334,7 +359,7 @@ describe('SSEConnection', () => {
     it('should reset reconnection count on successful connection', async () => {
       connection = new SSEConnection('http://localhost:3790/events', {
         reconnect: true,
-        reconnectDelay: 100
+        reconnectDelay: 100,
       });
 
       const connectPromise = connection.connect();
@@ -362,7 +387,7 @@ describe('SSEConnection', () => {
     it('should send heartbeat messages', () => {
       connection = new SSEConnection('http://localhost:3790/events', {
         heartbeatInterval: 5000,
-        heartbeatTimeout: 10000
+        heartbeatTimeout: 10000,
       });
 
       connection.connect();
@@ -375,11 +400,13 @@ describe('SSEConnection', () => {
 
       // Simulate heartbeat message
       const event = new MessageEvent('heartbeat', {
-        data: JSON.stringify({ timestamp: Date.now() })
+        data: JSON.stringify({ timestamp: Date.now() }),
       });
 
-      const heartbeatListener = mockEventSource.addEventListener.mock.calls
-        .find(call => call[0] === 'heartbeat')?.[1];
+      const heartbeatListener =
+        mockEventSource.addEventListener.mock.calls.find(
+          call => call[0] === 'heartbeat'
+        )?.[1];
 
       heartbeatListener?.(event as Event);
 
@@ -390,7 +417,7 @@ describe('SSEConnection', () => {
       connection = new SSEConnection('http://localhost:3790/events', {
         reconnect: true,
         heartbeatInterval: 5000,
-        heartbeatTimeout: 10000
+        heartbeatTimeout: 10000,
       });
 
       const onTimeout = vi.fn();
@@ -438,19 +465,21 @@ describe('SSEConnection', () => {
       // Send some messages
       for (let i = 0; i < 5; i++) {
         const event = new MessageEvent('message', {
-          data: JSON.stringify({ index: i })
+          data: JSON.stringify({ index: i }),
         });
         mockEventSource.onmessage?.(event);
       }
 
       const stats = connection.getConnectionStats();
-      expect(stats).toEqual(expect.objectContaining({
-        messagesReceived: 5,
-        connectionState: 'connected',
-        lastMessageTime: expect.any(Number),
-        connectedAt: expect.any(Number),
-        reconnectCount: 0
-      }));
+      expect(stats).toEqual(
+        expect.objectContaining({
+          messagesReceived: 5,
+          connectionState: 'connected',
+          lastMessageTime: expect.any(Number),
+          connectedAt: expect.any(Number),
+          reconnectCount: 0,
+        })
+      );
     });
 
     it('should calculate uptime correctly', async () => {
@@ -477,7 +506,7 @@ describe('SSEConnection', () => {
 
       const testData = { message: 'test', value: 123 };
       const event = new MessageEvent('message', {
-        data: JSON.stringify(testData)
+        data: JSON.stringify(testData),
       });
       mockEventSource.onmessage?.(event);
 
@@ -501,22 +530,29 @@ describe('SSEConnection', () => {
       connection.onMessage(onMessage, { eventTypes: ['tool-use'] });
 
       // This should be received
-      const toolUseListener = mockEventSource.addEventListener.mock.calls
-        .find(call => call[0] === 'tool-use')?.[1];
+      const toolUseListener = mockEventSource.addEventListener.mock.calls.find(
+        call => call[0] === 'tool-use'
+      )?.[1];
 
-      toolUseListener?.(new MessageEvent('tool-use', {
-        data: JSON.stringify({ tool: 'Edit' })
-      }) as Event);
+      toolUseListener?.(
+        new MessageEvent('tool-use', {
+          data: JSON.stringify({ tool: 'Edit' }),
+        }) as Event
+      );
 
       // This should be filtered out
-      mockEventSource.onmessage?.(new MessageEvent('message', {
-        data: JSON.stringify({ type: 'other' })
-      }));
+      mockEventSource.onmessage?.(
+        new MessageEvent('message', {
+          data: JSON.stringify({ type: 'other' }),
+        })
+      );
 
       expect(onMessage).toHaveBeenCalledTimes(1);
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-        event: 'tool-use'
-      }));
+      expect(onMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'tool-use',
+        })
+      );
     });
 
     it('should filter messages by data properties', () => {
@@ -525,16 +561,20 @@ describe('SSEConnection', () => {
         dataFilter: (data: unknown) => {
           const obj = data as Record<string, unknown>;
           return obj.tool === 'Edit';
-        }
+        },
       });
 
-      mockEventSource.onmessage?.(new MessageEvent('message', {
-        data: JSON.stringify({ tool: 'Edit', file: 'test.ts' })
-      }));
+      mockEventSource.onmessage?.(
+        new MessageEvent('message', {
+          data: JSON.stringify({ tool: 'Edit', file: 'test.ts' }),
+        })
+      );
 
-      mockEventSource.onmessage?.(new MessageEvent('message', {
-        data: JSON.stringify({ tool: 'Write', file: 'test.ts' })
-      }));
+      mockEventSource.onmessage?.(
+        new MessageEvent('message', {
+          data: JSON.stringify({ tool: 'Write', file: 'test.ts' }),
+        })
+      );
 
       expect(onMessage).toHaveBeenCalledTimes(1);
     });
@@ -551,10 +591,12 @@ describe('SSEConnection', () => {
       mockEventSource = MockEventSource.instances[0];
       mockEventSource.onerror?.(new Event('error'));
 
-      expect(onError).toHaveBeenCalledWith(expect.objectContaining({
-        type: 'connection',
-        message: expect.stringContaining('Failed to connect')
-      }));
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'connection',
+          message: expect.stringContaining('Failed to connect'),
+        })
+      );
 
       return expect(connectPromise).rejects.toThrow();
     });
@@ -569,14 +611,18 @@ describe('SSEConnection', () => {
       mockEventSource.readyState = MockEventSource.OPEN;
       mockEventSource.onopen?.(new Event('open'));
 
-      mockEventSource.onmessage?.(new MessageEvent('message', {
-        data: 'not valid json'
-      }));
+      mockEventSource.onmessage?.(
+        new MessageEvent('message', {
+          data: 'not valid json',
+        })
+      );
 
-      expect(onError).toHaveBeenCalledWith(expect.objectContaining({
-        type: 'parse',
-        message: expect.stringContaining('Failed to parse message')
-      }));
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'parse',
+          message: expect.stringContaining('Failed to parse message'),
+        })
+      );
     });
 
     it('should cleanup on error', () => {
@@ -597,12 +643,12 @@ describe('SSEConnection', () => {
   describe('Custom Headers', () => {
     it('should support custom headers', () => {
       const headers = {
-        'Authorization': 'Bearer token123',
-        'X-Custom-Header': 'value'
+        Authorization: 'Bearer token123',
+        'X-Custom-Header': 'value',
       };
 
       connection = new SSEConnection('http://localhost:3790/events', {
-        headers
+        headers,
       });
 
       const config = connection.getOptions();
@@ -616,7 +662,7 @@ describe('SSEConnection', () => {
       connection = new SSEConnection('http://localhost:3790/events');
       const states: SSEConnectionState[] = [];
 
-      connection.onStateChange((state) => {
+      connection.onStateChange(state => {
         states.push(state);
       });
 
@@ -658,7 +704,7 @@ describe('SSEConnection', () => {
 
     it('should handle reconnecting state', () => {
       connection = new SSEConnection('http://localhost:3790/events', {
-        reconnect: true
+        reconnect: true,
       });
 
       connection.connect();

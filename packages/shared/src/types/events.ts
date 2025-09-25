@@ -25,13 +25,15 @@ export const EventSchema = z.object({
   data: z.record(z.string(), z.unknown()),
 
   // Optional metadata
-  metadata: z.object({
-    agentType: z.string().optional(),
-    version: z.string().optional(),
-    environment: z.string().optional(),
-    hostname: z.string().optional(),
-    pid: z.number().optional()
-  }).optional()
+  metadata: z
+    .object({
+      agentType: z.string().optional(),
+      version: z.string().optional(),
+      environment: z.string().optional(),
+      hostname: z.string().optional(),
+      pid: z.number().optional(),
+    })
+    .optional(),
 });
 
 export type Event = z.infer<typeof EventSchema>;
@@ -51,7 +53,7 @@ export const EventLogEntrySchema = EventSchema.extend({
   filePath: z.string().optional(),
 
   // Line number in the file (for JSONL format)
-  lineNumber: z.number().optional()
+  lineNumber: z.number().optional(),
 });
 
 export type EventLogEntry = z.infer<typeof EventLogEntrySchema>;
@@ -74,7 +76,7 @@ export const EventQuerySchema = z.object({
 
   // Sorting
   sortBy: z.enum(['timestamp', 'type', 'sessionId']).default('timestamp'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc')
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 export type EventQuery = z.infer<typeof EventQuerySchema>;
@@ -88,17 +90,25 @@ export const EventStatsSchema = z.object({
   uniqueSessions: z.number(),
   dateRange: z.object({
     from: z.string().datetime(),
-    to: z.string().datetime()
+    to: z.string().datetime(),
   }),
   averageEventsPerSession: z.number(),
-  mostFrequentTools: z.array(z.object({
-    name: z.string(),
-    count: z.number()
-  })).optional(),
-  peakActivityPeriods: z.array(z.object({
-    hour: z.number().min(0).max(23),
-    count: z.number()
-  })).optional()
+  mostFrequentTools: z
+    .array(
+      z.object({
+        name: z.string(),
+        count: z.number(),
+      })
+    )
+    .optional(),
+  peakActivityPeriods: z
+    .array(
+      z.object({
+        hour: z.number().min(0).max(23),
+        count: z.number(),
+      })
+    )
+    .optional(),
 });
 
 export type EventStats = z.infer<typeof EventStatsSchema>;
@@ -120,7 +130,7 @@ export const EventStreamOptionsSchema = z.object({
   autoReconnect: z.boolean().default(true),
 
   // Reconnect delay in milliseconds
-  reconnectDelay: z.number().positive().default(1000)
+  reconnectDelay: z.number().positive().default(1000),
 });
 
 export type EventStreamOptions = z.infer<typeof EventStreamOptionsSchema>;

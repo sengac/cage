@@ -33,7 +33,9 @@ export function VirtualList<T>({
   initialIndex = 0,
 }: VirtualListProps<T>): React.ReactElement {
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
-  const [scrollOffset, setScrollOffset] = useState(Math.max(0, initialIndex - Math.floor(height / 2)));
+  const [scrollOffset, setScrollOffset] = useState(
+    Math.max(0, initialIndex - Math.floor(height / 2))
+  );
   const theme = useTheme();
   const { isFocused } = useFocusManager();
   const { mode } = useInputMode();
@@ -69,14 +71,20 @@ export function VirtualList<T>({
       if ((!isFocused && !testMode) || items.length === 0) return;
 
       if (key.upArrow || input === 'k') {
-        const newIndex = selectedIndex === 0
-          ? (enableWrapAround ? items.length - 1 : 0)
-          : selectedIndex - 1;
+        const newIndex =
+          selectedIndex === 0
+            ? enableWrapAround
+              ? items.length - 1
+              : 0
+            : selectedIndex - 1;
         navigateTo(newIndex);
       } else if (key.downArrow || input === 'j') {
-        const newIndex = selectedIndex === items.length - 1
-          ? (enableWrapAround ? 0 : items.length - 1)
-          : selectedIndex + 1;
+        const newIndex =
+          selectedIndex === items.length - 1
+            ? enableWrapAround
+              ? 0
+              : items.length - 1
+            : selectedIndex + 1;
         navigateTo(newIndex);
       } else if (key.pageUp) {
         navigateTo(Math.max(0, selectedIndex - visibleHeight));
@@ -108,8 +116,13 @@ export function VirtualList<T>({
   const visibleItems = items.slice(scrollOffset, scrollOffset + visibleHeight);
 
   // Calculate scrollbar
-  const scrollbarHeight = Math.max(1, Math.round((visibleHeight / items.length) * visibleHeight));
-  const scrollbarPosition = Math.round((scrollOffset / maxScrollOffset) * (visibleHeight - scrollbarHeight));
+  const scrollbarHeight = Math.max(
+    1,
+    Math.round((visibleHeight / items.length) * visibleHeight)
+  );
+  const scrollbarPosition = Math.round(
+    (scrollOffset / maxScrollOffset) * (visibleHeight - scrollbarHeight)
+  );
 
   return (
     <Box flexDirection="row" height={height}>
@@ -134,9 +147,15 @@ export function VirtualList<T>({
       {showScrollbar && items.length > visibleHeight && (
         <Box flexDirection="column" marginLeft={1}>
           {Array.from({ length: visibleHeight }).map((_, i) => {
-            const isScrollbarHere = i >= scrollbarPosition && i < scrollbarPosition + scrollbarHeight;
+            const isScrollbarHere =
+              i >= scrollbarPosition && i < scrollbarPosition + scrollbarHeight;
             return (
-              <Text key={i} color={isScrollbarHere ? theme.ui.border : theme.ui.borderSubtle}>
+              <Text
+                key={i}
+                color={
+                  isScrollbarHere ? theme.ui.border : theme.ui.borderSubtle
+                }
+              >
                 {isScrollbarHere ? figures.square : figures.line}
               </Text>
             );

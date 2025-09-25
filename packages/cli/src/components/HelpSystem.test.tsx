@@ -62,7 +62,9 @@ describe('HelpSystem', () => {
 
     describe('When navigating with keyboard', () => {
       it('Then up/down arrows should move between categories', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Move down with arrow
         stdin.write('\x1B[B'); // Down arrow
@@ -76,7 +78,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then j/k keys should move between categories', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         stdin.write('j');
         rerender(<HelpSystem onBack={onBack} />);
@@ -88,9 +92,17 @@ describe('HelpSystem', () => {
       });
 
       it('Then should cycle through all categories', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
-        const categories = ['Getting Started', 'Navigation', 'Components', 'Keyboard Shortcuts', 'Troubleshooting'];
+        const categories = [
+          'Getting Started',
+          'Navigation',
+          'Components',
+          'Keyboard Shortcuts',
+          'Troubleshooting',
+        ];
 
         for (let i = 0; i < categories.length; i++) {
           if (i > 0) {
@@ -102,7 +114,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should wrap around at boundaries', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Go to last category
         for (let i = 0; i < 4; i++) {
@@ -125,7 +139,9 @@ describe('HelpSystem', () => {
 
     describe('When pressing Enter on categories', () => {
       it('Then Enter should show Getting Started details', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter key
         rerender(<HelpSystem onBack={onBack} />);
@@ -137,7 +153,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show cage CLI usage', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter key
         rerender(<HelpSystem onBack={onBack} />);
@@ -149,7 +167,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show installation instructions', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter key
         rerender(<HelpSystem onBack={onBack} />);
@@ -159,7 +179,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show requirements', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         stdin.write('\r'); // Enter key
         rerender(<HelpSystem onBack={onBack} />);
@@ -169,7 +191,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show navigation detail', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Navigation category
         stdin.write('j');
@@ -185,7 +209,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show keyboard shortcuts detail', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Keyboard Shortcuts
         for (let i = 0; i < 3; i++) {
@@ -203,7 +229,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show troubleshooting details', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Troubleshooting
         for (let i = 0; i < 4; i++) {
@@ -223,7 +251,9 @@ describe('HelpSystem', () => {
 
     describe('When in detail view', () => {
       it('Then ESC should return to category list', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Enter detail view
         stdin.write('\r');
@@ -240,7 +270,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should maintain selection when going back', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Components
         stdin.write('j');
@@ -264,7 +296,9 @@ describe('HelpSystem', () => {
 
     describe('When viewing specific component details', () => {
       it('Then should show Event Inspector details', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Components
         stdin.write('j');
@@ -281,7 +315,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should show Server Manager details', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Components
         stdin.write('j');
@@ -298,7 +334,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then Enter should show component details', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Navigate to Components
         stdin.write('j');
@@ -317,7 +355,9 @@ describe('HelpSystem', () => {
 
     describe('When searching', () => {
       it('Then / key should enable search mode', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         stdin.write('/');
         rerender(<HelpSystem onBack={onBack} />);
@@ -326,7 +366,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should filter categories based on search term', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Enter search mode
         stdin.write('/');
@@ -344,7 +386,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then ESC should exit search mode', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Enter search mode
         stdin.write('/');
@@ -361,7 +405,9 @@ describe('HelpSystem', () => {
       });
 
       it('Then should handle search with no results', () => {
-        const { stdin, lastFrame, rerender } = render(<HelpSystem onBack={onBack} />);
+        const { stdin, lastFrame, rerender } = render(
+          <HelpSystem onBack={onBack} />
+        );
 
         // Enter search mode
         stdin.write('/');
@@ -391,7 +437,9 @@ describe('HelpSystem', () => {
 
     describe('When in overlay mode', () => {
       it('Then should show as overlay', () => {
-        const { lastFrame } = render(<HelpSystem onBack={onBack} mode="overlay" />);
+        const { lastFrame } = render(
+          <HelpSystem onBack={onBack} mode="overlay" />
+        );
 
         expect(lastFrame()).toContain('Quick Help');
       });

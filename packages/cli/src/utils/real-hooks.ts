@@ -2,7 +2,7 @@ import {
   getInstalledHooksLocally,
   installHooksLocally,
   uninstallHooksLocally,
-  getLocalClaudeSettingsPath
+  getLocalClaudeSettingsPath,
 } from './hooks-installer';
 import { loadCageConfig, isCageInitialized } from './config';
 import { getEventsCounts } from './real-events';
@@ -43,8 +43,8 @@ export async function getRealHooksStatus(): Promise<RealHooksStatus> {
         totalEvents: 0,
         lastOperation: {
           success: false,
-          message: 'CAGE is not initialized. Run "cage init" first.'
-        }
+          message: 'CAGE is not initialized. Run "cage init" first.',
+        },
       };
     }
 
@@ -81,7 +81,6 @@ export async function getRealHooksStatus(): Promise<RealHooksStatus> {
       installedHooks,
       totalEvents: eventsCounts.total,
     };
-
   } catch (error) {
     logger.error('Failed to get real hooks status', { error });
 
@@ -91,19 +90,22 @@ export async function getRealHooksStatus(): Promise<RealHooksStatus> {
       totalEvents: 0,
       lastOperation: {
         success: false,
-        message: 'Failed to load hooks status'
-      }
+        message: 'Failed to load hooks status',
+      },
     };
   }
 }
 
-export async function installRealHooks(): Promise<{ success: boolean; message: string }> {
+export async function installRealHooks(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   try {
     const config = await loadCageConfig();
     if (!config) {
       return {
         success: false,
-        message: 'CAGE is not initialized. Run "cage init" first.'
+        message: 'CAGE is not initialized. Run "cage init" first.',
       };
     }
 
@@ -111,44 +113,54 @@ export async function installRealHooks(): Promise<{ success: boolean; message: s
 
     return {
       success: true,
-      message: 'Hooks installed successfully. Restart Claude Code for changes to take effect.'
+      message:
+        'Hooks installed successfully. Restart Claude Code for changes to take effect.',
     };
   } catch (error) {
     logger.error('Failed to install hooks', { error });
 
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to install hooks'
+      message:
+        error instanceof Error ? error.message : 'Failed to install hooks',
     };
   }
 }
 
-export async function uninstallRealHooks(): Promise<{ success: boolean; message: string }> {
+export async function uninstallRealHooks(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   try {
     await uninstallHooksLocally();
 
     return {
       success: true,
-      message: 'Hooks uninstalled successfully. Restart Claude Code for changes to take effect.'
+      message:
+        'Hooks uninstalled successfully. Restart Claude Code for changes to take effect.',
     };
   } catch (error) {
     logger.error('Failed to uninstall hooks', { error });
 
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to uninstall hooks'
+      message:
+        error instanceof Error ? error.message : 'Failed to uninstall hooks',
     };
   }
 }
 
-export async function verifyRealHooks(): Promise<{ success: boolean; message: string }> {
+export async function verifyRealHooks(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   try {
     const status = await getRealHooksStatus();
 
     if (!status.isInstalled) {
       return {
         success: false,
-        message: 'No hooks are installed'
+        message: 'No hooks are installed',
       };
     }
 
@@ -158,12 +170,12 @@ export async function verifyRealHooks(): Promise<{ success: boolean; message: st
     if (enabledHooks.length === allHookTypes.length) {
       return {
         success: true,
-        message: 'All hooks are properly configured'
+        message: 'All hooks are properly configured',
       };
     } else {
       return {
         success: false,
-        message: `Only ${enabledHooks.length}/${allHookTypes.length} hooks are configured`
+        message: `Only ${enabledHooks.length}/${allHookTypes.length} hooks are configured`,
       };
     }
   } catch (error) {
@@ -171,7 +183,7 @@ export async function verifyRealHooks(): Promise<{ success: boolean; message: st
 
     return {
       success: false,
-      message: 'Failed to verify hooks configuration'
+      message: 'Failed to verify hooks configuration',
     };
   }
 }

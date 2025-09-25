@@ -1,4 +1,11 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { EventLoggerService } from './event-logger.service';
 import {
@@ -10,13 +17,19 @@ import {
   NotificationPayloadSchema,
   PreCompactPayloadSchema,
   StopPayloadSchema,
-  SubagentStopPayloadSchema
+  SubagentStopPayloadSchema,
 } from '@cage/shared';
 import {
-  PreToolUseDto, PostToolUseDto, UserPromptSubmitDto,
-  SessionStartDto, SessionEndDto, NotificationDto,
-  PreCompactDto, StopDto, SubagentStopDto,
-  HookResponseDto
+  PreToolUseDto,
+  PostToolUseDto,
+  UserPromptSubmitDto,
+  SessionStartDto,
+  SessionEndDto,
+  NotificationDto,
+  PreCompactDto,
+  StopDto,
+  SubagentStopDto,
+  HookResponseDto,
 } from './dto/hooks.dto';
 
 @ApiTags('Hooks')
@@ -28,17 +41,18 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Pre-Tool Use Hook',
-    description: 'Triggered before Claude executes a tool. This allows you to validate, modify, or block tool executions.'
+    description:
+      'Triggered before Claude executes a tool. This allows you to validate, modify, or block tool executions.',
   })
   @ApiBody({ type: PreToolUseDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
   async preToolUse(@Body() payload: PreToolUseDto): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
@@ -58,7 +72,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('PreToolUse hook error:', error);
@@ -66,7 +80,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -75,17 +89,18 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Post-Tool Use Hook',
-    description: 'Triggered after Claude executes a tool. Captures tool execution results and performance metrics.'
+    description:
+      'Triggered after Claude executes a tool. Captures tool execution results and performance metrics.',
   })
   @ApiBody({ type: PostToolUseDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
   async postToolUse(@Body() payload: PostToolUseDto): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
@@ -108,7 +123,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('PostToolUse hook error:', error);
@@ -116,7 +131,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -125,19 +140,22 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'User Prompt Submit Hook',
-    description: 'Triggered when a user submits a prompt to Claude. Captures user intent and context.'
+    description:
+      'Triggered when a user submits a prompt to Claude. Captures user intent and context.',
   })
   @ApiBody({ type: UserPromptSubmitDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
-  async userPromptSubmit(@Body() payload: UserPromptSubmitDto): Promise<HookResponseDto> {
+  async userPromptSubmit(
+    @Body() payload: UserPromptSubmitDto
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
@@ -155,7 +173,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('UserPromptSubmit hook error:', error);
@@ -163,7 +181,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -172,19 +190,22 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Session Start Hook',
-    description: 'Triggered when a new Claude session begins. Captures session initialization and environment details.'
+    description:
+      'Triggered when a new Claude session begins. Captures session initialization and environment details.',
   })
   @ApiBody({ type: SessionStartDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
-  async sessionStart(@Body() payload: SessionStartDto): Promise<HookResponseDto> {
+  async sessionStart(
+    @Body() payload: SessionStartDto
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
@@ -202,7 +223,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('SessionStart hook error:', error);
@@ -210,7 +231,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -219,17 +240,18 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Session End Hook',
-    description: 'Triggered when a Claude session ends. Captures session duration and summary statistics.'
+    description:
+      'Triggered when a Claude session ends. Captures session duration and summary statistics.',
   })
   @ApiBody({ type: SessionEndDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
   async sessionEnd(@Body() payload: SessionEndDto): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
@@ -249,7 +271,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('SessionEnd hook error:', error);
@@ -257,7 +279,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -266,19 +288,22 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Notification Hook',
-    description: 'Triggered when Claude sends notifications. Captures info, warning, and error messages.'
+    description:
+      'Triggered when Claude sends notifications. Captures info, warning, and error messages.',
   })
   @ApiBody({ type: NotificationDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
-  async notification(@Body() payload: NotificationDto): Promise<HookResponseDto> {
+  async notification(
+    @Body() payload: NotificationDto
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
@@ -296,7 +321,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('Notification hook error:', error);
@@ -304,7 +329,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -313,17 +338,18 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Pre-Compact Hook',
-    description: 'Triggered before Claude compacts conversation history to manage token limits.'
+    description:
+      'Triggered before Claude compacts conversation history to manage token limits.',
   })
   @ApiBody({ type: PreCompactDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
   async preCompact(@Body() payload: PreCompactDto): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
@@ -344,7 +370,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('PreCompact hook error:', error);
@@ -352,7 +378,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -361,17 +387,18 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Stop Hook',
-    description: 'Triggered when Claude completes a task or is interrupted by the user.'
+    description:
+      'Triggered when Claude completes a task or is interrupted by the user.',
   })
   @ApiBody({ type: StopDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
   async stop(@Body() payload: StopDto): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
@@ -390,7 +417,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('Stop hook error:', error);
@@ -398,7 +425,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -407,19 +434,21 @@ export class HooksController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Subagent Stop Hook',
-    description: 'Triggered when a subagent completes its delegated task.'
+    description: 'Triggered when a subagent completes its delegated task.',
   })
   @ApiBody({ type: SubagentStopDto })
   @ApiResponse({
     status: 200,
     description: 'Hook processed successfully',
-    type: HookResponseDto
+    type: HookResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payload structure'
+    description: 'Invalid payload structure',
   })
-  async subagentStop(@Body() payload: SubagentStopDto): Promise<HookResponseDto> {
+  async subagentStop(
+    @Body() payload: SubagentStopDto
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
@@ -438,7 +467,7 @@ export class HooksController {
 
       return {
         success: true,
-        timestamp
+        timestamp,
       };
     } catch (error) {
       console.error('SubagentStop hook error:', error);
@@ -446,7 +475,7 @@ export class HooksController {
       return {
         success: true,
         timestamp,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }

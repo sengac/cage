@@ -4,7 +4,10 @@ import { HookType } from '@cage/shared';
 import { Spinner } from '../../components/Spinner';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { loadCageConfig, isCageInitialized } from '../../utils/config';
-import { getInstalledHooksLocally, getLocalClaudeSettingsPath } from '../../utils/hooks-installer';
+import {
+  getInstalledHooksLocally,
+  getLocalClaudeSettingsPath,
+} from '../../utils/hooks-installer';
 
 interface StatusState {
   status: 'checking' | 'done' | 'error';
@@ -20,7 +23,7 @@ interface StatusState {
 export function HooksStatusCommand(): JSX.Element {
   const [state, setState] = useState<StatusState>({
     status: 'checking',
-    message: 'Checking hook configuration...'
+    message: 'Checking hook configuration...',
   });
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export function HooksStatusCommand(): JSX.Element {
           setState({
             status: 'error',
             message: 'CAGE is not initialized',
-            error: 'Please run "cage init" first'
+            error: 'Please run "cage init" first',
           });
           setTimeout(() => process.exit(1), 100);
           return;
@@ -44,10 +47,12 @@ export function HooksStatusCommand(): JSX.Element {
           status: 'done',
           message: 'Hook Configuration Status',
           hooks: installedHooks,
-          config: config ? {
-            port: config.port,
-            enabled: config.enabled
-          } : undefined
+          config: config
+            ? {
+                port: config.port,
+                enabled: config.enabled,
+              }
+            : undefined,
         });
 
         setTimeout(() => process.exit(0), 100);
@@ -55,7 +60,7 @@ export function HooksStatusCommand(): JSX.Element {
         setState({
           status: 'error',
           message: 'Failed to check hook status',
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: err instanceof Error ? err.message : 'Unknown error',
         });
         setTimeout(() => process.exit(1), 100);
       }
@@ -74,11 +79,15 @@ export function HooksStatusCommand(): JSX.Element {
 
   const allHookTypes = Object.values(HookType);
   const installedHooks = Object.keys(state.hooks || {});
-  const missingHooks = allHookTypes.filter(hook => !installedHooks.includes(hook));
+  const missingHooks = allHookTypes.filter(
+    hook => !installedHooks.includes(hook)
+  );
 
   return (
     <Box flexDirection="column">
-      <Text bold color="cyan">{state.message}</Text>
+      <Text bold color="cyan">
+        {state.message}
+      </Text>
       <Box marginTop={1} flexDirection="column">
         <Text>Settings file: {getLocalClaudeSettingsPath()}</Text>
         <Text>Backend port: {state.config?.port || 'Not configured'}</Text>
@@ -86,13 +95,18 @@ export function HooksStatusCommand(): JSX.Element {
       </Box>
 
       <Box marginTop={1} flexDirection="column">
-        <Text bold>Installed Hooks ({installedHooks.length}/{allHookTypes.length}):</Text>
+        <Text bold>
+          Installed Hooks ({installedHooks.length}/{allHookTypes.length}):
+        </Text>
         {installedHooks.length > 0 ? (
           installedHooks.map(hook => (
-            <Text key={hook} color="green">  {hook}</Text>
+            <Text key={hook} color="green">
+              {' '}
+              {hook}
+            </Text>
           ))
         ) : (
-          <Text color="gray">  No hooks installed</Text>
+          <Text color="gray"> No hooks installed</Text>
         )}
       </Box>
 
@@ -100,14 +114,19 @@ export function HooksStatusCommand(): JSX.Element {
         <Box marginTop={1} flexDirection="column">
           <Text bold>Missing Hooks:</Text>
           {missingHooks.map(hook => (
-            <Text key={hook} color="yellow">  ✖ {hook}</Text>
+            <Text key={hook} color="yellow">
+              {' '}
+              ✖ {hook}
+            </Text>
           ))}
         </Box>
       )}
 
       {missingHooks.length > 0 && (
         <Box marginTop={1}>
-          <Text color="yellow">Run "cage hooks setup" to install missing hooks</Text>
+          <Text color="yellow">
+            Run "cage hooks setup" to install missing hooks
+          </Text>
         </Box>
       )}
     </Box>

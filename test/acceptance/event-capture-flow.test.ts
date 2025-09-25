@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import { existsSync, rmSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -34,10 +34,13 @@ describe('Event Capture Flow - Given-When-Then', () => {
       eventsDir: '.cage/events',
       maxEventSize: 1048576,
       enableOfflineMode: true,
-      offlineLogPath: '.cage/hooks-offline.log'
+      offlineLogPath: '.cage/hooks-offline.log',
     };
 
-    writeFileSync(join(testDir, 'cage.config.json'), JSON.stringify(cageConfig, null, 2));
+    writeFileSync(
+      join(testDir, 'cage.config.json'),
+      JSON.stringify(cageConfig, null, 2)
+    );
 
     // Create .cage directory structure
     mkdirSync(join(testDir, '.cage'), { recursive: true });
@@ -50,14 +53,14 @@ describe('Event Capture Flow - Given-When-Then', () => {
         ...process.env,
         PORT: backendPort.toString(),
         NODE_ENV: 'test',
-        TEST_BASE_DIR: testDir // This tells the backend to write events to testDir
+        TEST_BASE_DIR: testDir, // This tells the backend to write events to testDir
       },
-      stdio: 'pipe'
+      stdio: 'pipe',
     });
 
     // Wait for server to start
-    await new Promise((resolve) => {
-      backendProcess.stdout?.on('data', (data) => {
+    await new Promise(resolve => {
+      backendProcess.stdout?.on('data', data => {
         if (data.toString().includes('running on')) {
           resolve(true);
         }
@@ -80,7 +83,10 @@ describe('Event Capture Flow - Given-When-Then', () => {
   describe('Scenario: Hook handler receives event and forwards to backend', () => {
     it('GIVEN hook handler is configured WHEN PreToolUse event is triggered THEN event should be logged', async () => {
       // GIVEN: Hook handler is available and backend is running
-      const hookHandlerPath = join(process.cwd(), 'packages/hooks/dist/cage-hook-handler.js');
+      const hookHandlerPath = join(
+        process.cwd(),
+        'packages/hooks/dist/cage-hook-handler.js'
+      );
       expect(existsSync(hookHandlerPath)).toBe(true);
 
       // Simulate Claude Code hook input (matching actual Claude Code format from PHASE1.md)
@@ -89,27 +95,31 @@ describe('Event Capture Flow - Given-When-Then', () => {
         transcript_path: '/tmp/transcript.txt',
         cwd: testDir,
         hook_event_name: 'PreToolUse',
-        tool_name: 'Read',  // Claude Code uses tool_name, not tool
-        tool_input: { file_path: '/test.txt' }  // Claude Code uses tool_input, not arguments
+        tool_name: 'Read', // Claude Code uses tool_name, not tool
+        tool_input: { file_path: '/test.txt' }, // Claude Code uses tool_input, not arguments
       });
 
       // WHEN: Hook is triggered
       const hookProcess = spawn('node', [hookHandlerPath, 'PreToolUse'], {
         cwd: testDir,
-        env: { ...process.env, TEST_BASE_DIR: testDir }
+        env: { ...process.env, TEST_BASE_DIR: testDir },
       });
 
       hookProcess.stdin.write(hookInput);
       hookProcess.stdin.end();
 
-      const result = await new Promise<{ code: number; stdout: string; stderr: string }>((resolve) => {
+      const result = await new Promise<{
+        code: number;
+        stdout: string;
+        stderr: string;
+      }>(resolve => {
         let stdout = '';
         let stderr = '';
 
-        hookProcess.stdout.on('data', (data) => stdout += data.toString());
-        hookProcess.stderr.on('data', (data) => stderr += data.toString());
+        hookProcess.stdout.on('data', data => (stdout += data.toString()));
+        hookProcess.stderr.on('data', data => (stderr += data.toString()));
 
-        hookProcess.on('close', (code) => {
+        hookProcess.on('close', code => {
           resolve({ code: code || 0, stdout, stderr });
         });
       });
@@ -119,7 +129,13 @@ describe('Event Capture Flow - Given-When-Then', () => {
 
       // AND: Event should be logged to file system
       const todayDir = new Date().toISOString().split('T')[0];
-      const eventFile = join(testDir, '.cage', 'events', todayDir, 'events.jsonl');
+      const eventFile = join(
+        testDir,
+        '.cage',
+        'events',
+        todayDir,
+        'events.jsonl'
+      );
 
       // Wait a bit for async file writing
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -143,28 +159,31 @@ describe('Event Capture Flow - Given-When-Then', () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      const hookHandlerPath = join(process.cwd(), 'packages/hooks/dist/cage-hook-handler.js');
+      const hookHandlerPath = join(
+        process.cwd(),
+        'packages/hooks/dist/cage-hook-handler.js'
+      );
       const hookInput = JSON.stringify({
         session_id: `session-${Date.now()}`,
         transcript_path: '/tmp/transcript.txt',
         cwd: testDir,
         hook_event_name: 'PostToolUse',
-        tool_name: 'Write',  // Claude Code uses tool_name
-        tool_input: { file_path: '/test.txt', content: 'test' },  // Claude Code uses tool_input
-        tool_response: { success: true }  // PostToolUse includes response
+        tool_name: 'Write', // Claude Code uses tool_name
+        tool_input: { file_path: '/test.txt', content: 'test' }, // Claude Code uses tool_input
+        tool_response: { success: true }, // PostToolUse includes response
       });
 
       // WHEN: Hook is triggered with backend down
       const hookProcess = spawn('node', [hookHandlerPath, 'PostToolUse'], {
         cwd: testDir,
-        env: { ...process.env, TEST_BASE_DIR: testDir }
+        env: { ...process.env, TEST_BASE_DIR: testDir },
       });
 
       hookProcess.stdin.write(hookInput);
       hookProcess.stdin.end();
 
-      const result = await new Promise<{ code: number }>((resolve) => {
-        hookProcess.on('close', (code) => resolve({ code: code || 0 }));
+      const result = await new Promise<{ code: number }>(resolve => {
+        hookProcess.on('close', code => resolve({ code: code || 0 }));
       });
 
       // THEN: Hook should still exit successfully (never block Claude)
@@ -184,17 +203,20 @@ describe('Event Capture Flow - Given-When-Then', () => {
           ...process.env,
           PORT: backendPort.toString(),
           NODE_ENV: 'test',
-          TEST_BASE_DIR: testDir
+          TEST_BASE_DIR: testDir,
         },
-        stdio: 'pipe'
+        stdio: 'pipe',
       });
 
       // Wait for server to restart
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         let serverStarted = false;
-        backendProcess.stdout?.on('data', (data) => {
+        backendProcess.stdout?.on('data', data => {
           const output = data.toString();
-          if (output.includes('running on') || output.includes('Nest application successfully started')) {
+          if (
+            output.includes('running on') ||
+            output.includes('Nest application successfully started')
+          ) {
             serverStarted = true;
             // Give it a bit more time to fully initialize
             setTimeout(() => resolve(true), 500);
@@ -225,7 +247,7 @@ describe('Event Capture Flow - Given-When-Then', () => {
           eventType: 'PreToolUse',
           toolName: 'Read',
           arguments: { file_path: '/test1.txt' },
-          sessionId: 'session-1'
+          sessionId: 'session-1',
         },
         {
           id: nanoid(),
@@ -233,7 +255,7 @@ describe('Event Capture Flow - Given-When-Then', () => {
           eventType: 'PostToolUse',
           toolName: 'Read',
           result: { success: true },
-          sessionId: 'session-1'
+          sessionId: 'session-1',
         },
         {
           id: nanoid(),
@@ -241,18 +263,26 @@ describe('Event Capture Flow - Given-When-Then', () => {
           eventType: 'PreToolUse',
           toolName: 'Write',
           arguments: { file_path: '/test2.txt', content: 'hello' },
-          sessionId: 'session-2'
-        }
+          sessionId: 'session-2',
+        },
       ];
 
-      const eventLines = testEvents.map(event => JSON.stringify(event)).join('\n');
+      const eventLines = testEvents
+        .map(event => JSON.stringify(event))
+        .join('\n');
       writeFileSync(join(eventsDir, 'events.jsonl'), eventLines);
     });
 
     it('GIVEN events are logged WHEN cage events list is run THEN should show actual events', async () => {
       // Verify that events were actually logged
       const todayDir = new Date().toISOString().split('T')[0];
-      const eventsFile = join(testDir, '.cage', 'events', todayDir, 'events.jsonl');
+      const eventsFile = join(
+        testDir,
+        '.cage',
+        'events',
+        todayDir,
+        'events.jsonl'
+      );
 
       expect(existsSync(eventsFile)).toBe(true);
 
@@ -272,7 +302,13 @@ describe('Event Capture Flow - Given-When-Then', () => {
     it('GIVEN events are logged WHEN cage events tail is run THEN should show recent actual events', async () => {
       // Verify the events file contains the expected recent events
       const todayDir = new Date().toISOString().split('T')[0];
-      const eventsFile = join(testDir, '.cage', 'events', todayDir, 'events.jsonl');
+      const eventsFile = join(
+        testDir,
+        '.cage',
+        'events',
+        todayDir,
+        'events.jsonl'
+      );
 
       const content = readFileSync(eventsFile, 'utf-8');
       const lines = content.trim().split('\n');
@@ -294,15 +330,17 @@ describe('Event Capture Flow - Given-When-Then', () => {
 
       try {
         const response = await fetch(sseUrl, {
-          headers: { 'Accept': 'text/event-stream' },
-          signal: controller.signal
+          headers: { Accept: 'text/event-stream' },
+          signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
 
         // SSE endpoints return 200 and keep connection open
         expect(response.status).toBe(200);
-        expect(response.headers.get('content-type')).toContain('text/event-stream');
+        expect(response.headers.get('content-type')).toContain(
+          'text/event-stream'
+        );
 
         // Close the connection
         controller.abort();
@@ -321,7 +359,9 @@ describe('Event Capture Flow - Given-When-Then', () => {
     it('GIVEN backend receives hook POST WHEN processing event THEN should write to JSONL file', async () => {
       // Ensure backend is running - check with a health check first
       try {
-        const healthCheck = await fetch(`http://localhost:${backendPort}/api/claude/hooks/health`);
+        const healthCheck = await fetch(
+          `http://localhost:${backendPort}/api/claude/hooks/health`
+        );
         if (!healthCheck.ok) {
           throw new Error('Backend health check failed');
         }
@@ -335,17 +375,20 @@ describe('Event Capture Flow - Given-When-Then', () => {
       const testEvent = {
         sessionId: 'api-test-session',
         timestamp: new Date().toISOString(),
-        toolName: 'Read',  // Backend expects toolName after mapping
-        arguments: { file_path: '/test.txt' },  // Backend expects arguments after mapping
+        toolName: 'Read', // Backend expects toolName after mapping
+        arguments: { file_path: '/test.txt' }, // Backend expects arguments after mapping
         hook_type: 'PreToolUse',
-        project_dir: testDir
+        project_dir: testDir,
       };
 
-      const response = await fetch(`http://localhost:${backendPort}/api/claude/hooks/pre-tool-use`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(testEvent)
-      });
+      const response = await fetch(
+        `http://localhost:${backendPort}/api/claude/hooks/pre-tool-use`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(testEvent),
+        }
+      );
 
       expect(response.ok).toBe(true);
 
@@ -353,7 +396,13 @@ describe('Event Capture Flow - Given-When-Then', () => {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const todayDir = new Date().toISOString().split('T')[0];
-      const eventFile = join(testDir, '.cage', 'events', todayDir, 'events.jsonl');
+      const eventFile = join(
+        testDir,
+        '.cage',
+        'events',
+        todayDir,
+        'events.jsonl'
+      );
 
       expect(existsSync(eventFile)).toBe(true);
 

@@ -68,28 +68,47 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
   newLabel = 'Modified',
   onChunkSelect,
   onLineSelect,
-  onCopy
+  onCopy,
 }) => {
   // Handle null/undefined inputs
-  if ((diff == null && (oldCode == null || newCode == null))) {
+  if (diff == null && (oldCode == null || newCode == null)) {
     return <Text></Text>;
   }
 
   const detectLanguageFromFilename = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase();
     switch (ext) {
-      case 'js': case 'jsx': return 'javascript';
-      case 'ts': case 'tsx': return 'typescript';
-      case 'py': return 'python';
-      case 'html': case 'htm': return 'html';
-      case 'css': return 'css';
-      case 'sh': case 'bash': return 'shell';
-      case 'json': return 'json';
-      default: return 'plain';
+      case 'js':
+      case 'jsx':
+        return 'javascript';
+      case 'ts':
+      case 'tsx':
+        return 'typescript';
+      case 'py':
+        return 'python';
+      case 'html':
+      case 'htm':
+        return 'html';
+      case 'css':
+        return 'css';
+      case 'sh':
+      case 'bash':
+        return 'shell';
+      case 'json':
+        return 'json';
+      default:
+        return 'plain';
     }
   };
 
-  const parseDiff = (diffText: string): { chunks: DiffChunk[], oldFile: string, newFile: string, detectedLanguage: string } => {
+  const parseDiff = (
+    diffText: string
+  ): {
+    chunks: DiffChunk[];
+    oldFile: string;
+    newFile: string;
+    detectedLanguage: string;
+  } => {
     const lines = diffText.split('\n');
     const chunks: DiffChunk[] = [];
     let oldFile = '';
@@ -130,7 +149,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
             oldCount,
             newStart,
             newCount,
-            lines: []
+            lines: [],
           };
 
           oldLineNumber = oldStart;
@@ -143,20 +162,20 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           currentChunk.lines.push({
             type: 'add',
             content: line.substring(1).trimStart(),
-            newLineNumber: newLineNumber++
+            newLineNumber: newLineNumber++,
           });
         } else if (line.startsWith('-')) {
           currentChunk.lines.push({
             type: 'remove',
             content: line.substring(1).trimStart(),
-            oldLineNumber: oldLineNumber++
+            oldLineNumber: oldLineNumber++,
           });
         } else if (line.startsWith(' ')) {
           currentChunk.lines.push({
             type: 'context',
             content: line.substring(1),
             oldLineNumber: oldLineNumber++,
-            newLineNumber: newLineNumber++
+            newLineNumber: newLineNumber++,
           });
         }
       }
@@ -168,7 +187,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
     return { chunks, oldFile, newFile, detectedLanguage };
   };
 
-  const generateDiffFromCodes = (oldCode: string, newCode: string): { chunks: DiffChunk[], detectedLanguage: string } => {
+  const generateDiffFromCodes = (
+    oldCode: string,
+    newCode: string
+  ): { chunks: DiffChunk[]; detectedLanguage: string } => {
     const oldLines = oldCode.split('\n');
     const newLines = newCode.split('\n');
     const detectedLanguage = language || 'javascript';
@@ -186,21 +208,21 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           type: 'context',
           content: oldLine,
           oldLineNumber: i + 1,
-          newLineNumber: i + 1
+          newLineNumber: i + 1,
         });
       } else {
         if (oldLine !== undefined) {
           lines.push({
             type: 'remove',
             content: oldLine,
-            oldLineNumber: i + 1
+            oldLineNumber: i + 1,
           });
         }
         if (newLine !== undefined) {
           lines.push({
             type: 'add',
             content: newLine,
-            newLineNumber: i + 1
+            newLineNumber: i + 1,
           });
         }
       }
@@ -211,7 +233,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
       oldCount: oldLines.length,
       newStart: 1,
       newCount: newLines.length,
-      lines
+      lines,
     };
 
     return { chunks: [chunk], detectedLanguage };
@@ -225,7 +247,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           remove: 'red',
           context: 'black',
           header: 'blue',
-          lineNumber: 'gray'
+          lineNumber: 'gray',
         };
       case 'high-contrast':
         return {
@@ -233,7 +255,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           remove: 'white',
           context: 'white',
           header: 'white',
-          lineNumber: 'gray'
+          lineNumber: 'gray',
         };
       default: // dark
         return {
@@ -241,14 +263,30 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           remove: 'red',
           context: 'white',
           header: 'cyan',
-          lineNumber: 'gray'
+          lineNumber: 'gray',
         };
     }
   };
 
-  const renderLine = (line: DiffLine, colors: { add: string; remove: string; context: string; header: string; lineNumber: string }, detectedLanguage: string): React.ReactNode => {
-    const prefix = line.type === 'add' ? '+ ' : line.type === 'remove' ? '- ' : '  ';
-    const color = line.type === 'add' ? colors.add : line.type === 'remove' ? colors.remove : colors.context;
+  const renderLine = (
+    line: DiffLine,
+    colors: {
+      add: string;
+      remove: string;
+      context: string;
+      header: string;
+      lineNumber: string;
+    },
+    detectedLanguage: string
+  ): React.ReactNode => {
+    const prefix =
+      line.type === 'add' ? '+ ' : line.type === 'remove' ? '- ' : '  ';
+    const color =
+      line.type === 'add'
+        ? colors.add
+        : line.type === 'remove'
+          ? colors.remove
+          : colors.context;
 
     // For syntax highlighting, render as a Box since SyntaxHighlighter returns Box components
     if (highlightSyntax && line.type !== 'header') {
@@ -267,12 +305,18 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
 
     return (
       <Text color={color}>
-        {prefix}{line.content}
+        {prefix}
+        {line.content}
       </Text>
     );
   };
 
-  const renderUnifiedDiff = (chunks: DiffChunk[], oldFile: string, newFile: string, detectedLanguage: string): React.ReactNode => {
+  const renderUnifiedDiff = (
+    chunks: DiffChunk[],
+    oldFile: string,
+    newFile: string,
+    detectedLanguage: string
+  ): React.ReactNode => {
     const colors = getThemeColors();
 
     return (
@@ -288,11 +332,15 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           <Box key={chunkIndex} flexDirection="column">
             {chunks.length > 1 && (
               <Text color={colors.header}>
-                @@ -{chunk.oldStart},{chunk.oldCount} +{chunk.newStart},{chunk.newCount} @@
+                @@ -{chunk.oldStart},{chunk.oldCount} +{chunk.newStart},
+                {chunk.newCount} @@
               </Text>
             )}
             {chunk.lines.map((line, lineIndex) => (
-              <Box key={`unified-${chunkIndex}-${lineIndex}`} flexDirection="row">
+              <Box
+                key={`unified-${chunkIndex}-${lineIndex}`}
+                flexDirection="row"
+              >
                 {showLineNumbers && (
                   <Box flexDirection="row" marginRight={1}>
                     <Text color={colors.lineNumber}>
@@ -318,7 +366,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
     );
   };
 
-  const renderSideBySide = (chunks: DiffChunk[], detectedLanguage: string): React.ReactNode => {
+  const renderSideBySide = (
+    chunks: DiffChunk[],
+    detectedLanguage: string
+  ): React.ReactNode => {
     const colors = getThemeColors();
 
     return (
@@ -326,10 +377,14 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
         {showHeaders && (
           <Box flexDirection="row" marginBottom={1}>
             <Box width="50%">
-              <Text color={colors.header} bold>{oldLabel}</Text>
+              <Text color={colors.header} bold>
+                {oldLabel}
+              </Text>
             </Box>
             <Box width="50%">
-              <Text color={colors.header} bold>{newLabel}</Text>
+              <Text color={colors.header} bold>
+                {newLabel}
+              </Text>
             </Box>
           </Box>
         )}
@@ -339,24 +394,30 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
             {chunk.lines.map((line, lineIndex) => {
               if (line.type === 'context') {
                 return (
-                  <Box key={`sidebyside-${chunkIndex}-${lineIndex}`} flexDirection="row">
+                  <Box
+                    key={`sidebyside-${chunkIndex}-${lineIndex}`}
+                    flexDirection="row"
+                  >
                     <Box width="50%">
-                      <Text color={colors.context}>  {line.content}</Text>
+                      <Text color={colors.context}> {line.content}</Text>
                     </Box>
                     <Box width="50%">
-                      <Text color={colors.context}>  {line.content}</Text>
+                      <Text color={colors.context}> {line.content}</Text>
                     </Box>
                   </Box>
                 );
               } else {
                 return (
-                  <Box key={`sidebyside-${chunkIndex}-${lineIndex}`} flexDirection="row">
+                  <Box
+                    key={`sidebyside-${chunkIndex}-${lineIndex}`}
+                    flexDirection="row"
+                  >
                     <Box width="50%">
                       {line.type === 'remove' && (
                         <Text color={colors.remove}>- {line.content}</Text>
                       )}
                       {line.type === 'context' && (
-                        <Text color={colors.context}>  {line.content}</Text>
+                        <Text color={colors.context}> {line.content}</Text>
                       )}
                     </Box>
                     <Box width="50%">
@@ -364,7 +425,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
                         <Text color={colors.add}>+ {line.content}</Text>
                       )}
                       {line.type === 'context' && (
-                        <Text color={colors.context}>  {line.content}</Text>
+                        <Text color={colors.context}> {line.content}</Text>
                       )}
                     </Box>
                   </Box>
@@ -388,13 +449,21 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
     if (diff.includes('Binary files')) {
       const binaryMatch = diff.match(/Binary files (.+) and (.+) differ/);
       if (binaryMatch) {
-        return <Text>Binary files {binaryMatch[1]} and {binaryMatch[2]} differ</Text>;
+        return (
+          <Text>
+            Binary files {binaryMatch[1]} and {binaryMatch[2]} differ
+          </Text>
+        );
       }
       return <Text>Binary files differ</Text>;
     }
 
     // Check for malformed diff
-    if (!diff.includes('@@') && !diff.includes('---') && !diff.includes('+++')) {
+    if (
+      !diff.includes('@@') &&
+      !diff.includes('---') &&
+      !diff.includes('+++')
+    ) {
       return <Text>Invalid diff format</Text>;
     }
 
@@ -415,7 +484,10 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
       return <Text>No differences found</Text>;
     }
 
-    const { chunks, detectedLanguage } = generateDiffFromCodes(oldCode, newCode);
+    const { chunks, detectedLanguage } = generateDiffFromCodes(
+      oldCode,
+      newCode
+    );
 
     if (layout === 'side-by-side') {
       return renderSideBySide(chunks, detectedLanguage);

@@ -1,6 +1,14 @@
 import { execa } from 'execa';
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, openSync, closeSync } from 'fs';
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  unlinkSync,
+  openSync,
+  closeSync,
+} from 'fs';
 import { join, dirname } from 'path';
 import { platform } from 'os';
 import { fileURLToPath } from 'url';
@@ -14,7 +22,9 @@ export interface StartServerResult {
   pid?: number;
 }
 
-export async function startServer(options: { port?: number } = {}): Promise<StartServerResult> {
+export async function startServer(
+  options: { port?: number } = {}
+): Promise<StartServerResult> {
   const port = options.port || 3790;
   const cageDir = join(process.cwd(), '.cage');
   const pidFile = join(cageDir, 'server.pid');
@@ -31,7 +41,7 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
     // Try to provide helpful error with actual paths checked
     return {
       success: false,
-      message: `Backend not found. Please run "npm run build --workspace @cage/backend" first\nLooked in:\n${possiblePaths.join('\n')}`
+      message: `Backend not found. Please run "npm run build --workspace @cage/backend" first\nLooked in:\n${possiblePaths.join('\n')}`,
     };
   }
 
@@ -54,7 +64,7 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
 
       return {
         success: false,
-        message: `Server already running on port ${port} (PID: ${existingPid})`
+        message: `Server already running on port ${port} (PID: ${existingPid})`,
       };
     } catch {
       // PID file exists but process is dead - clean up
@@ -66,7 +76,11 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
   try {
     if (platform() === 'win32') {
       // Windows: use netstat
-      const netstatOutput = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf-8', stdio: 'pipe', shell: true }).trim();
+      const netstatOutput = execSync(`netstat -ano | findstr :${port}`, {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+        shell: true,
+      }).trim();
       if (netstatOutput) {
         const lines = netstatOutput.split('\n');
         const firstLine = lines[0];
@@ -74,19 +88,22 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
         if (pidMatch) {
           return {
             success: false,
-            message: `Port ${port} is already in use by process ${pidMatch[1]}. Please stop the existing process or use a different port with --port flag.`
+            message: `Port ${port} is already in use by process ${pidMatch[1]}. Please stop the existing process or use a different port with --port flag.`,
           };
         }
       }
     } else {
       // Unix: use lsof
-      const lsofOutput = execSync(`lsof -ti :${port}`, { encoding: 'utf-8', stdio: 'pipe' }).trim();
+      const lsofOutput = execSync(`lsof -ti :${port}`, {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+      }).trim();
       if (lsofOutput) {
         const pids = lsofOutput.split('\n').filter(pid => pid.trim());
         if (pids.length > 0) {
           return {
             success: false,
-            message: `Port ${port} is already in use by process ${pids[0]}. Please stop the existing process or use a different port with --port flag.`
+            message: `Port ${port} is already in use by process ${pids[0]}. Please stop the existing process or use a different port with --port flag.`,
           };
         }
       }
@@ -113,12 +130,12 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
     const subprocess = execa('node', [backendPath], {
       env: {
         PORT: port.toString(),
-        NODE_ENV: 'production'
+        NODE_ENV: 'production',
       },
-      detached: true,     // Run independently from parent
-      cleanup: false,     // Don't kill subprocess when parent exits
+      detached: true, // Run independently from parent
+      cleanup: false, // Don't kill subprocess when parent exits
       stdio: ['ignore', outFd, errFd], // Use file descriptors for output
-      windowsHide: true   // Hide window on Windows
+      windowsHide: true, // Hide window on Windows
     });
 
     // Get PID immediately
@@ -128,14 +145,14 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
       closeSync(errFd);
       return {
         success: false,
-        message: 'Failed to get server process ID'
+        message: 'Failed to get server process ID',
       };
     }
 
     // Write PID file with start time as JSON
     const pidData = {
       pid: pid,
-      startTime: Date.now()
+      startTime: Date.now(),
     };
     writeFileSync(pidFile, JSON.stringify(pidData));
 
@@ -155,7 +172,7 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
       return {
         success: true,
         message: `Server started on port ${port} (PID: ${pid}, logs: ${logFile})`,
-        pid
+        pid,
       };
     } catch {
       // Process died - clean up and report error
@@ -184,22 +201,29 @@ export async function startServer(options: { port?: number } = {}): Promise<Star
 
       return {
         success: false,
-        message: errorMsg
+        message: errorMsg,
       };
     }
   } catch (error) {
     // Clean up file descriptors on error
-    try { closeSync(outFd); } catch {}
-    try { closeSync(errFd); } catch {}
+    try {
+      closeSync(outFd);
+    } catch {}
+    try {
+      closeSync(errFd);
+    } catch {}
 
     return {
       success: false,
-      message: `Failed to start server: ${error instanceof Error ? error.message : String(error)}`
+      message: `Failed to start server: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
 
-export async function isServerRunning(): Promise<{ running: boolean; pid?: number }> {
+export async function isServerRunning(): Promise<{
+  running: boolean;
+  pid?: number;
+}> {
   const pidFile = join(process.cwd(), '.cage', 'server.pid');
 
   if (!existsSync(pidFile)) {

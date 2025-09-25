@@ -5,7 +5,10 @@ import { Spinner } from '../../components/Spinner';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { SuccessMessage } from '../../components/SuccessMessage';
 import { loadCageConfig } from '../../utils/config';
-import { installHooksLocally, getLocalClaudeSettingsPath } from '../../utils/hooks-installer';
+import {
+  installHooksLocally,
+  getLocalClaudeSettingsPath,
+} from '../../utils/hooks-installer';
 
 interface SetupState {
   status: 'checking' | 'installing' | 'done' | 'error';
@@ -17,7 +20,7 @@ interface SetupState {
 export function HooksSetupCommand(): JSX.Element {
   const [state, setState] = useState<SetupState>({
     status: 'checking',
-    message: 'Checking CAGE configuration...'
+    message: 'Checking CAGE configuration...',
   });
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export function HooksSetupCommand(): JSX.Element {
           setState({
             status: 'error',
             message: 'CAGE is not initialized',
-            error: 'Please run "cage init" first'
+            error: 'Please run "cage init" first',
           });
           // Only exit in non-test environments
           if (process.env.NODE_ENV !== 'test') {
@@ -42,7 +45,7 @@ export function HooksSetupCommand(): JSX.Element {
 
         setState({
           status: 'installing',
-          message: 'Installing Claude Code hooks in local .claude directory...'
+          message: 'Installing Claude Code hooks in local .claude directory...',
         });
 
         // Install all hooks locally
@@ -54,7 +57,7 @@ export function HooksSetupCommand(): JSX.Element {
         setState({
           status: 'done',
           message: 'Hooks configured successfully',
-          hooks: hookTypes
+          hooks: hookTypes,
         });
 
         // Only exit in non-test environments
@@ -65,7 +68,7 @@ export function HooksSetupCommand(): JSX.Element {
         setState({
           status: 'error',
           message: 'Failed to configure hooks',
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: err instanceof Error ? err.message : 'Unknown error',
         });
         // Only exit in non-test environments
         if (process.env.NODE_ENV !== 'test') {
@@ -100,11 +103,13 @@ export function HooksSetupCommand(): JSX.Element {
           `Settings location: ${getLocalClaudeSettingsPath()}`,
           '',
           'Installed hooks:',
-          ...(state.hooks?.map(hook => `  - ${hook}`) || [])
+          ...(state.hooks?.map(hook => `  - ${hook}`) || []),
         ]}
       />
       <Box marginTop={1}>
-        <Text color="yellow">Restart Claude Code for changes to take effect</Text>
+        <Text color="yellow">
+          Restart Claude Code for changes to take effect
+        </Text>
       </Box>
     </Box>
   );
