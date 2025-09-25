@@ -123,7 +123,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         setSearchQuery('');
         return;
       }
-      if (key.backspace) {
+      if (key.delete || key.backspace) {
         setSearchQuery(prev => prev.slice(0, -1));
         return;
       }
@@ -134,6 +134,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
       return; // Block all other input
     }
 
+    // Normal mode - handle escape to go back
     if (key.escape) {
       onBack();
       return;
@@ -168,7 +169,7 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
         setAppliedSearch('');
         break;
     }
-  });
+  }, { componentId: 'event-inspector' });
 
   const getSortIndicator = (field: SortField) => {
     if (sortField === field) {
@@ -202,12 +203,14 @@ export const EventInspector: React.FC<EventInspectorProps> = ({ onSelectEvent, o
     const time = format(new Date(event.timestamp), 'HH:mm:ss.SSS');
     const type = (event.eventType || '').substring(0, 18).padEnd(18);
     const tool = (event.toolName || '-').substring(0, 18).padEnd(18);
-    const desc = formatEventDescription(event).substring(0, 80);
+    const desc = formatEventDescription(event);
 
     return (
-      <Text color={textColor}>
-        {indicator} {time}  {type}  {tool}  {desc}
-      </Text>
+      <Box width="100%">
+        <Text color={textColor} wrap="truncate">
+          {indicator} {time}  {type}  {tool}  {desc}
+        </Text>
+      </Box>
     );
   };
 

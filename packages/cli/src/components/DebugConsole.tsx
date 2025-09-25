@@ -100,7 +100,7 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
                   level: event.level || 'INFO',
                   component: event.toolName || event.eventType || 'System',
                   type: event.eventType || 'Event',
-                  message: event.message || JSON.stringify(event.arguments || {}).slice(0, 100),
+                  message: event.message || JSON.stringify(event.arguments || {}),
                   stackTrace: event.error,
                   duration: event.executionTime
                 });
@@ -163,7 +163,7 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
         setSearchQuery('');
         return;
       }
-      if (key.backspace) {
+      if (key.delete || key.backspace) {
         setSearchQuery(prev => prev.slice(0, -1));
         return;
       }
@@ -174,6 +174,7 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
       return; // Block all other input
     }
 
+    // Normal mode - handle escape to go back
     if (key.escape) {
       onBack();
       return;
@@ -204,7 +205,7 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
         setAppliedSearch('');
         break;
     }
-  });
+  }, { componentId: 'debug-console' });
 
   const getLevelColor = (level: string) => {
     switch (level) {
@@ -224,14 +225,16 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     // ResizeAwareList will handle the wrapping, but we need to handle multi-line for stack trace
     if (isSelected && event.stackTrace) {
       return (
-        <Box flexDirection="column">
-          <Text color={textColor}>
-            {indicator} [{time}] [{event.level.padEnd(5)}] [{event.component.substring(0, 15).padEnd(15)}] {event.message.substring(0, 80)}
-            {event.duration ? ` (${event.duration}ms)` : ''}
-          </Text>
-          <Box marginLeft={2}>
-            <Text color={theme.status.error} dimColor>
-              {event.stackTrace.substring(0, 200)}
+        <Box flexDirection="column" width="100%">
+          <Box width="100%">
+            <Text color={textColor} wrap="truncate">
+              {indicator} {time}  {event.level.padEnd(5)}  {event.component.substring(0, 15).padEnd(15)}  {event.message}
+              {event.duration ? ` (${event.duration}ms)` : ''}
+            </Text>
+          </Box>
+          <Box marginLeft={2} width="100%">
+            <Text color={theme.status.error} dimColor wrap="truncate">
+              {event.stackTrace}
             </Text>
           </Box>
         </Box>
@@ -239,10 +242,12 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
     }
 
     return (
-      <Text color={textColor}>
-        {indicator} [{time}] [{event.level.padEnd(5)}] [{event.component.substring(0, 15).padEnd(15)}] {event.message.substring(0, 80)}
-        {event.duration ? ` (${event.duration}ms)` : ''}
-      </Text>
+      <Box width="100%">
+        <Text color={textColor} wrap="truncate">
+          {indicator} {time}  {event.level.padEnd(5)}  {event.component.substring(0, 15).padEnd(15)}  {event.message}
+          {event.duration ? ` (${event.duration}ms)` : ''}
+        </Text>
+      </Box>
     );
   };
 
@@ -285,19 +290,21 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
       </Box>
 
       {/* Events list */}
-      <ResizeAwareList
-        items={filteredEvents}
-        renderItem={renderEvent}
-        onFocus={(_, index) => setSelectedIndex(index)}
-        keyExtractor={(event) => event.id}
-        emptyMessage="No debug events found"
-        showScrollbar={true}
-        enableWrapAround={true}
-        testMode={true}
-        initialIndex={selectedIndex}
-        heightOffset={14}  // Header(3) + Footer(3) + Padding(2) + Status(2) + Columns(2) + Buffer(2)
-        dynamicOffset={dynamicOffset}
-      />
+      <Box width="100%" flexGrow={1}>
+        <ResizeAwareList
+          items={filteredEvents}
+          renderItem={renderEvent}
+          onFocus={(_, index) => setSelectedIndex(index)}
+          keyExtractor={(event) => event.id}
+          emptyMessage="No debug events found"
+          showScrollbar={true}
+          enableWrapAround={true}
+          testMode={true}
+          initialIndex={selectedIndex}
+          heightOffset={14}  // Header(3) + Footer(3) + Padding(2) + Status(2) + Columns(2) + Buffer(2)
+          dynamicOffset={dynamicOffset}
+        />
+      </Box>
 
     </Box>
   );

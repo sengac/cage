@@ -66,8 +66,7 @@ export function VirtualList<T>({
 
   useSafeInput(
     (input, key) => {
-      // Only handle input when in normal mode
-      if ((!isFocused && !testMode) || items.length === 0 || mode !== 'normal') return;
+      if ((!isFocused && !testMode) || items.length === 0) return;
 
       if (key.upArrow || input === 'k') {
         setSelectedIndex((prev) => {
@@ -126,7 +125,7 @@ export function VirtualList<T>({
 
   return (
     <Box flexDirection="row" height={height}>
-      <Box flexDirection="column" flexGrow={1} width="100%">
+      <Box flexDirection="column" flexGrow={1}>
         {visibleItems.map((item, visibleIndex) => {
           const actualIndex = scrollOffset + visibleIndex;
           const isSelected = actualIndex === selectedIndex;
