@@ -102,7 +102,7 @@ export function VirtualList<T>({
         onSelect(items[selectedIndex], selectedIndex);
       }
     },
-    { isActive: isFocused }
+    { isActive: isFocused, respectFocus: false }
   );
 
   // Empty state

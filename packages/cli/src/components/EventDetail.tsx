@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Box, Text } from 'ink';
 import { useSafeInput } from '../hooks/useSafeInput';
 import { format } from 'date-fns';
 import figures from 'figures';
 import { useAppStore } from '../stores/appStore';
 import { useTheme } from '../hooks/useTheme';
+import { VirtualList } from './VirtualList';
+import { useExclusiveInput } from '../contexts/InputContext';
 
 interface EventDetailProps {
   onBack: () => void;
@@ -19,6 +21,8 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
 
   const selectedEvent = useAppStore((state) => state.selectedEvent);
   const theme = useTheme();
+  const { enterExclusiveMode } = useExclusiveInput('event-detail');
+  const releaseFocusRef = useRef<(() => void) | null>(null);
 
   const tabs: { key: TabType; label: string }[] = [
     { key: 'arguments', label: 'Arguments' },
@@ -35,7 +39,26 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
     }
   }, [copyMessage]);
 
+  // Claim exclusive focus to prevent FullScreenLayout from handling ESC
+  useEffect(() => {
+    const release = enterExclusiveMode('normal');
+    releaseFocusRef.current = release;
+
+    return () => {
+      if (releaseFocusRef.current) {
+        releaseFocusRef.current();
+        releaseFocusRef.current = null;
+      }
+    };
+  }, [enterExclusiveMode]);
+
+
   useSafeInput((input, key) => {
+    if (key.escape) {
+      onBack();
+      return;
+    }
+
     if (key.leftArrow) {
       const currentIndex = tabs.findIndex(tab => tab.key === activeTab);
       const newIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
@@ -56,51 +79,62 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
     } else if (input === 'e') {
       setShowExportOptions(!showExportOptions);
     }
-  });
+  }, { componentId: 'event-detail' });
 
   const formatJSON = (obj: unknown): string => {
+    if (typeof obj === 'string') {
+      // Try to parse if it looks like JSON, otherwise treat as plain text
+      try {
+        const parsed = JSON.parse(obj);
+        return JSON.stringify(parsed, null, 2);
+      } catch {
+        // If it contains escaped newlines, convert them to actual newlines
+        return obj.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"');
+      }
+    }
     return JSON.stringify(obj, null, 2);
   };
 
-  const renderTabContent = () => {
-    if (!selectedEvent) return null;
+  // Convert content to lines for scrollable display
+  const getContentLines = (content: string): string[] => {
+    return content.split('\n').map(line => line || ' '); // Replace empty lines with space to preserve them
+  };
 
+  // Memoize the content lines to avoid recalculating on every render
+  const contentLines = useMemo(() => {
+    if (!selectedEvent) return [];
+
+    let content: string;
     switch (activeTab) {
       case 'arguments':
-        return (
-          <Box flexDirection="column" paddingX={2} paddingY={1}>
-            <Text color={theme.ui.text}>
-              {selectedEvent.arguments ? formatJSON(selectedEvent.arguments) : 'No arguments'}
-            </Text>
-          </Box>
-        );
-
+        content = selectedEvent.arguments ? formatJSON(selectedEvent.arguments) : 'No arguments';
+        break;
       case 'result':
         const hasResult = selectedEvent.result || selectedEvent.error;
         const resultContent = selectedEvent.error
           ? { error: selectedEvent.error }
           : selectedEvent.result || {};
-
-        return (
-          <Box flexDirection="column" paddingX={2} paddingY={1}>
-            <Text color={theme.ui.text}>
-              {hasResult ? formatJSON(resultContent) : 'No result'}
-            </Text>
-          </Box>
-        );
-
+        content = hasResult ? formatJSON(resultContent) : 'No result';
+        break;
       case 'raw':
-        return (
-          <Box flexDirection="column" paddingX={2} paddingY={1}>
-            <Text color={theme.ui.text}>
-              {formatJSON(selectedEvent)}
-            </Text>
-          </Box>
-        );
-
+        content = formatJSON(selectedEvent);
+        break;
       default:
-        return null;
+        content = '';
     }
+    return getContentLines(content);
+  }, [selectedEvent, activeTab]);
+
+  const renderLine = (line: string, _index: number, isSelected: boolean) => {
+    // Add a subtle indicator for selected line to show scrolling is working
+    const indicator = isSelected ? '>' : ' ';
+    return (
+      <Box width="100%">
+        <Text color={isSelected ? theme.ui.hover : theme.ui.text} wrap="truncate">
+          {indicator} {line}
+        </Text>
+      </Box>
+    );
   };
 
   if (!selectedEvent) {
@@ -112,6 +146,17 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
       </Box>
     );
   }
+
+  // Calculate available height for the content area
+  const contentHeight = process.stdout.rows
+    - 3  // Header
+    - 3  // Footer
+    - 8  // Event metadata (3 lines + spacing)
+    - 2  // Tab headers
+    - 2  // Borders
+    - 2  // Padding
+    - (copyMessage ? 2 : 0)  // Copy message
+    - (showExportOptions ? 3 : 0);  // Export options
 
   return (
     <Box flexDirection="column" flexGrow={1}>
@@ -173,15 +218,23 @@ export const EventDetail: React.FC<EventDetailProps> = ({ onBack }) => {
         })}
       </Box>
 
-      {/* Tab content */}
+      {/* Tab content with scrollable list */}
       <Box
         flexDirection="column"
-        flexGrow={1}
+        height={Math.max(10, contentHeight)}
         borderStyle="single"
         borderColor={theme.ui.borderSubtle}
-        minHeight={10}
       >
-        {renderTabContent()}
+        <VirtualList
+          items={contentLines}
+          height={Math.max(8, contentHeight - 2)} // -2 for border
+          renderItem={renderLine}
+          keyExtractor={(_, index) => String(index)}
+          emptyMessage="No content to display"
+          showScrollbar={true}
+          enableWrapAround={false}
+          testMode={true}
+        />
       </Box>
 
       {/* Copy/Export messages */}
