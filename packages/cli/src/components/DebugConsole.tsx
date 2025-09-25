@@ -28,7 +28,6 @@ interface DebugConsoleProps {
 
 export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
   const [debugEvents, setDebugEvents] = useState<DebugEvent[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [filterLevel, setFilterLevel] = useState<'all' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'>('all');
   const [filterComponent, setFilterComponent] = useState<string>('all');
   const [searchMode, setSearchMode] = useState(false);
@@ -290,21 +289,18 @@ export const DebugConsole: React.FC<DebugConsoleProps> = ({ onBack }) => {
       </Box>
 
       {/* Events list */}
-      <Box width="100%" flexGrow={1}>
-        <ResizeAwareList
-          items={filteredEvents}
-          renderItem={renderEvent}
-          onFocus={(_, index) => setSelectedIndex(index)}
-          keyExtractor={(event) => event.id}
-          emptyMessage="No debug events found"
-          showScrollbar={true}
-          enableWrapAround={true}
-          testMode={true}
-          initialIndex={selectedIndex}
-          heightOffset={14}  // Header(3) + Footer(3) + Padding(2) + Status(2) + Columns(2) + Buffer(2)
-          dynamicOffset={dynamicOffset}
-        />
-      </Box>
+      <ResizeAwareList
+        items={filteredEvents}
+        renderItem={renderEvent}
+        keyExtractor={(event) => event.id}
+        emptyMessage="No debug events found"
+        showScrollbar={true}
+        enableWrapAround={true}
+        testMode={true}
+        initialIndex={0}
+        heightOffset={14}  // Header(3) + Footer(3) + Padding(2) + Status(2) + Columns(2) + Buffer(2)
+        dynamicOffset={dynamicOffset}
+      />
 
     </Box>
   );

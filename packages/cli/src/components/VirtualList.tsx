@@ -38,28 +38,28 @@ export function VirtualList<T>({
   const { isFocused } = useFocusManager();
   const { mode } = useInputMode();
 
-  // Reset selection when initialIndex changes
-  useEffect(() => {
-    setSelectedIndex(initialIndex);
-    setScrollOffset(Math.max(0, initialIndex - Math.floor(height / 2)));
-  }, [initialIndex, height]);
-
   // Calculate visible range
   const visibleHeight = Math.min(height, items.length);
   const maxScrollOffset = Math.max(0, items.length - visibleHeight);
 
-  // Ensure scroll offset follows selection
-  useEffect(() => {
-    if (selectedIndex < scrollOffset) {
-      setScrollOffset(selectedIndex);
-    } else if (selectedIndex >= scrollOffset + visibleHeight) {
-      setScrollOffset(selectedIndex - visibleHeight + 1);
-    }
-  }, [selectedIndex, scrollOffset, visibleHeight]);
+  // Helper to update both selected index and scroll offset atomically
+  const navigateTo = (newIndex: number) => {
+    setSelectedIndex(newIndex);
 
-  // Call onFocus when selection changes
+    // Calculate new scroll offset
+    setScrollOffset(current => {
+      if (newIndex < current) {
+        return newIndex;
+      } else if (newIndex >= current + visibleHeight) {
+        return newIndex - visibleHeight + 1;
+      }
+      return current;
+    });
+  };
+
+  // Call onFocus when selection changes (but only if items exist)
   useEffect(() => {
-    if (items.length > 0 && onFocus) {
+    if (items.length > 0 && onFocus && items[selectedIndex]) {
       onFocus(items[selectedIndex], selectedIndex);
     }
   }, [selectedIndex, items, onFocus]);
@@ -69,36 +69,24 @@ export function VirtualList<T>({
       if ((!isFocused && !testMode) || items.length === 0) return;
 
       if (key.upArrow || input === 'k') {
-        setSelectedIndex((prev) => {
-          if (prev === 0) {
-            return enableWrapAround ? items.length - 1 : 0;
-          }
-          return prev - 1;
-        });
+        const newIndex = selectedIndex === 0
+          ? (enableWrapAround ? items.length - 1 : 0)
+          : selectedIndex - 1;
+        navigateTo(newIndex);
       } else if (key.downArrow || input === 'j') {
-        setSelectedIndex((prev) => {
-          if (prev === items.length - 1) {
-            return enableWrapAround ? 0 : items.length - 1;
-          }
-          return prev + 1;
-        });
+        const newIndex = selectedIndex === items.length - 1
+          ? (enableWrapAround ? 0 : items.length - 1)
+          : selectedIndex + 1;
+        navigateTo(newIndex);
       } else if (key.pageUp) {
-        setSelectedIndex((prev) => {
-          const newIndex = Math.max(0, prev - visibleHeight);
-          setScrollOffset(Math.max(0, newIndex));
-          return newIndex;
-        });
+        navigateTo(Math.max(0, selectedIndex - visibleHeight));
       } else if (key.pageDown) {
-        setSelectedIndex((prev) => {
-          const newIndex = Math.min(items.length - 1, prev + visibleHeight);
-          return newIndex;
-        });
+        navigateTo(Math.min(items.length - 1, selectedIndex + visibleHeight));
       } else if (key.home || input === 'g') {
-        setSelectedIndex(0);
-        setScrollOffset(0);
+        navigateTo(0);
       } else if (key.end || input === 'G') {
-        setSelectedIndex(items.length - 1);
-      } else if (key.return && onSelect) {
+        navigateTo(items.length - 1);
+      } else if (key.return && onSelect && items[selectedIndex]) {
         onSelect(items[selectedIndex], selectedIndex);
       }
     },
