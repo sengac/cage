@@ -26,7 +26,7 @@ interface TailState {
   events: TailEvent[];
 }
 
-export function EventsTailCommand({ count = 10 }: TailProps): JSX.Element {
+export function EventsTailCommand({ count = 10 }: TailProps): React.ReactElement {
   const [state, setState] = useState<TailState>({
     status: 'loading',
     message: `Loading last ${count} events...`,

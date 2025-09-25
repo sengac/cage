@@ -7,6 +7,7 @@ The StreamView component provides real-time monitoring of events as they occur, 
 ## Architecture
 
 ### Data Flow
+
 ```mermaid
 graph LR
     A[Claude Code] --> B[Hooks]
@@ -20,6 +21,7 @@ graph LR
 ### SSE Connection
 
 #### Client Setup (Planned)
+
 ```typescript
 class SSEConnection {
   private eventSource: EventSource | null = null;
@@ -35,7 +37,7 @@ class SSEConnection {
       this.reconnectDelay = 1000;
     };
 
-    this.eventSource.onmessage = (event) => {
+    this.eventSource.onmessage = event => {
       const data = JSON.parse(event.data);
       useAppStore.getState().addEvent(data);
     };
@@ -72,24 +74,28 @@ class SSEConnection {
 ### Features
 
 #### Real-time Display
+
 - Events appear as they arrive
 - Auto-scroll to newest
 - Visual indication of new events
 - Smooth animations
 
 #### Pause/Resume
+
 - Space bar to pause stream
 - Buffer continues filling while paused
 - Resume shows buffered events
 - Clear buffer option
 
 #### Split View
+
 - List on left, detail on right
 - Adjustable split ratio
 - Synchronized scrolling
 - Tab to switch focus
 
 #### Filtering
+
 - Apply filters in real-time
 - Hide noise, focus on important events
 - Filter presets for common scenarios
@@ -121,6 +127,7 @@ class SSEConnection {
 ### State Management
 
 #### Stream State
+
 ```typescript
 interface StreamState {
   isStreaming: boolean;
@@ -134,6 +141,7 @@ interface StreamState {
 ```
 
 #### Buffer Management
+
 ```typescript
 const MAX_BUFFER_SIZE = 1000;
 
@@ -160,18 +168,21 @@ const addToBuffer = (event: Event) => {
 ## Performance Optimizations
 
 ### Rendering Strategy
+
 - Virtual scrolling for large buffers
 - Batch updates (max 60fps)
 - Debounced re-renders
 - Memoized event components
 
 ### Memory Management
+
 - Circular buffer with max size
 - Old events moved to disk
 - Compressed event storage
 - Lazy loading of details
 
 ### Network Optimization
+
 - Compression (gzip)
 - Binary protocol option
 - Batch event sending
@@ -180,6 +191,7 @@ const addToBuffer = (event: Event) => {
 ## Event Processing
 
 ### Event Enrichment
+
 Events are enriched with metadata before display:
 
 ```typescript
@@ -202,6 +214,7 @@ const enrichEvent = (event: Event): EnrichedEvent => {
 ```
 
 ### Event Highlighting
+
 Certain events are highlighted for attention:
 
 ```typescript
@@ -226,6 +239,7 @@ const shouldHighlight = (event: Event): boolean => {
 ## Filtering System
 
 ### Real-time Filters
+
 Filters are applied to incoming events:
 
 ```typescript
@@ -260,32 +274,34 @@ const applyStreamFilter = (event: Event): boolean => {
 ```
 
 ### Filter Presets
+
 Common filter combinations:
 
 ```typescript
 const filterPresets = {
   errors: {
     name: 'Errors Only',
-    filters: { errorsOnly: true }
+    filters: { errorsOnly: true },
   },
   modifications: {
     name: 'File Changes',
-    filters: { tools: ['Write', 'Edit', 'MultiEdit'] }
+    filters: { tools: ['Write', 'Edit', 'MultiEdit'] },
   },
   commands: {
     name: 'Commands',
-    filters: { tools: ['Bash'] }
+    filters: { tools: ['Bash'] },
   },
   ai: {
     name: 'AI Messages',
-    filters: { types: ['AssistantMessage', 'UserMessage'] }
-  }
+    filters: { types: ['AssistantMessage', 'UserMessage'] },
+  },
 };
 ```
 
 ## Statistics & Metrics
 
 ### Real-time Metrics
+
 Display live statistics about the stream:
 
 ```typescript
@@ -301,8 +317,8 @@ const calculateMetrics = (events: Event[]): StreamMetrics => {
   const now = Date.now();
   const oneMinuteAgo = now - 60000;
 
-  const recentEvents = events.filter(e =>
-    new Date(e.timestamp).getTime() > oneMinuteAgo
+  const recentEvents = events.filter(
+    e => new Date(e.timestamp).getTime() > oneMinuteAgo
   );
 
   return {
@@ -320,18 +336,21 @@ const calculateMetrics = (events: Event[]): StreamMetrics => {
 ## Testing Strategy
 
 ### Unit Tests
+
 - SSE connection handling
 - Reconnection logic
 - Buffer management
 - Filter application
 
 ### Integration Tests
+
 - Stream pause/resume
 - Event selection
 - Split view interaction
 - Filter combinations
 
 ### Performance Tests
+
 - High-frequency events (100+ per second)
 - Large buffers (1000+ events)
 - Memory usage over time
@@ -340,6 +359,7 @@ const calculateMetrics = (events: Event[]): StreamMetrics => {
 ## Error Handling
 
 ### Connection Errors
+
 ```typescript
 const handleConnectionError = (error: Error) => {
   console.error('SSE connection error:', error);
@@ -359,6 +379,7 @@ const handleConnectionError = (error: Error) => {
 ```
 
 ### Data Errors
+
 ```typescript
 const handleDataError = (data: unknown) => {
   console.error('Invalid event data:', data);
@@ -408,14 +429,17 @@ const handleDataError = (data: unknown) => {
 ## Current Status
 
 ### Completed ✅
+
 - Basic state management structure
 - Mock event generation
 
 ### In Progress 🚧
+
 - StreamView component design
 - SSE connection implementation
 
 ### Planned ⏳
+
 - Full StreamView implementation
 - SSE client
 - Real-time filtering

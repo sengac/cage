@@ -22,12 +22,15 @@ The Phase 1 implementation has been organized into focused, manageable documents
 ## Quick Start
 
 ### Step 1: Review Requirements
+
 Read [PHASE1.md](PHASE1.md) for complete acceptance criteria covering all scenarios.
 
 ### Step 2: Setup Project
+
 Follow [docs/phase1/setup.md](docs/phase1/setup.md) to configure the development environment.
 
 ### Step 3: Implement Components
+
 Implement each component in order, following test-driven development:
 
 1. **Shared Package** - Types and schemas for all 10 hooks
@@ -36,9 +39,11 @@ Implement each component in order, following test-driven development:
 4. **Hooks Integration** - Connect Claude Code to Cage
 
 ### Step 4: Run Integration Tests
+
 Use [docs/phase1/testing.md](docs/phase1/testing.md) to verify the complete system.
 
 ### Step 5: Verify Completion
+
 Check off items in [docs/phase1/checklist.md](docs/phase1/checklist.md).
 
 ## Acceptance Criteria Coverage
@@ -46,12 +51,14 @@ Check off items in [docs/phase1/checklist.md](docs/phase1/checklist.md).
 All acceptance criteria from [PHASE1.md](PHASE1.md) are fully covered:
 
 ### CLI Installation and Setup ✅
+
 - Install Cage globally
 - Initialize Cage in a project
 - Configure Claude Code hooks (all 10 types)
 - Verify hook configuration
 
 ### Backend Event Processing ✅
+
 - Start the backend server
 - Receive PreToolUse hook event
 - Receive PostToolUse hook event
@@ -66,12 +73,14 @@ All acceptance criteria from [PHASE1.md](PHASE1.md) are fully covered:
 - Handle hook when server is down
 
 ### File-Based Event Logging ✅
+
 - Log event with complete data
 - Rotate log files daily
 - Handle high-frequency events
 - Query events by date range
 
 ### CLI Event Monitoring ✅
+
 - Stream events in real-time
 - Filter streamed events by type
 - Display event statistics
@@ -79,6 +88,7 @@ All acceptance criteria from [PHASE1.md](PHASE1.md) are fully covered:
 - Tail with custom count
 
 ### Error Handling and Recovery ✅
+
 - Handle malformed hook data
 - Recover from disk space issues
 - Handle concurrent hook triggers
@@ -108,21 +118,25 @@ The implementation follows strict test-first development:
 ## Implementation Timeline
 
 ### Week 1: Foundation & CLI
+
 - Project setup and configuration
 - Shared package with all hook types
 - CLI commands implementation
 
 ### Week 2: Backend & Event Processing
+
 - NestJS backend with all 10 endpoints
 - File-based event logging
 - Event query and streaming
 
 ### Week 3: Integration & Testing
+
 - Hook handler implementation
 - Claude Code configuration
 - End-to-end integration testing
 
 ### Week 4: Documentation & Polish
+
 - API documentation
 - Installation guides
 - Cross-platform testing

@@ -22,12 +22,15 @@ The Phase 2 implementation will be organized into focused, manageable documents:
 ## Quick Start
 
 ### Step 1: Review Requirements
+
 Read [PHASE2.md](PHASE2.md) for complete acceptance criteria and user stories.
 
 ### Step 2: Setup Development Environment
+
 Ensure Ink 3+ and related packages are installed with proper versions.
 
 ### Step 3: Implement Components
+
 Build components incrementally, starting with the foundation:
 
 1. **Logo & Splash Screen** - ASCII art with gradient colors
@@ -39,19 +42,23 @@ Build components incrementally, starting with the foundation:
 7. **Debug Console** - Enhanced diagnostic output
 
 ### Step 4: Integration Testing
+
 Test keyboard navigation, state management, and data flow.
 
 ### Step 5: Verify Completion
+
 Check all acceptance criteria against implementation.
 
 ## User Stories & Acceptance Criteria
 
 ### Story 1: Developer Launches Interactive Mode
+
 **As a** developer using Cage
 **I want to** launch an interactive full-screen interface by typing `cage`
 **So that** I can navigate all Cage features visually without remembering command syntax
 
 #### Acceptance Criteria:
+
 - ✅ Launch with no arguments shows logo then main menu
 - ✅ Logo uses gradient colors (cyan → blue → purple)
 - ✅ Logo displays for 1.5 seconds with fade-in animation
@@ -60,11 +67,13 @@ Check all acceptance criteria against implementation.
 - ✅ Keyboard shortcuts displayed in footer
 
 ### Story 2: Developer Inspects Event Details
+
 **As a** developer debugging Claude behavior
 **I want to** view complete event data including file contents and command outputs
 **So that** I can understand exactly what Claude did and why
 
 #### Acceptance Criteria:
+
 - ✅ Browse events in reverse chronological order
 - ✅ Filter by type, tool, date, session
 - ✅ Search within event content
@@ -75,11 +84,13 @@ Check all acceptance criteria against implementation.
 - ✅ Copy event data to clipboard or file
 
 ### Story 3: Developer Monitors Events in Real-Time
+
 **As a** developer working with Claude Code
 **I want to** see events streaming in real-time within the interactive interface
 **So that** I can monitor Claude's actions as they happen
 
 #### Acceptance Criteria:
+
 - ✅ Events appear in scrollable list
 - ✅ New events highlighted with animation
 - ✅ Press Space to pause streaming
@@ -90,11 +101,13 @@ Check all acceptance criteria against implementation.
 - ✅ Export selected events
 
 ### Story 4: Developer Navigates with Keyboard
+
 **As a** developer preferring keyboard navigation
 **I want to** use arrow keys, Enter, and Escape for all navigation
 **So that** I can work efficiently without using the mouse
 
 #### Acceptance Criteria:
+
 - ✅ Arrow keys move selection up/down
 - ✅ Enter selects/activates
 - ✅ Escape goes back/cancels
@@ -106,11 +119,13 @@ Check all acceptance criteria against implementation.
 - ✅ Q for quit with confirmation
 
 ### Story 5: Developer Uses Debug Mode
+
 **As a** developer troubleshooting issues
 **I want to** enable debug mode with enhanced output
 **So that** I can see detailed internal operations and diagnose problems
 
 #### Acceptance Criteria:
+
 - ✅ Launch with `cage --debug`
 - ✅ Debug console shows raw hook data
 - ✅ Performance metrics visible
@@ -149,81 +164,81 @@ Based on color theory using an aqua-blue primary with complementary colors, desi
 const theme = {
   // Primary Palette - Aqua/Teal family (180-200° hue)
   primary: {
-    light: chalk.hex('#7FDBFF'),  // Light aqua
-    main: chalk.hex('#01B4C6'),   // Aqua-blue
-    dark: chalk.hex('#007A8C'),   // Deep aqua
+    light: chalk.hex('#7FDBFF'), // Light aqua
+    main: chalk.hex('#01B4C6'), // Aqua-blue
+    dark: chalk.hex('#007A8C'), // Deep aqua
   },
 
   // Complementary - Coral/Salmon (opposite on color wheel, ~20° hue)
   accent: {
-    light: chalk.hex('#FFB3BA'),  // Light coral
-    main: chalk.hex('#FF6B6B'),   // Coral
-    dark: chalk.hex('#EE5A6F'),   // Deep coral
+    light: chalk.hex('#FFB3BA'), // Light coral
+    main: chalk.hex('#FF6B6B'), // Coral
+    dark: chalk.hex('#EE5A6F'), // Deep coral
   },
 
   // Analogous - Blue-Green spectrum (150-210° hue)
   secondary: {
-    blue: chalk.hex('#4ECDC4'),   // Turquoise
-    teal: chalk.hex('#00A8B5'),   // Teal
-    green: chalk.hex('#52D1A4'),  // Sea green
+    blue: chalk.hex('#4ECDC4'), // Turquoise
+    teal: chalk.hex('#00A8B5'), // Teal
+    green: chalk.hex('#52D1A4'), // Sea green
   },
 
   // Triadic - Purple accent (300° hue)
-  tertiary: chalk.hex('#9B59B6'),  // Soft purple
+  tertiary: chalk.hex('#9B59B6'), // Soft purple
 
   // Status Colors (maintaining readability on black)
   status: {
-    success: chalk.hex('#52D1A4'),  // Sea green
-    warning: chalk.hex('#F4D03F'),  // Golden yellow
-    error: chalk.hex('#FF6B6B'),    // Coral red
-    info: chalk.hex('#4ECDC4'),     // Turquoise
+    success: chalk.hex('#52D1A4'), // Sea green
+    warning: chalk.hex('#F4D03F'), // Golden yellow
+    error: chalk.hex('#FF6B6B'), // Coral red
+    info: chalk.hex('#4ECDC4'), // Turquoise
   },
 
   // UI Elements - Optimized for terminal black background
   ui: {
     // No background colors - use terminal's native black
-    background: null,                        // Terminal default (black)
+    background: null, // Terminal default (black)
 
     // Borders and dividers - subtle on black
-    border: chalk.hex('#2C5282'),           // Muted blue border
-    borderLight: chalk.hex('#4A90A4'),      // Light border for emphasis
-    borderSubtle: chalk.hex('#1A3A52'),     // Very subtle border
+    border: chalk.hex('#2C5282'), // Muted blue border
+    borderLight: chalk.hex('#4A90A4'), // Light border for emphasis
+    borderSubtle: chalk.hex('#1A3A52'), // Very subtle border
 
     // Text hierarchy - high contrast on black
-    text: chalk.hex('#E8F4F8'),             // Off-white primary text
-    textBright: chalk.white,                // Pure white for emphasis
-    textMuted: chalk.hex('#6B8CAE'),        // Muted blue-gray
-    textDim: chalk.hex('#4A6A8A'),          // Dimmer for less important
+    text: chalk.hex('#E8F4F8'), // Off-white primary text
+    textBright: chalk.white, // Pure white for emphasis
+    textMuted: chalk.hex('#6B8CAE'), // Muted blue-gray
+    textDim: chalk.hex('#4A6A8A'), // Dimmer for less important
 
     // Selection states - using background colors only when needed
-    selected: chalk.bgHex('#003D4A').hex('#7FDBFF'),  // Dark teal bg, light aqua text
-    hover: chalk.hex('#7FDBFF'),                       // Just brighten text on hover
-    focus: chalk.bold.hex('#01B4C6'),                  // Bold aqua for focus
+    selected: chalk.bgHex('#003D4A').hex('#7FDBFF'), // Dark teal bg, light aqua text
+    hover: chalk.hex('#7FDBFF'), // Just brighten text on hover
+    focus: chalk.bold.hex('#01B4C6'), // Bold aqua for focus
 
     // Surface overlays - only for critical UI elements
-    surfaceOverlay: chalk.bgHex('#0A1929'),  // Dark blue-gray for panels
-    dialogBg: chalk.bgHex('#122436'),        // Slightly lighter for dialogs
+    surfaceOverlay: chalk.bgHex('#0A1929'), // Dark blue-gray for panels
+    dialogBg: chalk.bgHex('#122436'), // Slightly lighter for dialogs
   },
 
   // Gradients for Logo (aqua spectrum)
   gradients: {
-    logo: gradient(['#7FDBFF', '#01B4C6', '#007A8C']),      // Aqua gradient
-    header: gradient(['#4ECDC4', '#01B4C6', '#00A8B5']),    // Turquoise-aqua
-    accent: gradient(['#FF6B6B', '#FF8E72', '#FFB3BA']),    // Coral gradient
+    logo: gradient(['#7FDBFF', '#01B4C6', '#007A8C']), // Aqua gradient
+    header: gradient(['#4ECDC4', '#01B4C6', '#00A8B5']), // Turquoise-aqua
+    accent: gradient(['#FF6B6B', '#FF8E72', '#FFB3BA']), // Coral gradient
   },
 
   // Syntax Highlighting (optimized for black background)
   syntax: {
-    keyword: chalk.hex('#FF6B6B'),    // Coral (complementary)
-    string: chalk.hex('#52D1A4'),     // Sea green
-    comment: chalk.hex('#6B8CAE'),    // Muted blue-gray
-    function: chalk.hex('#4ECDC4'),   // Turquoise
-    number: chalk.hex('#F4D03F'),     // Golden yellow
-    type: chalk.hex('#9B59B6'),       // Purple (triadic)
-    operator: chalk.hex('#FFB3BA'),   // Light coral
-    variable: chalk.hex('#7FDBFF'),   // Light aqua
-    bracket: chalk.hex('#4A90A4'),    // Muted aqua for brackets
-  }
+    keyword: chalk.hex('#FF6B6B'), // Coral (complementary)
+    string: chalk.hex('#52D1A4'), // Sea green
+    comment: chalk.hex('#6B8CAE'), // Muted blue-gray
+    function: chalk.hex('#4ECDC4'), // Turquoise
+    number: chalk.hex('#F4D03F'), // Golden yellow
+    type: chalk.hex('#9B59B6'), // Purple (triadic)
+    operator: chalk.hex('#FFB3BA'), // Light coral
+    variable: chalk.hex('#7FDBFF'), // Light aqua
+    bracket: chalk.hex('#4A90A4'), // Muted aqua for brackets
+  },
 };
 ```
 
@@ -329,31 +344,32 @@ export const useAppStore = create<AppState>()(
         theme: 'aqua',
 
         // Navigation actions
-        navigate: (view) =>
-          set((state) => {
+        navigate: view =>
+          set(state => {
             state.navigationStack.push(state.currentView);
             state.previousView = state.currentView;
             state.currentView = view;
           }),
 
         goBack: () =>
-          set((state) => {
+          set(state => {
             const previous = state.navigationStack.pop();
             if (previous) {
               state.currentView = previous;
-              state.previousView = state.navigationStack[state.navigationStack.length - 1] || null;
+              state.previousView =
+                state.navigationStack[state.navigationStack.length - 1] || null;
             }
           }),
 
         // Event actions
-        setEvents: (events) =>
-          set((state) => {
+        setEvents: events =>
+          set(state => {
             state.events = events;
             state.filteredEvents = applyFilters(events, state.eventFilters);
           }),
 
-        addEvent: (event) =>
-          set((state) => {
+        addEvent: event =>
+          set(state => {
             if (state.isStreaming && !state.isPaused) {
               state.events.push(event);
               state.streamBuffer.push(event);
@@ -365,20 +381,20 @@ export const useAppStore = create<AppState>()(
             }
           }),
 
-        selectEvent: (event) =>
-          set((state) => {
+        selectEvent: event =>
+          set(state => {
             state.selectedEvent = event;
           }),
 
-        applyFilter: (filters) =>
-          set((state) => {
+        applyFilter: filters =>
+          set(state => {
             state.eventFilters = filters;
             state.filteredEvents = applyFilters(state.events, filters);
           }),
 
         // Stream actions
         toggleStream: () =>
-          set((state) => {
+          set(state => {
             state.isStreaming = !state.isStreaming;
             if (state.isStreaming) {
               state.isPaused = false;
@@ -387,18 +403,18 @@ export const useAppStore = create<AppState>()(
           }),
 
         pauseStream: () =>
-          set((state) => {
+          set(state => {
             state.isPaused = !state.isPaused;
           }),
 
         clearErrors: () =>
-          set((state) => {
+          set(state => {
             state.errors = [];
           }),
       })),
       {
         name: 'cage-app-storage',
-        partialize: (state) => ({
+        partialize: state => ({
           theme: state.theme,
           eventFilters: state.eventFilters,
         }),
@@ -408,7 +424,7 @@ export const useAppStore = create<AppState>()(
 );
 
 // Separate stores for different concerns
-export const useStreamStore = create<StreamState>()((set) => ({
+export const useStreamStore = create<StreamState>()(set => ({
   // Stream-specific state
   connectionStatus: 'disconnected',
   reconnectAttempts: 0,
@@ -426,7 +442,7 @@ export const useStreamStore = create<StreamState>()((set) => ({
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set) => ({
+    set => ({
       // User preferences
       animationsEnabled: true,
       soundEnabled: false,
@@ -435,7 +451,7 @@ export const useSettingsStore = create<SettingsState>()(
       keyBindings: defaultKeyBindings,
 
       updateSetting: (key, value) =>
-        set((state) => ({
+        set(state => ({
           ...state,
           [key]: value,
         })),
@@ -479,14 +495,14 @@ import { shallow } from 'zustand/shallow';
 const Component = () => {
   // This will only re-render if filters actually change
   const [filters, events] = useAppStore(
-    (state) => [state.eventFilters, state.filteredEvents],
+    state => [state.eventFilters, state.filteredEvents],
     shallow
   );
 };
 
 // Computed values with selectors
 const useFilteredEventsCount = () =>
-  useAppStore((state) => state.filteredEvents.length);
+  useAppStore(state => state.filteredEvents.length);
 
 // Async actions
 const useEventActions = () => {
@@ -511,6 +527,7 @@ const useEventActions = () => {
 ## Implementation Components
 
 ### 1. Logo Component
+
 ```typescript
 interface LogoProps {
   onComplete: () => void;
@@ -523,6 +540,7 @@ interface LogoProps {
 ```
 
 ### 2. Main Menu Component
+
 ```typescript
 interface MainMenuProps {
   serverStatus: ServerStatus;
@@ -537,6 +555,7 @@ interface MainMenuProps {
 ```
 
 ### 3. Event Inspector Component
+
 ```typescript
 interface EventInspectorProps {
   events: Event[];
@@ -552,6 +571,7 @@ interface EventInspectorProps {
 ```
 
 ### 4. Event Detail Component
+
 ```typescript
 interface EventDetailProps {
   event: Event;
@@ -566,6 +586,7 @@ interface EventDetailProps {
 ```
 
 ### 5. Stream View Component with Virtual Scrolling
+
 ```typescript
 interface StreamViewProps {
   onEventSelect: (event: Event) => void;
@@ -647,6 +668,7 @@ export const VirtualList: React.FC<{
 ```
 
 ### 6. Configuration Menu Component
+
 ```typescript
 interface ConfigMenuProps {
   onClose: () => void;
@@ -695,10 +717,10 @@ export default defineConfig({
         branches: 80,
         functions: 80,
         lines: 80,
-        statements: 80
-      }
-    }
-  }
+        statements: 80,
+      },
+    },
+  },
 });
 ```
 
@@ -715,7 +737,7 @@ afterEach(() => {
 
 // Mock terminal dimensions
 vi.mock('ink-use-stdout-dimensions', () => ({
-  default: () => ({ columns: 80, rows: 24 })
+  default: () => ({ columns: 80, rows: 24 }),
 }));
 ```
 
@@ -855,60 +877,66 @@ describe('App Store State Management', () => {
     useAppStore.setState({
       currentView: 'menu',
       events: [],
-      selectedEvent: null
+      selectedEvent: null,
     });
   });
 
   describe('Navigation Stack Management', () => {
-    it('Given the user is on the main menu, ' +
-       'When they navigate to events view, ' +
-       'Then the navigation stack should track the history', () => {
-      // Arrange
-      const { result } = renderHook(() => useAppStore());
+    it(
+      'Given the user is on the main menu, ' +
+        'When they navigate to events view, ' +
+        'Then the navigation stack should track the history',
+      () => {
+        // Arrange
+        const { result } = renderHook(() => useAppStore());
 
-      // Act
-      act(() => {
-        result.current.navigate('events');
-      });
+        // Act
+        act(() => {
+          result.current.navigate('events');
+        });
 
-      // Assert
-      expect(result.current.currentView).toBe('events');
-      expect(result.current.navigationStack).toEqual(['menu']);
+        // Assert
+        expect(result.current.currentView).toBe('events');
+        expect(result.current.navigationStack).toEqual(['menu']);
 
-      // Act - Go back
-      act(() => {
-        result.current.goBack();
-      });
+        // Act - Go back
+        act(() => {
+          result.current.goBack();
+        });
 
-      // Assert
-      expect(result.current.currentView).toBe('menu');
-      expect(result.current.navigationStack).toEqual([]);
-    });
+        // Assert
+        expect(result.current.currentView).toBe('menu');
+        expect(result.current.navigationStack).toEqual([]);
+      }
+    );
   });
 
   describe('Event Filtering', () => {
-    it('Given a list of events with different types, ' +
-       'When a filter is applied for PreToolUse events, ' +
-       'Then only PreToolUse events should be in filteredEvents', () => {
-      // Arrange
-      const { result } = renderHook(() => useAppStore());
-      const events = [
-        { id: '1', type: 'PreToolUse', tool: 'Edit' },
-        { id: '2', type: 'PostToolUse', tool: 'Bash' },
-        { id: '3', type: 'PreToolUse', tool: 'Read' }
-      ];
+    it(
+      'Given a list of events with different types, ' +
+        'When a filter is applied for PreToolUse events, ' +
+        'Then only PreToolUse events should be in filteredEvents',
+      () => {
+        // Arrange
+        const { result } = renderHook(() => useAppStore());
+        const events = [
+          { id: '1', type: 'PreToolUse', tool: 'Edit' },
+          { id: '2', type: 'PostToolUse', tool: 'Bash' },
+          { id: '3', type: 'PreToolUse', tool: 'Read' },
+        ];
 
-      // Act
-      act(() => {
-        result.current.setEvents(events);
-        result.current.applyFilter({ type: 'PreToolUse' });
-      });
+        // Act
+        act(() => {
+          result.current.setEvents(events);
+          result.current.applyFilter({ type: 'PreToolUse' });
+        });
 
-      // Assert
-      expect(result.current.filteredEvents).toHaveLength(2);
-      expect(result.current.filteredEvents[0].type).toBe('PreToolUse');
-      expect(result.current.filteredEvents[1].type).toBe('PreToolUse');
-    });
+        // Assert
+        expect(result.current.filteredEvents).toHaveLength(2);
+        expect(result.current.filteredEvents[0].type).toBe('PreToolUse');
+        expect(result.current.filteredEvents[1].type).toBe('PreToolUse');
+      }
+    );
   });
 });
 ```
@@ -1206,21 +1234,21 @@ import { vi } from 'vitest';
 export const mockEventService = {
   fetchEvents: vi.fn().mockResolvedValue([
     { id: '1', type: 'PreToolUse', tool: 'Edit' },
-    { id: '2', type: 'PostToolUse', tool: 'Bash' }
+    { id: '2', type: 'PostToolUse', tool: 'Bash' },
   ]),
 
-  streamEvents: vi.fn().mockImplementation((callback) => {
+  streamEvents: vi.fn().mockImplementation(callback => {
     // Simulate SSE stream
     const interval = setInterval(() => {
       callback({
         id: Date.now().toString(),
         type: 'PreToolUse',
-        tool: 'Read'
+        tool: 'Read',
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  })
+  }),
 };
 ```
 
@@ -1361,9 +1389,21 @@ import TaskList from 'ink-task-list';
 import figures from 'figures';
 
 // Animation types from cli-spinners
-type SpinnerType = 'dots' | 'dots2' | 'dots3' | 'dots4' | 'dots5' |
-                   'line' | 'pipe' | 'star' | 'star2' | 'arc' |
-                   'bouncingBall' | 'bouncingBar' | 'pulse' | 'aesthetic';
+type SpinnerType =
+  | 'dots'
+  | 'dots2'
+  | 'dots3'
+  | 'dots4'
+  | 'dots5'
+  | 'line'
+  | 'pipe'
+  | 'star'
+  | 'star2'
+  | 'arc'
+  | 'bouncingBall'
+  | 'bouncingBar'
+  | 'pulse'
+  | 'aesthetic';
 ```
 
 ### Logo Animation Sequence
@@ -1775,6 +1815,7 @@ Phase 2 is successful when:
 ## Keyboard Shortcuts Reference
 
 ### Global Shortcuts (Available Everywhere)
+
 ```
 Q           - Quit application (with confirmation)
 ?/H         - Show context-sensitive help
@@ -1785,6 +1826,7 @@ Ctrl+L      - Clear/refresh screen
 ```
 
 ### Navigation Shortcuts
+
 ```
 ↑/↓         - Move selection up/down
 ←/→         - Move between columns/tabs
@@ -1796,6 +1838,7 @@ Space       - Toggle selection/pause
 ```
 
 ### Event Inspector Shortcuts
+
 ```
 /           - Search in events
 F           - Open filter menu
@@ -1807,6 +1850,7 @@ D           - Show raw data (JSON)
 ```
 
 ### Stream View Shortcuts
+
 ```
 Space/P     - Pause/resume streaming
 ↑/↓         - Scroll through paused events
@@ -1979,28 +2023,28 @@ export const MainMenu: React.FC = () => {
 {
   "dependencies": {
     // State Management
-    "zustand": "latest",                      // v5+ for React 18 support
+    "zustand": "latest", // v5+ for React 18 support
 
     // Core Ink & React
-    "ink": "latest",                          // v6.3.0+
-    "react": "latest",                        // Required for Ink
+    "ink": "latest", // v6.3.0+
+    "react": "latest", // Required for Ink
     "ink-testing-library": "latest",
 
     // Essential UI Components
     "ink-box": "latest",
-    "ink-text-input": "latest",               // v6.0.0+
+    "ink-text-input": "latest", // v6.0.0+
     "ink-select-input": "latest",
     "ink-multi-select": "latest",
-    "ink-table": "latest",                    // v3.1.0+
+    "ink-table": "latest", // v3.1.0+
     "ink-link": "latest",
     "ink-divider": "latest",
     "ink-form": "latest",
-    "@inkjs/ui": "latest",                    // New unified UI library
+    "@inkjs/ui": "latest", // New unified UI library
 
     // Animation & Visual Effects
-    "ink-spinner": "latest",                  // v5.0.0+
+    "ink-spinner": "latest", // v5.0.0+
     "ink-progress-bar": "latest",
-    "ink-gradient": "latest",                 // v3.0.0+
+    "ink-gradient": "latest", // v3.0.0+
     "ink-big-text": "latest",
     "ink-ascii": "latest",
     "ink-text-animation": "latest",
@@ -2013,23 +2057,23 @@ export const MainMenu: React.FC = () => {
     "ink-highlight-command": "latest",
 
     // Color & Styling
-    "chalk": "latest",                        // v5+ for ESM support
+    "chalk": "latest", // v5+ for ESM support
     "gradient-string": "latest",
-    "cli-spinners": "latest",                // Spinner definitions for ink-spinner
-    "figures": "latest",                      // Unicode symbols
-    "cli-boxes": "latest",                    // Box-drawing characters
+    "cli-spinners": "latest", // Spinner definitions for ink-spinner
+    "figures": "latest", // Unicode symbols
+    "cli-boxes": "latest", // Box-drawing characters
 
     // Ink-specific utilities
-    "ink-use-stdout-dimensions": "latest",    // Hook for terminal dimensions
-    "ink-overflow-list": "latest",            // Scrollable lists
-    "ink-confirm-input": "latest",            // Yes/No confirmation
-    "ink-password-input": "latest",           // Password input field
-    "ink-quicksearch-input": "latest",        // Search with suggestions
+    "ink-use-stdout-dimensions": "latest", // Hook for terminal dimensions
+    "ink-overflow-list": "latest", // Scrollable lists
+    "ink-confirm-input": "latest", // Yes/No confirmation
+    "ink-password-input": "latest", // Password input field
+    "ink-quicksearch-input": "latest", // Search with suggestions
 
     // Additional Utilities
-    "nanoid": "latest",                       // For unique IDs
-    "date-fns": "latest",                     // Date formatting
-    "immer": "latest",                        // For Zustand immer middleware
+    "nanoid": "latest", // For unique IDs
+    "date-fns": "latest", // Date formatting
+    "immer": "latest", // For Zustand immer middleware
 
     // TypeScript Types (if using TypeScript)
     "@types/react": "latest",

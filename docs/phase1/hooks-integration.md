@@ -1,35 +1,39 @@
 # Phase 1: Claude Code Hooks Integration
 
 ## Overview
+
 This guide explains how Claude Code hooks actually work and how to integrate them with the Cage backend. Claude Code uses a JSON configuration system, NOT standalone scripts.
 
 ## How Claude Code Hooks Work
 
 ### Hook Mechanism
+
 1. **Configuration**: Hooks are defined in `~/.claude/settings.json`
 2. **Execution**: Claude Code executes shell commands at specific events
 3. **Data Flow**: JSON sent via stdin to hook command
 4. **Control**: Exit codes and stdout control Claude's behavior
 
 ### Available Hook Types
+
 All 10 Claude Code hook events:
 
-| Hook Event | Trigger | Can Block? | Can Inject Context? |
-|------------|---------|------------|---------------------|
-| PreToolUse | Before tool execution | Yes (exit 2) | No |
-| PostToolUse | After tool execution | No | No |
-| UserPromptSubmit | User submits prompt | No | Yes (stdout) |
-| Notification | Claude sends notification | No | No |
-| Stop | Claude finishes responding | No | No |
-| SubagentStop | Subagent completes | No | No |
-| SessionStart | New session begins | No | Yes (stdout) |
-| SessionEnd | Session ends | No | No |
-| PreCompact | Before conversation compaction | No | No |
-| Status | Status line update | No | Yes (stdout) |
+| Hook Event       | Trigger                        | Can Block?   | Can Inject Context? |
+| ---------------- | ------------------------------ | ------------ | ------------------- |
+| PreToolUse       | Before tool execution          | Yes (exit 2) | No                  |
+| PostToolUse      | After tool execution           | No           | No                  |
+| UserPromptSubmit | User submits prompt            | No           | Yes (stdout)        |
+| Notification     | Claude sends notification      | No           | No                  |
+| Stop             | Claude finishes responding     | No           | No                  |
+| SubagentStop     | Subagent completes             | No           | No                  |
+| SessionStart     | New session begins             | No           | Yes (stdout)        |
+| SessionEnd       | Session ends                   | No           | No                  |
+| PreCompact       | Before conversation compaction | No           | No                  |
+| Status           | Status line update             | No           | Yes (stdout)        |
 
 ## Hook Handler Implementation
 
 ### Package Structure
+
 ```
 packages/hooks/
 ├── src/
@@ -67,9 +71,12 @@ describe('Hook Handler Integration', () => {
     process.chdir(testDir);
 
     // Create cage config
-    await writeFile('cage.config.json', JSON.stringify({
-      port: 3790
-    }));
+    await writeFile(
+      'cage.config.json',
+      JSON.stringify({
+        port: 3790,
+      })
+    );
   });
 
   afterEach(async () => {
@@ -82,26 +89,29 @@ describe('Hook Handler Integration', () => {
       // Mock HTTP server
       const fetchMock = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ success: true })
+        json: async () => ({ success: true }),
       });
       global.fetch = fetchMock;
 
       const hookData = {
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
-        sessionId: 'test-session'
+        sessionId: 'test-session',
       };
 
       // THIS WILL FAIL INITIALLY - handler.js doesn't exist yet
-      const handler = spawn('node', ['../../src/cage-hook-handler.js', 'pre-tool-use']);
+      const handler = spawn('node', [
+        '../../src/cage-hook-handler.js',
+        'pre-tool-use',
+      ]);
 
       // Send data to stdin
       handler.stdin.write(JSON.stringify(hookData));
       handler.stdin.end();
 
       // Wait for handler to complete
-      await new Promise((resolve) => {
-        handler.on('exit', (code) => {
+      await new Promise(resolve => {
+        handler.on('exit', code => {
           resolve(code);
         });
       });
@@ -112,7 +122,7 @@ describe('Hook Handler Integration', () => {
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: expect.stringContaining('Read')
+          body: expect.stringContaining('Read'),
         })
       );
     });
@@ -126,18 +136,21 @@ describe('Hook Handler Integration', () => {
       const hookData = {
         toolName: 'Write',
         arguments: { file_path: '/test.txt' },
-        sessionId: 'test-session'
+        sessionId: 'test-session',
       };
 
       // Create .cage directory
       await mkdir(join(testDir, '.cage'), { recursive: true });
 
-      const handler = spawn('node', ['../../src/cage-hook-handler.js', 'post-tool-use']);
+      const handler = spawn('node', [
+        '../../src/cage-hook-handler.js',
+        'post-tool-use',
+      ]);
 
       handler.stdin.write(JSON.stringify(hookData));
       handler.stdin.end();
 
-      const exitCode = await new Promise((resolve) => {
+      const exitCode = await new Promise(resolve => {
         handler.on('exit', resolve);
       });
 
@@ -161,21 +174,24 @@ describe('Hook Handler Integration', () => {
         json: async () => ({
           success: false,
           block: true,
-          message: 'Operation not allowed'
-        })
+          message: 'Operation not allowed',
+        }),
       });
 
-      const handler = spawn('node', ['../../src/cage-hook-handler.js', 'pre-tool-use']);
+      const handler = spawn('node', [
+        '../../src/cage-hook-handler.js',
+        'pre-tool-use',
+      ]);
 
       handler.stdin.write(JSON.stringify({ toolName: 'Delete' }));
       handler.stdin.end();
 
       let stderr = '';
-      handler.stderr.on('data', (data) => {
+      handler.stderr.on('data', data => {
         stderr += data.toString();
       });
 
-      const exitCode = await new Promise((resolve) => {
+      const exitCode = await new Promise(resolve => {
         handler.on('exit', resolve);
       });
 
@@ -191,21 +207,24 @@ describe('Hook Handler Integration', () => {
         ok: true,
         json: async () => ({
           success: true,
-          output: 'Additional context: Project uses TypeScript'
-        })
+          output: 'Additional context: Project uses TypeScript',
+        }),
       });
 
-      const handler = spawn('node', ['../../src/cage-hook-handler.js', 'user-prompt-submit']);
+      const handler = spawn('node', [
+        '../../src/cage-hook-handler.js',
+        'user-prompt-submit',
+      ]);
 
       handler.stdin.write(JSON.stringify({ prompt: 'Help me write code' }));
       handler.stdin.end();
 
       let stdout = '';
-      handler.stdout.on('data', (data) => {
+      handler.stdout.on('data', data => {
         stdout += data.toString();
       });
 
-      const exitCode = await new Promise((resolve) => {
+      const exitCode = await new Promise(resolve => {
         handler.on('exit', resolve);
       });
 
@@ -239,7 +258,7 @@ function findCageConfig() {
     process.cwd(),
     join(process.cwd(), '..'),
     join(process.cwd(), '../..'),
-    homedir()
+    homedir(),
   ];
 
   for (const dir of locations) {
@@ -283,7 +302,7 @@ async function main() {
     ...hookData,
     hook_type: hookType,
     timestamp: new Date().toISOString(),
-    project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd()
+    project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
   };
 
   // Forward to Cage backend
@@ -294,7 +313,7 @@ async function main() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(enrichedData),
-        signal: AbortSignal.timeout(5000) // 5 second timeout
+        signal: AbortSignal.timeout(5000), // 5 second timeout
       }
     );
 
@@ -341,7 +360,7 @@ async function main() {
       timestamp: new Date().toISOString(),
       hookType,
       data: enrichedData,
-      error: error.message
+      error: error.message,
     };
 
     try {
@@ -542,12 +561,14 @@ The actual Claude Code `settings.json` structure for hooks:
 ### Manual Installation Steps
 
 1. **Build the hook handler**:
+
 ```bash
 cd packages/hooks
 npm run build
 ```
 
 2. **Install globally or locally**:
+
 ```bash
 # Global installation
 npm install -g .
@@ -558,6 +579,7 @@ chmod +x ~/.cage/bin/cage-hook-handler.js
 ```
 
 3. **Configure Claude Code**:
+
 ```bash
 # Run from CLI
 cage hooks setup
@@ -612,7 +634,7 @@ if (process.env.CAGE_DEBUG) {
   console.error('[CAGE DEBUG]', {
     hookType,
     config,
-    data: enrichedData
+    data: enrichedData,
   });
 }
 ```
@@ -622,5 +644,6 @@ Run with: `CAGE_DEBUG=1 cage-hook-handler pre-tool-use`
 ## Next Steps
 
 Once hooks are integrated, proceed to:
+
 - [Integration Testing](testing.md)
 - [Implementation Checklist](checklist.md)

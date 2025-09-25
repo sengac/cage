@@ -12,7 +12,7 @@ interface InitStatus {
   error?: string;
 }
 
-export function InitCommand(): JSX.Element {
+export function InitCommand(): React.ReactElement {
   const [state, setState] = useState<InitStatus>({
     status: 'checking',
     message: 'Checking project status...',

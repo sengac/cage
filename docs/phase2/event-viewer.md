@@ -7,13 +7,14 @@ The Event Viewer is the core feature of Cage's TUI, providing comprehensive insp
 ## Event Data Structure
 
 ### Event Interface
+
 ```typescript
 export interface Event {
   id: string;
   timestamp: string;
-  eventType: string;        // 'ToolUse', 'UserMessage', etc.
+  eventType: string; // 'ToolUse', 'UserMessage', etc.
   sessionId: string;
-  toolName?: string;        // 'Read', 'Edit', 'Write', 'Bash', etc.
+  toolName?: string; // 'Read', 'Edit', 'Write', 'Bash', etc.
   arguments?: Record<string, unknown>;
   result?: Record<string, unknown>;
   error?: string;
@@ -22,6 +23,7 @@ export interface Event {
 ```
 
 ### Event Types
+
 - **ToolUse**: Tool invocation events (Read, Edit, Write, Bash, etc.)
 - **UserMessage**: User prompts and inputs
 - **AssistantMessage**: AI responses
@@ -31,21 +33,25 @@ export interface Event {
 ## Event Inspector (List View)
 
 ### Features
+
 The Event Inspector provides a sortable, filterable list of all events.
 
 #### Display Columns
+
 1. **Time**: Timestamp in HH:mm:ss.SSS format
 2. **Type**: Event type (color-coded)
 3. **Tool**: Tool name if applicable
 4. **Description**: Brief description or prompt excerpt
 
 #### Sorting Capabilities
+
 - Timestamp (default, descending)
 - Event type (alphabetical)
 - Tool name (alphabetical)
 - Session ID (grouped)
 
 #### Filtering Options
+
 - **By Type**: Filter to specific event types
 - **By Tool**: Show only events for specific tools
 - **By Session**: Focus on a particular session
@@ -55,7 +61,9 @@ The Event Inspector provides a sortable, filterable list of all events.
 ### Implementation Details
 
 #### Virtual Scrolling
+
 Uses the custom VirtualList component for performance:
+
 ```typescript
 <VirtualList
   items={filteredEvents}
@@ -67,7 +75,9 @@ Uses the custom VirtualList component for performance:
 ```
 
 #### Real-time Filtering
+
 Filters are applied in real-time using memoization:
+
 ```typescript
 const filteredEvents = useMemo(() => {
   let result = [...events];
@@ -98,27 +108,29 @@ const filteredEvents = useMemo(() => {
 
 ### Keyboard Shortcuts
 
-| Key | Action | Description |
-|-----|--------|-------------|
-| `↑`/`↓` | Navigate | Move selection up/down |
-| `j`/`k` | Vim navigate | Alternative navigation |
-| `Enter` | View details | Open event detail view |
-| `/` | Search | Start searching |
-| `f` | Filter | Cycle through filter fields |
-| `F` | Clear filters | Reset all filters |
-| `t` | Sort by time | Sort by timestamp |
-| `y` | Sort by type | Sort by event type |
-| `o` | Sort by tool | Sort by tool name |
-| `s` | Sort by session | Sort by session ID |
-| `r` | Reverse | Toggle sort order |
-| `ESC` | Back | Return to main menu |
+| Key     | Action          | Description                 |
+| ------- | --------------- | --------------------------- |
+| `↑`/`↓` | Navigate        | Move selection up/down      |
+| `j`/`k` | Vim navigate    | Alternative navigation      |
+| `Enter` | View details    | Open event detail view      |
+| `/`     | Search          | Start searching             |
+| `f`     | Filter          | Cycle through filter fields |
+| `F`     | Clear filters   | Reset all filters           |
+| `t`     | Sort by time    | Sort by timestamp           |
+| `y`     | Sort by type    | Sort by event type          |
+| `o`     | Sort by tool    | Sort by tool name           |
+| `s`     | Sort by session | Sort by session ID          |
+| `r`     | Reverse         | Toggle sort order           |
+| `ESC`   | Back            | Return to main menu         |
 
 ## Event Detail (Detailed View)
 
 ### Layout (Planned)
+
 The Event Detail view will show comprehensive information about a selected event.
 
 #### Header Section
+
 - Event ID
 - Timestamp (full ISO format)
 - Event type with icon
@@ -126,6 +138,7 @@ The Event Detail view will show comprehensive information about a selected event
 - Execution time
 
 #### Tabbed Content
+
 1. **Arguments Tab**
    - Formatted JSON display
    - Syntax highlighting
@@ -143,21 +156,25 @@ The Event Detail view will show comprehensive information about a selected event
 #### Special Renderers
 
 ##### For Edit Events
+
 - Old content vs new content
 - Diff viewer with additions/deletions
 - Line numbers and context
 
 ##### For Read Events
+
 - File content display
 - Syntax highlighting
 - Line numbers
 
 ##### For Bash Events
+
 - Command executed
 - Output (stdout/stderr)
 - Exit code
 
 ##### For Write Events
+
 - File path
 - Full content written
 - Syntax highlighting
@@ -165,12 +182,14 @@ The Event Detail view will show comprehensive information about a selected event
 ### Planned Features
 
 #### Copy & Export
+
 - Copy event JSON
 - Copy specific fields
 - Export to file
 - Share via clipboard
 
 #### Navigation
+
 - Previous/Next event buttons
 - Return to list
 - Jump to related events
@@ -178,6 +197,7 @@ The Event Detail view will show comprehensive information about a selected event
 ## Data Flow
 
 ### Event Loading
+
 ```mermaid
 graph LR
     A[Event Source] --> B[AppStore]
@@ -187,6 +207,7 @@ graph LR
 ```
 
 ### Selection Flow
+
 ```mermaid
 graph LR
     A[User Selects] --> B[Update Store]
@@ -198,17 +219,20 @@ graph LR
 ## Performance Optimizations
 
 ### List Performance
+
 - **Virtual Scrolling**: Only render visible items
 - **Memoization**: Cache filtered/sorted results
 - **Debouncing**: Delay search/filter updates
 - **Lazy Loading**: Load events in batches
 
 ### Memory Management
+
 - **Event Limit**: Cap at 10,000 events in memory
 - **Cleanup**: Remove old events periodically
 - **Compression**: Store minimal data in list view
 
 ### Rendering Strategy
+
 - **React.memo**: Prevent unnecessary re-renders
 - **Key Extraction**: Efficient React keys
 - **Shallow Comparison**: Optimize prop comparison
@@ -216,6 +240,7 @@ graph LR
 ## Search Implementation
 
 ### Search Algorithm
+
 ```typescript
 const searchEvents = (events: Event[], query: string): Event[] => {
   const lowercaseQuery = query.toLowerCase();
@@ -234,6 +259,7 @@ const searchEvents = (events: Event[], query: string): Event[] => {
 ```
 
 ### Search Optimizations
+
 - Debounce input (300ms)
 - Cache search results
 - Progressive search (show partial results)
@@ -242,6 +268,7 @@ const searchEvents = (events: Event[], query: string): Event[] => {
 ## Filter Implementation
 
 ### Filter Types
+
 ```typescript
 type FilterField = 'all' | 'type' | 'tool' | 'session' | 'date';
 
@@ -252,6 +279,7 @@ interface FilterState {
 ```
 
 ### Multi-Filter Support (Planned)
+
 ```typescript
 interface AdvancedFilters {
   types: string[];
@@ -267,18 +295,21 @@ interface AdvancedFilters {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Filter logic validation
 - Sort algorithm correctness
 - Search functionality
 - Keyboard navigation
 
 ### Integration Tests
+
 - Event selection flow
 - Filter + sort combinations
 - Navigation between views
 - Data persistence
 
 ### Performance Tests
+
 - Large dataset handling (10k+ events)
 - Scroll performance
 - Filter/sort speed
@@ -287,6 +318,7 @@ interface AdvancedFilters {
 ## Future Enhancements
 
 ### Planned Features
+
 1. **Advanced Filtering**
    - Multiple simultaneous filters
    - Filter presets
@@ -315,11 +347,13 @@ interface AdvancedFilters {
 ## Accessibility
 
 ### Keyboard Support
+
 - Full keyboard navigation
 - No mouse required
 - Vim-style bindings
 
 ### Screen Reader Support (Future)
+
 - ARIA labels
 - Navigation announcements
 - Status updates
@@ -327,6 +361,7 @@ interface AdvancedFilters {
 ## Current Status
 
 ### Completed ✅
+
 - Event Inspector component
 - Virtual scrolling
 - Sorting functionality
@@ -335,11 +370,13 @@ interface AdvancedFilters {
 - Keyboard navigation
 
 ### In Progress 🚧
+
 - Event Detail view
 - Tab interface
 - Special renderers
 
 ### Planned ⏳
+
 - Copy/Export features
 - Advanced filtering
 - Event relationships

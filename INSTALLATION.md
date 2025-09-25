@@ -89,6 +89,7 @@ cage init
 ```
 
 This will:
+
 - Create a `.cage` directory for storing events
 - Generate a `cage.config.json` configuration file
 - Set up necessary directory structures
@@ -102,6 +103,7 @@ cage hooks setup
 ```
 
 This will:
+
 - Detect your Claude Code installation
 - Update Claude Code's `settings.json` with hook configurations
 - Install hook handlers for all 10 hook types
@@ -195,11 +197,13 @@ npm publish
 If `cage` command is not found after installation:
 
 1. Check npm global installation path:
+
    ```bash
    npm config get prefix
    ```
 
 2. Ensure the npm global bin directory is in your PATH:
+
    ```bash
    export PATH="$(npm config get prefix)/bin:$PATH"
    ```

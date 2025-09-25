@@ -3,23 +3,25 @@
 ## Navigation Architecture
 
 ### View-Based Routing
+
 The TUI uses a simple view-based routing system managed by Zustand.
 
 ```typescript
 export type ViewType =
-  | 'menu'        // Main menu
-  | 'events'      // Event inspector
+  | 'menu' // Main menu
+  | 'events' // Event inspector
   | 'eventDetail' // Event detail view
-  | 'stream'      // Real-time monitor
-  | 'server'      // Server management
-  | 'hooks'       // Hooks configuration
-  | 'statistics'  // Statistics dashboard
-  | 'settings'    // Settings menu
-  | 'debug'       // Debug console
-  | 'help';       // Help overlay
+  | 'stream' // Real-time monitor
+  | 'server' // Server management
+  | 'hooks' // Hooks configuration
+  | 'statistics' // Statistics dashboard
+  | 'settings' // Settings menu
+  | 'debug' // Debug console
+  | 'help'; // Help overlay
 ```
 
 ### Navigation Stack
+
 The app maintains a navigation stack for proper back navigation:
 
 ```typescript
@@ -35,6 +37,7 @@ interface NavigationState {
 ### Store Architecture
 
 #### AppStore (Main Application State)
+
 **Location**: `packages/cli/src/stores/appStore.ts`
 
 ```typescript
@@ -75,6 +78,7 @@ interface AppState {
 ```
 
 #### SettingsStore (User Preferences)
+
 **Location**: `packages/cli/src/stores/settingsStore.ts`
 
 ```typescript
@@ -108,6 +112,7 @@ interface SettingsState {
 ### State Usage in Components
 
 #### Accessing State
+
 ```typescript
 // In a component
 import { useAppStore } from '../stores/appStore';
@@ -121,6 +126,7 @@ const EventInspector = () => {
 ```
 
 #### Selective Subscriptions
+
 ```typescript
 // Only re-render when specific state changes
 const serverStatus = useAppStore(
@@ -132,6 +138,7 @@ const serverStatus = useAppStore(
 ## Navigation Patterns
 
 ### Forward Navigation
+
 ```typescript
 // From MainMenu to EventInspector
 const navigate = useAppStore(state => state.navigate);
@@ -139,6 +146,7 @@ navigate('events');
 ```
 
 ### Back Navigation
+
 ```typescript
 // Return to previous view
 const goBack = useAppStore(state => state.goBack);
@@ -146,6 +154,7 @@ goBack(); // or handle ESC key
 ```
 
 ### Deep Linking
+
 ```typescript
 // Navigate with context
 const selectAndViewEvent = (event: Event) => {
@@ -157,44 +166,48 @@ const selectAndViewEvent = (event: Event) => {
 ## Keyboard Navigation
 
 ### Global Keys
+
 Available in all views:
 
-| Key | Action | Implementation |
-|-----|--------|----------------|
-| `ESC` | Go back | `goBack()` |
-| `?` | Show help | `toggleHelp()` |
-| `Ctrl+C` | Exit app | Process exit |
+| Key      | Action     | Implementation      |
+| -------- | ---------- | ------------------- |
+| `ESC`    | Go back    | `goBack()`          |
+| `?`      | Show help  | `toggleHelp()`      |
+| `Ctrl+C` | Exit app   | Process exit        |
 | `Ctrl+D` | Debug mode | `toggleDebugMode()` |
 
 ### Navigation Keys
+
 Standard across all lists:
 
-| Key | Action | Notes |
-|-----|--------|-------|
-| `↑` / `k` | Move up | Vim binding |
-| `↓` / `j` | Move down | Vim binding |
-| `←` / `h` | Previous tab/panel | Context-aware |
-| `→` / `l` | Next tab/panel | Context-aware |
-| `Enter` | Select/Confirm | Primary action |
-| `Space` | Toggle/Pause | Secondary action |
-| `Tab` | Next field/section | Form navigation |
-| `Shift+Tab` | Previous field | Reverse navigation |
+| Key         | Action             | Notes              |
+| ----------- | ------------------ | ------------------ |
+| `↑` / `k`   | Move up            | Vim binding        |
+| `↓` / `j`   | Move down          | Vim binding        |
+| `←` / `h`   | Previous tab/panel | Context-aware      |
+| `→` / `l`   | Next tab/panel     | Context-aware      |
+| `Enter`     | Select/Confirm     | Primary action     |
+| `Space`     | Toggle/Pause       | Secondary action   |
+| `Tab`       | Next field/section | Form navigation    |
+| `Shift+Tab` | Previous field     | Reverse navigation |
 
 ### Quick Actions
+
 One-key shortcuts for common tasks:
 
-| Key | Context | Action |
-|-----|---------|--------|
-| `/` | Lists | Start search |
-| `f` | Event Inspector | Filter menu |
-| `s` | Event Inspector | Sort menu |
-| `r` | Lists | Refresh/Reload |
-| `e` | Any | Export current view |
-| `c` | Detail views | Copy to clipboard |
+| Key | Context         | Action              |
+| --- | --------------- | ------------------- |
+| `/` | Lists           | Start search        |
+| `f` | Event Inspector | Filter menu         |
+| `s` | Event Inspector | Sort menu           |
+| `r` | Lists           | Refresh/Reload      |
+| `e` | Any             | Export current view |
+| `c` | Detail views    | Copy to clipboard   |
 
 ## Navigation Flow Examples
 
 ### Example 1: Viewing Event Details
+
 ```
 MainMenu
   ↓ (Enter on "Events Inspector")
@@ -208,6 +221,7 @@ MainMenu
 ```
 
 ### Example 2: Real-time Monitoring
+
 ```
 MainMenu
   ↓ (Enter on "Real-time Monitor")
@@ -225,11 +239,12 @@ MainMenu
 ## State Synchronization
 
 ### Server Connection
+
 State automatically syncs with server status:
 
 ```typescript
 // SSE connection updates
-eventSource.onmessage = (event) => {
+eventSource.onmessage = event => {
   const data = JSON.parse(event.data);
   useAppStore.getState().addEvent(data);
 };
@@ -243,12 +258,13 @@ setInterval(() => {
 ```
 
 ### Settings Persistence
+
 Settings are persisted using Zustand persist middleware:
 
 ```typescript
 const useSettingsStore = create(
   persist(
-    (set) => ({
+    set => ({
       // ... state and actions
     }),
     {
@@ -262,6 +278,7 @@ const useSettingsStore = create(
 ## Navigation Guards
 
 ### Confirmation Dialogs
+
 Certain actions require confirmation:
 
 ```typescript
@@ -270,7 +287,7 @@ const handleExit = () => {
     showConfirmDialog({
       message: 'You have unsaved changes. Exit anyway?',
       onConfirm: () => process.exit(0),
-      onCancel: () => {}
+      onCancel: () => {},
     });
   } else {
     process.exit(0);
@@ -279,6 +296,7 @@ const handleExit = () => {
 ```
 
 ### View Requirements
+
 Some views require preconditions:
 
 ```typescript
@@ -297,16 +315,19 @@ const navigate = (view: ViewType) => {
 ## Performance Considerations
 
 ### State Updates
+
 - Use Immer for immutable updates
 - Batch related state changes
 - Avoid unnecessary re-renders
 
 ### Navigation Transitions
+
 - Lazy load heavy components
 - Preload next likely view
 - Clean up resources on unmount
 
 ### Memory Management
+
 ```typescript
 // Clean up when leaving view
 useEffect(() => {
@@ -322,6 +343,7 @@ useEffect(() => {
 ## Testing Navigation
 
 ### Unit Tests
+
 ```typescript
 describe('Navigation', () => {
   it('should navigate forward', () => {
@@ -349,6 +371,7 @@ describe('Navigation', () => {
 ```
 
 ### Integration Tests
+
 ```typescript
 describe('Navigation Flow', () => {
   it('should complete event inspection flow', () => {

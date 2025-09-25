@@ -4,13 +4,7 @@
     "at-rule-no-unknown": [
       true,
       {
-        "ignoreAtRules": [
-          "tailwind",
-          "apply",
-          "theme",
-          "layer",
-          "import"
-        ]
+        "ignoreAtRules": ["tailwind", "apply", "theme", "layer", "import"]
       }
     ],
     "selector-class-pattern": null

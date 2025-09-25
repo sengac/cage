@@ -7,12 +7,14 @@ Following **Acceptance Criteria Driven Development (ACDD)**, all tests are writt
 ## Testing Stack
 
 ### Core Tools
+
 - **Vitest**: Test runner (NEVER Jest)
 - **ink-testing-library**: Ink component testing
 - **@testing-library/react-hooks**: Hook testing
 - **@vitest/ui**: Visual test runner
 
 ### Test Types
+
 1. **Unit Tests**: Individual component behavior
 2. **Integration Tests**: Component interaction
 3. **E2E Tests**: Full TUI flows
@@ -21,6 +23,7 @@ Following **Acceptance Criteria Driven Development (ACDD)**, all tests are writt
 ## Writing Tests for Ink Components
 
 ### Basic Component Test
+
 ```typescript
 import React from 'react';
 import { render } from 'ink-testing-library';
@@ -59,6 +62,7 @@ describe('MainMenu', () => {
 ```
 
 ### Testing Virtual Scrolling
+
 ```typescript
 describe('VirtualList', () => {
   const items = Array.from({ length: 100 }, (_, i) => `Item ${i}`);
@@ -106,6 +110,7 @@ describe('VirtualList', () => {
 ```
 
 ### Testing State Management
+
 ```typescript
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useAppStore } from './appStore';
@@ -143,6 +148,7 @@ describe('AppStore', () => {
 ```
 
 ### Testing Keyboard Input
+
 ```typescript
 describe('Keyboard Navigation', () => {
   describe('Given a component with keyboard navigation', () => {
@@ -179,6 +185,7 @@ describe('Keyboard Navigation', () => {
 ## Testing Patterns
 
 ### Mock Data Generation
+
 ```typescript
 // test-utils/mockData.ts
 export const generateMockEvents = (count: number): Event[] => {
@@ -193,6 +200,7 @@ export const generateMockEvents = (count: number): Event[] => {
 ```
 
 ### Custom Test Utilities
+
 ```typescript
 // test-utils/ink-helpers.ts
 export const waitForText = async (
@@ -215,6 +223,7 @@ export const waitForText = async (
 ```
 
 ### Testing Async Operations
+
 ```typescript
 describe('SSE Connection', () => {
   describe('Given the stream view is open', () => {
@@ -241,6 +250,7 @@ describe('SSE Connection', () => {
 ## Performance Testing
 
 ### Rendering Performance
+
 ```typescript
 describe('Performance', () => {
   describe('Given a large dataset', () => {
@@ -272,6 +282,7 @@ describe('Performance', () => {
 ```
 
 ### Memory Testing
+
 ```typescript
 describe('Memory Management', () => {
   it('should not leak memory on unmount', () => {
@@ -296,6 +307,7 @@ describe('Memory Management', () => {
 ## Integration Testing
 
 ### Full Flow Tests
+
 ```typescript
 describe('Event Inspection Flow', () => {
   describe('Given the user launches Cage', () => {
@@ -334,6 +346,7 @@ describe('Event Inspection Flow', () => {
 ## Test Organization
 
 ### File Structure
+
 ```
 packages/cli/src/
 ├── components/
@@ -353,30 +366,34 @@ packages/cli/src/
 ```
 
 ### Test Naming Convention
+
 ```typescript
 // Component tests
-ComponentName.test.tsx
+ComponentName.test.tsx;
 
 // Integration tests
-ComponentName.integration.test.tsx
+ComponentName.integration.test.tsx;
 
 // Performance tests
-ComponentName.perf.test.tsx
+ComponentName.perf.test.tsx;
 
 // E2E tests
-feature.e2e.test.tsx
+feature.e2e.test.tsx;
 ```
 
 ## Coverage Requirements
 
 ### Minimum Coverage
+
 - **Statements**: 80%
 - **Branches**: 75%
 - **Functions**: 80%
 - **Lines**: 80%
 
 ### Critical Path Coverage
+
 These must have 100% coverage:
+
 - Navigation logic
 - Event filtering
 - Virtual scrolling
@@ -385,6 +402,7 @@ These must have 100% coverage:
 ## Running Tests
 
 ### Commands
+
 ```bash
 # Run all tests
 npm test
@@ -403,6 +421,7 @@ npm run test:ui
 ```
 
 ### CI/CD Integration
+
 ```yaml
 # .github/workflows/test.yml
 test:
@@ -418,6 +437,7 @@ test:
 ## Debugging Tests
 
 ### Visual Debugging
+
 ```typescript
 const { stdin, stdout, lastFrame, frames } = render(<App />);
 
@@ -429,6 +449,7 @@ console.log('Last frame:', lastFrame());
 ```
 
 ### Interactive Debugging
+
 ```typescript
 it.only('debug this test', () => {
   const { stdin, lastFrame, rerender } = render(<Component />);
@@ -446,6 +467,7 @@ it.only('debug this test', () => {
 ## Test Checklist
 
 ### For Each Component
+
 - [ ] Renders without errors
 - [ ] Handles all props correctly
 - [ ] Keyboard navigation works
@@ -456,6 +478,7 @@ it.only('debug this test', () => {
 - [ ] Accessibility requirements met
 
 ### For Each Feature
+
 - [ ] Happy path works
 - [ ] Error cases handled
 - [ ] Edge cases covered
@@ -466,9 +489,11 @@ it.only('debug this test', () => {
 ## Current Test Status
 
 ### Components with Tests ✅
+
 - VirtualList (comprehensive)
 
 ### Components Needing Tests ⏳
+
 - Logo
 - MainMenu
 - EventInspector
@@ -476,6 +501,7 @@ it.only('debug this test', () => {
 - All stores
 
 ### Test Infrastructure ✅
+
 - Vitest configured
 - ink-testing-library installed
 - Test utilities created

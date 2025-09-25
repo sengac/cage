@@ -1,9 +1,11 @@
 # Phase 1: Shared Package Implementation
 
 ## Overview
+
 The shared package contains types, schemas, and utilities used across all packages. This must be implemented first as other packages depend on it.
 
 ## Package Structure
+
 ```
 packages/shared/
 ├── src/
@@ -25,6 +27,7 @@ packages/shared/
 ## Step 1: Package Configuration
 
 ### Update `packages/shared/package.json`
+
 ```json
 {
   "name": "@cage/shared",
@@ -96,7 +99,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -125,7 +128,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         result: { success: true },
         executionTime: 150,
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -143,7 +146,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         executionTime: 50,
         error: 'File not found',
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -164,11 +167,11 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         context: {
           previousMessages: [
             { role: 'user', content: 'Hello' },
-            { role: 'assistant', content: 'Hi there!' }
-          ]
+            { role: 'assistant', content: 'Hi there!' },
+          ],
         },
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -184,14 +187,14 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
       const payloads = [
         { level: 'info', message: 'Task completed' },
         { level: 'warning', message: 'Low disk space' },
-        { level: 'error', message: 'Operation failed' }
+        { level: 'error', message: 'Operation failed' },
       ];
 
       payloads.forEach(p => {
         const payload = {
           ...p,
           sessionId: 'session-123',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
 
         // Uncomment when hooks.ts exists
@@ -212,7 +215,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
           reason,
           finalState: { filesModified: 5 },
           sessionId: 'session-123',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
 
         // Uncomment when hooks.ts exists
@@ -231,7 +234,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         result: { output: 'Task completed successfully' },
         executionTime: 5000,
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -247,14 +250,14 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
       const payload = {
         model: {
           id: 'claude-3-opus',
-          displayName: 'Claude 3 Opus'
+          displayName: 'Claude 3 Opus',
         },
         workspace: {
           currentDir: '/Users/test/project',
-          projectDir: '/Users/test/project'
+          projectDir: '/Users/test/project',
         },
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -272,7 +275,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         totalCost: 0.05,
         eventsProcessed: 150,
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -290,7 +293,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         currentTokens: 100000,
         targetTokens: 50000,
         sessionId: 'session-123',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when hooks.ts exists
@@ -310,20 +313,20 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
         cwd: '/Users/test/project',
         model: {
           id: 'claude-3-opus',
-          displayName: 'Claude 3 Opus'
+          displayName: 'Claude 3 Opus',
         },
         workspace: {
           currentDir: '/Users/test/project',
-          projectDir: '/Users/test/project'
+          projectDir: '/Users/test/project',
         },
         version: '1.0.0',
         cost: {
-          totalCostUsd: 0.10,
+          totalCostUsd: 0.1,
           totalDurationMs: 60000,
           totalApiDurationMs: 5000,
           totalLinesAdded: 100,
-          totalLinesRemoved: 20
-        }
+          totalLinesRemoved: 20,
+        },
       };
 
       // Uncomment when hooks.ts exists
@@ -338,7 +341,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
     it.skip('should allow optional warning field', () => {
       const response = {
         success: true,
-        warning: 'Low disk space, events not persisted'
+        warning: 'Low disk space, events not persisted',
       };
 
       // Uncomment when hooks.ts exists
@@ -355,7 +358,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
       const response = {
         success: false,
         block: true,
-        message: 'Operation not allowed by Cage policy'
+        message: 'Operation not allowed by Cage policy',
       };
 
       // Uncomment when hooks.ts exists
@@ -372,7 +375,7 @@ describe('Hook Payload Schemas - Complete Coverage', () => {
     it.skip('should allow context injection output', () => {
       const response = {
         success: true,
-        output: 'Additional context: The project uses TypeScript'
+        output: 'Additional context: The project uses TypeScript',
       };
 
       // Uncomment when hooks.ts exists
@@ -408,17 +411,21 @@ import { z } from 'zod';
 const BaseHookPayloadSchema = z.object({
   sessionId: z.string(),
   timestamp: z.string().datetime(),
-  agentType: z.enum(['claude', 'opencode', 'cursor', 'windsurf']).default('claude')
+  agentType: z
+    .enum(['claude', 'opencode', 'cursor', 'windsurf'])
+    .default('claude'),
 });
 
 // PreToolUse hook payload - before tool execution
 export const PreToolUsePayloadSchema = BaseHookPayloadSchema.extend({
   toolName: z.string(),
   arguments: z.record(z.unknown()),
-  context: z.object({
-    currentFile: z.string().optional(),
-    workingDirectory: z.string().optional()
-  }).optional()
+  context: z
+    .object({
+      currentFile: z.string().optional(),
+      workingDirectory: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type PreToolUsePayload = z.infer<typeof PreToolUsePayloadSchema>;
@@ -429,7 +436,7 @@ export const PostToolUsePayloadSchema = BaseHookPayloadSchema.extend({
   arguments: z.record(z.unknown()),
   result: z.unknown(),
   executionTime: z.number(), // milliseconds
-  error: z.string().optional()
+  error: z.string().optional(),
 });
 
 export type PostToolUsePayload = z.infer<typeof PostToolUsePayloadSchema>;
@@ -437,21 +444,29 @@ export type PostToolUsePayload = z.infer<typeof PostToolUsePayloadSchema>;
 // UserPromptSubmit hook payload - user submits prompt
 export const UserPromptSubmitPayloadSchema = BaseHookPayloadSchema.extend({
   prompt: z.string(),
-  context: z.object({
-    previousMessages: z.array(z.object({
-      role: z.enum(['user', 'assistant']),
-      content: z.string()
-    })).optional()
-  }).optional()
+  context: z
+    .object({
+      previousMessages: z
+        .array(
+          z.object({
+            role: z.enum(['user', 'assistant']),
+            content: z.string(),
+          })
+        )
+        .optional(),
+    })
+    .optional(),
 });
 
-export type UserPromptSubmitPayload = z.infer<typeof UserPromptSubmitPayloadSchema>;
+export type UserPromptSubmitPayload = z.infer<
+  typeof UserPromptSubmitPayloadSchema
+>;
 
 // Notification hook payload - Claude sends notification
 export const NotificationPayloadSchema = BaseHookPayloadSchema.extend({
   level: z.enum(['info', 'warning', 'error']),
   message: z.string(),
-  details: z.record(z.unknown()).optional()
+  details: z.record(z.unknown()).optional(),
 });
 
 export type NotificationPayload = z.infer<typeof NotificationPayloadSchema>;
@@ -459,7 +474,7 @@ export type NotificationPayload = z.infer<typeof NotificationPayloadSchema>;
 // Stop hook payload - Claude finishes responding
 export const StopPayloadSchema = BaseHookPayloadSchema.extend({
   reason: z.enum(['completed', 'interrupted', 'error']),
-  finalState: z.record(z.unknown()).optional()
+  finalState: z.record(z.unknown()).optional(),
 });
 
 export type StopPayload = z.infer<typeof StopPayloadSchema>;
@@ -468,21 +483,25 @@ export type StopPayload = z.infer<typeof StopPayloadSchema>;
 export const SubagentStopPayloadSchema = BaseHookPayloadSchema.extend({
   subagentId: z.string(),
   result: z.unknown(),
-  executionTime: z.number()
+  executionTime: z.number(),
 });
 
 export type SubagentStopPayload = z.infer<typeof SubagentStopPayloadSchema>;
 
 // SessionStart hook payload - new session begins
 export const SessionStartPayloadSchema = BaseHookPayloadSchema.extend({
-  model: z.object({
-    id: z.string(),
-    displayName: z.string()
-  }).optional(),
-  workspace: z.object({
-    currentDir: z.string(),
-    projectDir: z.string()
-  }).optional()
+  model: z
+    .object({
+      id: z.string(),
+      displayName: z.string(),
+    })
+    .optional(),
+  workspace: z
+    .object({
+      currentDir: z.string(),
+      projectDir: z.string(),
+    })
+    .optional(),
 });
 
 export type SessionStartPayload = z.infer<typeof SessionStartPayloadSchema>;
@@ -491,7 +510,7 @@ export type SessionStartPayload = z.infer<typeof SessionStartPayloadSchema>;
 export const SessionEndPayloadSchema = BaseHookPayloadSchema.extend({
   duration: z.number(), // milliseconds
   totalCost: z.number().optional(),
-  eventsProcessed: z.number().optional()
+  eventsProcessed: z.number().optional(),
 });
 
 export type SessionEndPayload = z.infer<typeof SessionEndPayloadSchema>;
@@ -500,7 +519,7 @@ export type SessionEndPayload = z.infer<typeof SessionEndPayloadSchema>;
 export const PreCompactPayloadSchema = BaseHookPayloadSchema.extend({
   messageCount: z.number(),
   currentTokens: z.number().optional(),
-  targetTokens: z.number().optional()
+  targetTokens: z.number().optional(),
 });
 
 export type PreCompactPayload = z.infer<typeof PreCompactPayloadSchema>;
@@ -513,23 +532,27 @@ export const StatusPayloadSchema = z.object({
   cwd: z.string(),
   model: z.object({
     id: z.string(),
-    displayName: z.string()
+    displayName: z.string(),
   }),
   workspace: z.object({
     currentDir: z.string(),
-    projectDir: z.string()
+    projectDir: z.string(),
   }),
   version: z.string(),
-  outputStyle: z.object({
-    name: z.string()
-  }).optional(),
-  cost: z.object({
-    totalCostUsd: z.number(),
-    totalDurationMs: z.number(),
-    totalApiDurationMs: z.number(),
-    totalLinesAdded: z.number(),
-    totalLinesRemoved: z.number()
-  }).optional()
+  outputStyle: z
+    .object({
+      name: z.string(),
+    })
+    .optional(),
+  cost: z
+    .object({
+      totalCostUsd: z.number(),
+      totalDurationMs: z.number(),
+      totalApiDurationMs: z.number(),
+      totalLinesAdded: z.number(),
+      totalLinesRemoved: z.number(),
+    })
+    .optional(),
 });
 
 export type StatusPayload = z.infer<typeof StatusPayloadSchema>;
@@ -541,7 +564,7 @@ export const HookResponseSchema = z.object({
   block: z.boolean().optional(),
   message: z.string().optional(),
   output: z.string().optional(), // For status line or context injection
-  modifiedArguments: z.record(z.unknown()).optional()
+  modifiedArguments: z.record(z.unknown()).optional(),
 });
 
 export type HookResponse = z.infer<typeof HookResponseSchema>;
@@ -572,14 +595,14 @@ export const API_ENDPOINTS = {
     status: '/claude/hooks/status',
     events: '/claude/events',
     eventsStream: '/claude/events/stream',
-    eventsStats: '/claude/events/stats'
-  }
+    eventsStats: '/claude/events/stats',
+  },
 } as const;
 
 export const HOOK_RESPONSE_TIMEOUT = {
   nonBlocking: 100, // milliseconds
   userInput: 60000, // 1 minute
-  llmAnalysis: 30000 // 30 seconds
+  llmAnalysis: 30000, // 30 seconds
 } as const;
 ```
 
@@ -597,4 +620,5 @@ npm test
 ## Next Steps
 
 Once the shared package tests pass, proceed to:
+
 - [CLI Package Implementation](cli-package.md)

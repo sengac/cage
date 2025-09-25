@@ -1,15 +1,18 @@
 # Phase 1: CLI Package Implementation
 
 ## Overview
+
 The CLI package provides the `cage` command-line interface using Ink (React for CLI). This covers all CLI-related acceptance criteria from PHASE1.md.
 
 ## Acceptance Criteria Coverage
 
 This implementation covers:
+
 - **CLI Installation and Setup**: Initialize, configure hooks, verify status
 - **CLI Event Monitoring**: Stream, filter, tail, and query events
 
 ## Package Structure
+
 ```
 packages/cli/
 ├── src/
@@ -48,6 +51,7 @@ packages/cli/
 ## Step 1: Test Environment Setup
 
 ### Create `packages/cli/test/setup.ts`
+
 ```typescript
 import { vi } from 'vitest';
 
@@ -65,6 +69,7 @@ process.env.NODE_ENV = 'test';
 ```
 
 ### Create `packages/cli/vitest.config.ts`
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 
@@ -645,5 +650,6 @@ npm test
 ## Next Steps
 
 Once CLI tests pass, proceed to:
+
 - [Backend Package Implementation](backend-package.md)
 - [Hooks Integration](hooks-integration.md)

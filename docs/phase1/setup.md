@@ -5,6 +5,7 @@
 Before implementing any features, ensure these configuration files exist:
 
 ### Create `tsconfig.base.json` (root)
+
 ```json
 {
   "compilerOptions": {
@@ -39,6 +40,7 @@ Before implementing any features, ensure these configuration files exist:
 ```
 
 ### Create `vitest.config.base.ts` (root)
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'url';
@@ -59,32 +61,34 @@ export default defineConfig({
         'dist/',
         '**/*.config.ts',
         '**/*.d.ts',
-        '**/index.ts' // Exclude barrel exports
+        '**/index.ts', // Exclude barrel exports
       ],
       thresholds: {
         lines: 80,
         functions: 80,
         branches: 80,
-        statements: 80
-      }
+        statements: 80,
+      },
     },
     testTimeout: 10000,
-    hookTimeout: 10000
+    hookTimeout: 10000,
   },
   resolve: {
     alias: {
-      '@cage/shared': resolve(__dirname, './packages/shared/src')
-    }
-  }
+      '@cage/shared': resolve(__dirname, './packages/shared/src'),
+    },
+  },
 });
 ```
 
 ### Create `.nvmrc` (root)
+
 ```
 20.18.0
 ```
 
 ### Update root `package.json` scripts
+
 ```json
 {
   "scripts": {
@@ -151,6 +155,7 @@ git commit -m "test" # This should fail with "Test-First Development Violation!"
 ## Next Steps
 
 Once setup is complete, proceed to:
+
 1. [Shared Package Implementation](shared-package.md)
 2. [CLI Package Implementation](cli-package.md)
 3. [Backend Package Implementation](backend-package.md)

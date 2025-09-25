@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from 'ink-testing-library';
 import React from 'react';
-import { parseArgs } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,10 +10,10 @@ import {
   appendDebugLog,
   logDebugError,
 } from './debug';
-import type { DebugModeProps, DebugStore } from './debug';
+import type { DebugModeProps } from './debug';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _dirname = path.dirname(__filename);
 
 // Mock dependencies
 vi.mock('../components/App', () => ({

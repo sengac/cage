@@ -3,6 +3,7 @@
 ## Implementation Checklist
 
 ### Phase 1A: Foundation (Week 1)
+
 - [ ] Create tsconfig.base.json with complete configuration
 - [ ] Create vitest.config.base.ts with proper setup
 - [ ] Install missing dev dependencies
@@ -14,6 +15,7 @@
 - [ ] Verify TypeScript strict mode compliance
 
 ### Phase 1B: CLI Core (Week 1-2)
+
 - [ ] Write acceptance test: Initialize Cage in project
 - [ ] Write acceptance test: Configure Claude Code hooks
 - [ ] Write acceptance test: Verify hook configuration
@@ -31,6 +33,7 @@
 - [ ] Verify all CLI tests pass
 
 ### Phase 1C: Backend Core (Week 2)
+
 - [ ] Write acceptance test: Start backend server
 - [ ] Write acceptance test: PreToolUse endpoint
 - [ ] Write acceptance test: PostToolUse endpoint
@@ -58,6 +61,7 @@
 - [ ] Verify <100ms response time for non-blocking hooks
 
 ### Phase 1D: Hook Scripts (Week 3)
+
 - [ ] Research Claude Code's actual hook mechanism
 - [ ] Write test: Hook receives JSON from stdin
 - [ ] Write test: Hook forwards to backend
@@ -73,6 +77,7 @@
 - [ ] Verify hooks work with all 10 event types
 
 ### Phase 1E: Integration (Week 3)
+
 - [ ] Write end-to-end integration test
 - [ ] Write performance benchmark tests
 - [ ] Write cross-platform compatibility tests
@@ -85,6 +90,7 @@
 - [ ] Run full integration test suite
 
 ### Phase 1F: Documentation (Week 4)
+
 - [ ] Generate API documentation with Swagger
 - [ ] Create CLI command reference
 - [ ] Create installation guide
@@ -96,14 +102,18 @@
 ## Critical Success Factors
 
 ### 1. Claude Code Hook Verification ✅
+
 **MUST verify before implementation:**
+
 - [x] How Claude Code actually executes hooks (JSON via settings.json)
 - [x] What data format it expects (JSON via stdin)
 - [x] How to handle responses (exit codes and stdout)
 - [x] Directory locations for different platforms
 
 ### 2. Performance Targets
+
 **Realistic benchmarks:**
+
 - [ ] Non-blocking operations: <100ms response time
 - [ ] File writes: Buffered with async flush
 - [ ] Event queries: Indexed by date for fast lookup
@@ -111,7 +121,9 @@
 - [ ] 1000+ events per minute without degradation
 
 ### 3. Error Recovery Strategy
+
 **Graceful degradation:**
+
 - [ ] Backend offline: Log to local file, don't block
 - [ ] Disk full: Return warning, stop logging, continue
 - [ ] Corrupt files: Skip and log error, continue
@@ -119,7 +131,9 @@
 - [ ] Network errors: Timeout and fail gracefully
 
 ### 4. Cross-Platform Compatibility
+
 **Platform-specific handling:**
+
 - [ ] Use Node.js path.join() everywhere
 - [ ] Handle both forward and backslashes
 - [ ] Test on Windows, macOS, Linux
@@ -131,16 +145,19 @@
 ### After Each Component
 
 1. **Run Tests**
+
    ```bash
    npm test
    ```
 
 2. **Check TypeScript**
+
    ```bash
    npm run typecheck
    ```
 
 3. **Check Linting**
+
    ```bash
    npm run lint
    ```
@@ -153,11 +170,13 @@
 ### Before Integration
 
 1. **Build All Packages**
+
    ```bash
    npm run build
    ```
 
 2. **Run Quality Checks**
+
    ```bash
    npm run check
    ```
@@ -185,22 +204,27 @@
 ## Questions Resolved
 
 ### ✅ Claude Code Hooks
+
 **Q:** How does Claude Code actually call hooks?
 **A:** Via shell commands defined in JSON configuration, receiving JSON via stdin
 
 ### ✅ Performance
+
 **Q:** Can we achieve <100ms with file I/O?
 **A:** Yes, using async operations and buffering
 
 ### ✅ Concurrency
+
 **Q:** How to handle multiple Claude instances?
 **A:** Session IDs separate events, file locking for writes
 
 ### ✅ Storage
+
 **Q:** How to efficiently query large event files?
 **A:** Date-based directory structure, streaming JSON parsing
 
 ### ✅ Security
+
 **Q:** Do we need authentication for local API?
 **A:** No, for single-developer use on localhost only
 

@@ -2,14 +2,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   existsSync,
   readFileSync,
-  writeFileSync,
   unlinkSync,
   readdirSync,
   statSync,
 } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { stopServer, getServerStatus, ServerStatus } from './server-management';
+import { stopServer, getServerStatus } from './server-management';
 
 // Mock fs and child_process
 vi.mock('fs');
@@ -17,7 +16,7 @@ vi.mock('child_process');
 
 describe('Server Management Commands', () => {
   const mockPidPath = join(process.cwd(), '.cage', 'server.pid');
-  const mockPort = 3790;
+  const _mockPort = 3790;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,7 +33,7 @@ describe('Server Management Commands', () => {
         vi.mocked(existsSync).mockReturnValue(true);
         vi.mocked(readFileSync).mockReturnValue('12345');
         let killCalled = false;
-        vi.mocked(execSync).mockImplementation((cmd, options) => {
+        vi.mocked(execSync).mockImplementation((cmd, _options) => {
           if (cmd === 'kill -0 12345') {
             if (killCalled) {
               // After kill, process should be dead
@@ -81,7 +80,7 @@ describe('Server Management Commands', () => {
         vi.mocked(existsSync).mockReturnValue(true);
         vi.mocked(readFileSync).mockReturnValue('12345');
         let killCalled = false;
-        vi.mocked(execSync).mockImplementation((cmd, options) => {
+        vi.mocked(execSync).mockImplementation((cmd, _options) => {
           if (cmd === 'kill -0 12345') {
             if (killCalled) {
               // After kill, process should be dead
@@ -306,7 +305,7 @@ describe('Server Management Commands', () => {
       it('should detect port conflicts', async () => {
         // Given port is in use by non-Cage process
         vi.mocked(existsSync).mockReturnValue(false); // No PID file
-        vi.mocked(execSync).mockImplementation((cmd, options) => {
+        vi.mocked(execSync).mockImplementation((cmd, _options) => {
           if (cmd.includes('lsof -ti :3790')) {
             return '99999\n'; // PID only
           }

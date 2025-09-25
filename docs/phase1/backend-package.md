@@ -1,16 +1,19 @@
 # Phase 1: Backend Package Implementation
 
 ## Overview
+
 The backend package provides the NestJS server that receives and processes all 9 Claude Code hook events, implements file-based event logging, and provides event query endpoints.
 
 ## Acceptance Criteria Coverage
 
 This implementation covers:
+
 - **Backend Event Processing**: All 9 hook types (PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact)
 - **File-Based Event Logging**: Append-only logs, daily rotation, high-frequency handling
 - **Error Handling and Recovery**: Malformed data, disk space issues, concurrent triggers
 
 ## Package Structure
+
 ```
 packages/backend/
 ├── src/
@@ -52,6 +55,7 @@ packages/backend/
 ### Create Test Utilities
 
 **Create `packages/backend/test/utils/performance.ts`**:
+
 ```typescript
 export const measureResponseTime = async (
   request: () => Promise<any>
@@ -76,6 +80,7 @@ export const expectPerformance = (
 ```
 
 **Create `packages/backend/test/mocks/file-system.mock.ts`**:
+
 ```typescript
 import { vi } from 'vitest';
 
@@ -87,7 +92,7 @@ export const createFileSystemMock = () => {
     mkdir: vi.fn().mockResolvedValue(undefined),
     existsSync: vi.fn().mockReturnValue(true),
     stat: vi.fn().mockResolvedValue({ size: 1000 }),
-    readdir: vi.fn().mockResolvedValue([])
+    readdir: vi.fn().mockResolvedValue([]),
   };
 };
 
@@ -174,7 +179,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         arguments: { file_path: '/test.txt' },
         sessionId: 'test-session',
         timestamp: new Date().toISOString(),
-        agentType: 'claude'
+        agentType: 'claude',
       };
 
       // This will fail without real server
@@ -195,7 +200,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -216,7 +221,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         result: { success: true },
         executionTime: 150,
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -235,7 +240,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
       const payload = {
         prompt: 'Help me write a test',
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -258,7 +263,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         level: 'info',
         message: 'Task completed',
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -277,7 +282,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         reason: 'completed',
         finalState: { filesModified: 5 },
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -297,7 +302,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         result: { output: 'Task completed' },
         executionTime: 5000,
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -315,14 +320,14 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
       const payload = {
         model: {
           id: 'claude-3-opus',
-          displayName: 'Claude 3 Opus'
+          displayName: 'Claude 3 Opus',
         },
         workspace: {
           currentDir: '/Users/test/project',
-          projectDir: '/Users/test/project'
+          projectDir: '/Users/test/project',
         },
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -346,7 +351,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         totalCost: 0.05,
         eventsProcessed: 150,
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -366,7 +371,7 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
         currentTokens: 100000,
         targetTokens: 50000,
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -395,7 +400,10 @@ describe('Feature: Backend Event Processing - All 10 Hooks', () => {
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { createFileSystemMock, createDiskSpaceMock } from '../mocks/file-system.mock';
+import {
+  createFileSystemMock,
+  createDiskSpaceMock,
+} from '../mocks/file-system.mock';
 
 describe('Feature: File-Based Event Logging', () => {
   const fsMock = createFileSystemMock();
@@ -474,7 +482,7 @@ describe('Feature: File-Based Event Logging', () => {
         eventType: 'pre-tool-use',
         toolName: 'Read',
         sessionId: 'test-session',
-        index: i
+        index: i,
       }));
 
       // Uncomment when StorageService exists
@@ -500,7 +508,10 @@ describe('Feature: File-Based Event Logging', () => {
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { createFileSystemMock, createDiskSpaceMock } from '../mocks/file-system.mock';
+import {
+  createFileSystemMock,
+  createDiskSpaceMock,
+} from '../mocks/file-system.mock';
 
 describe('Feature: Error Handling and Recovery', () => {
   const fsMock = createFileSystemMock();
@@ -533,14 +544,14 @@ describe('Feature: Error Handling and Recovery', () => {
       // Mock low disk space
       diskMock.check.mockResolvedValueOnce({
         free: 50_000_000, // 50MB
-        total: 10_000_000_000
+        total: 10_000_000_000,
       });
 
       const payload = {
         toolName: 'Write',
         arguments: { file_path: '/test.txt' },
         sessionId: 'test-session',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Uncomment when server exists
@@ -597,7 +608,7 @@ import { EventsModule } from './events/events.module';
     EventEmitterModule.forRoot(),
     HooksModule,
     StorageModule,
-    EventsModule
+    EventsModule,
   ],
 })
 export class AppModule {}
@@ -621,7 +632,7 @@ import {
   SessionStartPayloadSchema,
   SessionEndPayloadSchema,
   PreCompactPayloadSchema,
-  HookResponse
+  HookResponse,
 } from '@cage/shared/types';
 
 @ApiTags('Claude Hooks')
@@ -661,7 +672,9 @@ export class HooksController {
   @Post('user-prompt-submit')
   @HttpCode(200)
   @ApiOperation({ summary: 'Handle UserPromptSubmit hook' })
-  async handleUserPromptSubmit(@Body() payload: unknown): Promise<HookResponse> {
+  async handleUserPromptSubmit(
+    @Body() payload: unknown
+  ): Promise<HookResponse> {
     const validated = UserPromptSubmitPayloadSchema.safeParse(payload);
     if (!validated.success) {
       return { success: false, message: 'Invalid payload' };
@@ -751,5 +764,6 @@ npm test
 ## Next Steps
 
 Once backend tests pass, proceed to:
+
 - [Hooks Integration](hooks-integration.md)
 - [Integration Testing](testing.md)

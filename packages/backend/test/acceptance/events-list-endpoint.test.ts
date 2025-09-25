@@ -60,7 +60,7 @@ describe('Feature: Events List API Endpoint', () => {
 
     // Create events through the PreToolUse endpoint to generate logs
     for (const event of testEvents) {
-      const response = await request(httpServer)
+      await request(httpServer)
         .post('/api/claude/hooks/pre-tool-use')
         .send(event)
         .expect(200);

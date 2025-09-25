@@ -9,66 +9,71 @@ The Cage TUI uses an **Aqua-Blue** color palette inspired by ocean depths and di
 ### Primary Palette (Aqua Theme)
 
 #### Core Colors
+
 ```typescript
 const aquaTheme = {
   primary: {
-    light: '#7FDBFF',  // Light aqua - highlights, hover
-    main:  '#01B4C6',  // Aqua-blue - primary actions
-    dark:  '#007A8C',  // Deep aqua - pressed states
+    light: '#7FDBFF', // Light aqua - highlights, hover
+    main: '#01B4C6', // Aqua-blue - primary actions
+    dark: '#007A8C', // Deep aqua - pressed states
   },
   accent: {
-    light: '#FFB3BA',  // Light coral - secondary highlights
-    main:  '#FF6B6B',  // Coral - alerts, important
-    dark:  '#EE5A6F',  // Deep coral - error states
-  }
+    light: '#FFB3BA', // Light coral - secondary highlights
+    main: '#FF6B6B', // Coral - alerts, important
+    dark: '#EE5A6F', // Deep coral - error states
+  },
 };
 ```
 
 #### Supporting Colors
+
 ```typescript
 const secondary = {
-  blue:  '#4ECDC4',  // Turquoise - info, links
-  teal:  '#00A8B5',  // Teal - success variations
-  green: '#52D1A4',  // Sea green - success, positive
+  blue: '#4ECDC4', // Turquoise - info, links
+  teal: '#00A8B5', // Teal - success variations
+  green: '#52D1A4', // Sea green - success, positive
 };
 
-const tertiary = '#9B59B6';  // Soft purple - special states
+const tertiary = '#9B59B6'; // Soft purple - special states
 ```
 
 ### Status Colors
+
 Semantic colors for different states:
 
 ```typescript
 const status = {
-  success: '#52D1A4',  // Sea green
-  warning: '#F4D03F',  // Golden yellow
-  error:   '#FF6B6B',  // Coral red
-  info:    '#4ECDC4',  // Turquoise
+  success: '#52D1A4', // Sea green
+  warning: '#F4D03F', // Golden yellow
+  error: '#FF6B6B', // Coral red
+  info: '#4ECDC4', // Turquoise
 };
 ```
 
 ### UI Colors
+
 Interface element colors:
 
 ```typescript
 const ui = {
-  background: null,        // Terminal default
-  border:     '#2C5282',  // Steel blue
-  borderLight:'#4A90A4',  // Light steel
-  borderSubtle:'#1A3A52', // Subtle borders
-  text:       '#E8F4F8',  // Off-white
-  textBright: '#FFFFFF',  // Pure white
-  textMuted:  '#6B8CAE',  // Muted blue-gray
-  textDim:    '#4A6A8A',  // Dim blue-gray
-  selected:   '#003D4A',  // Dark selection bg
-  hover:      '#7FDBFF',  // Light aqua
-  focus:      '#01B4C6',  // Main aqua
+  background: null, // Terminal default
+  border: '#2C5282', // Steel blue
+  borderLight: '#4A90A4', // Light steel
+  borderSubtle: '#1A3A52', // Subtle borders
+  text: '#E8F4F8', // Off-white
+  textBright: '#FFFFFF', // Pure white
+  textMuted: '#6B8CAE', // Muted blue-gray
+  textDim: '#4A6A8A', // Dim blue-gray
+  selected: '#003D4A', // Dark selection bg
+  hover: '#7FDBFF', // Light aqua
+  focus: '#01B4C6', // Main aqua
 };
 ```
 
 ## Theme Implementations
 
 ### Dark Theme (Default)
+
 **Dark Aqua** - Optimized for dark terminals
 
 ```typescript
@@ -84,12 +89,14 @@ export const darkColors: ThemeColors = {
 ```
 
 **Use Cases**:
+
 - Default theme
 - Dark terminal backgrounds
 - Extended coding sessions
 - Low-light environments
 
 ### Light Theme
+
 **Light Ocean** - For light terminal backgrounds
 
 ```typescript
@@ -105,12 +112,14 @@ export const lightColors: ThemeColors = {
 ```
 
 **Use Cases**:
+
 - Light terminal themes
 - Bright environments
 - Presentation mode
 - Accessibility needs
 
 ### High Contrast Theme
+
 **High Contrast** - Maximum readability
 
 ```typescript
@@ -126,6 +135,7 @@ export const highContrastColors: ThemeColors = {
 ```
 
 **Use Cases**:
+
 - Accessibility requirements
 - Vision impairments
 - Extreme lighting conditions
@@ -134,6 +144,7 @@ export const highContrastColors: ThemeColors = {
 ## Component Styling
 
 ### Logo Component
+
 Gradient animation using aqua spectrum:
 
 ```typescript
@@ -141,6 +152,7 @@ const aquaGradient = gradient(['#7FDBFF', '#01B4C6', '#007A8C']);
 ```
 
 ### Menu Items
+
 State-based coloring:
 
 ```typescript
@@ -153,6 +165,7 @@ const menuItemStyle = {
 ```
 
 ### Event Types
+
 Color-coded by event type:
 
 ```typescript
@@ -166,6 +179,7 @@ const eventTypeColors = {
 ```
 
 ### Status Indicators
+
 Visual feedback for different states:
 
 ```typescript
@@ -180,38 +194,41 @@ const statusColors = {
 ## Syntax Highlighting
 
 ### Code Highlighting Colors
+
 For displaying code in events:
 
 ```typescript
 const syntax = {
-  keyword:  '#FF6B6B',  // Coral - keywords
-  string:   '#52D1A4',  // Green - strings
-  comment:  '#6B8CAE',  // Gray - comments
-  function: '#4ECDC4',  // Turquoise - functions
-  number:   '#F4D03F',  // Yellow - numbers
-  type:     '#9B59B6',  // Purple - types
-  operator: '#FFB3BA',  // Light coral - operators
-  variable: '#7FDBFF',  // Light aqua - variables
-  bracket:  '#4A90A4',  // Steel - brackets
+  keyword: '#FF6B6B', // Coral - keywords
+  string: '#52D1A4', // Green - strings
+  comment: '#6B8CAE', // Gray - comments
+  function: '#4ECDC4', // Turquoise - functions
+  number: '#F4D03F', // Yellow - numbers
+  type: '#9B59B6', // Purple - types
+  operator: '#FFB3BA', // Light coral - operators
+  variable: '#7FDBFF', // Light aqua - variables
+  bracket: '#4A90A4', // Steel - brackets
 };
 ```
 
 ### Diff Highlighting
+
 For file change visualization:
 
 ```typescript
 const diffColors = {
-  added:    theme.status.success,
-  removed:  theme.status.error,
+  added: theme.status.success,
+  removed: theme.status.error,
   modified: theme.status.warning,
-  context:  theme.ui.textDim,
-  lineNum:  theme.ui.textMuted,
+  context: theme.ui.textDim,
+  lineNum: theme.ui.textMuted,
 };
 ```
 
 ## Using the Theme System
 
 ### Theme Hook
+
 Access theme in components:
 
 ```typescript
@@ -229,6 +246,7 @@ const MyComponent = () => {
 ```
 
 ### Theme Detection
+
 Auto-detect terminal theme:
 
 ```typescript
@@ -246,6 +264,7 @@ export const detectTerminalTheme = (): 'dark' | 'light' => {
 ```
 
 ### Theme Switching
+
 Allow users to change themes:
 
 ```typescript
@@ -260,6 +279,7 @@ const cycleTheme = () => {
 ## Animations & Effects
 
 ### Fade Effects
+
 Smooth transitions:
 
 ```typescript
@@ -271,6 +291,7 @@ const fadeIn = {
 ```
 
 ### Pulse Effects
+
 Attention-grabbing animations:
 
 ```typescript
@@ -285,6 +306,7 @@ const pulse = {
 ```
 
 ### Loading Indicators
+
 Spinner colors:
 
 ```typescript
@@ -298,6 +320,7 @@ const spinnerColors = [
 ## Accessibility Considerations
 
 ### Color Contrast
+
 All text meets WCAG AA standards:
 
 - Normal text: 4.5:1 minimum
@@ -305,12 +328,14 @@ All text meets WCAG AA standards:
 - Interactive elements: 4.5:1
 
 ### Color Blind Support
+
 - Don't rely solely on color
 - Use icons and patterns
 - Provide text labels
 - Support high contrast mode
 
 ### Terminal Compatibility
+
 - Works with 16-color terminals
 - Graceful degradation
 - No hard-coded backgrounds
@@ -344,6 +369,7 @@ All text meets WCAG AA standards:
 ## Testing Colors
 
 ### Visual Testing
+
 ```typescript
 describe('Theme Colors', () => {
   it('should have sufficient contrast', () => {
@@ -357,6 +383,7 @@ describe('Theme Colors', () => {
 ```
 
 ### Cross-Terminal Testing
+
 Test in multiple terminals:
 
 - **Windows**: Windows Terminal, ConEmu
@@ -366,6 +393,7 @@ Test in multiple terminals:
 ## Customization
 
 ### User Preferences
+
 Allow color customization:
 
 ```typescript
@@ -379,6 +407,7 @@ interface UserColorPreferences {
 ```
 
 ### Theme Extension
+
 Create custom themes:
 
 ```typescript
@@ -395,6 +424,7 @@ const customTheme: ThemeColors = {
 ## Current Implementation Status
 
 ### Completed ✅
+
 - Color palette definition
 - Three theme variants
 - Theme hook implementation
@@ -402,10 +432,12 @@ const customTheme: ThemeColors = {
 - Component theming
 
 ### In Progress 🚧
+
 - Syntax highlighting colors
 - Diff viewer colors
 
 ### Planned ⏳
+
 - Animation effects
 - Custom theme editor
 - Color blind modes

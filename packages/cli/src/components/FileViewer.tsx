@@ -150,7 +150,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
           matches.push({ line: index + 1, column: match.index || 0 });
         }
       });
-    } catch (e) {
+    } catch (_e) {
       // Invalid regex, treat as literal string
       const literalSearch = searchTerm.toLowerCase();
       lines.forEach((line, index) => {
@@ -231,7 +231,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
         }
         return part;
       });
-    } catch (e) {
+    } catch (_e) {
       // Invalid regex, treat as literal string
       if (!caseInsensitive && line.includes(searchTerm)) {
         const parts = line.split(searchTerm);

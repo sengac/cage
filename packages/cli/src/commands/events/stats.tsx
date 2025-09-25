@@ -34,7 +34,7 @@ interface StatsState {
   stats: EventStats | null;
 }
 
-export function EventsStatsCommand(): JSX.Element {
+export function EventsStatsCommand(): React.ReactElement {
   const [state, setState] = useState<StatsState>({
     status: 'loading',
     message: 'Calculating statistics...',

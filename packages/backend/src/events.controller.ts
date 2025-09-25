@@ -1,4 +1,4 @@
-import { Controller, Get, Res, Query, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Res, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -8,11 +8,7 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { EventLoggerService } from './event-logger.service';
-import {
-  EventsResponseDto,
-  EventStatsDto,
-  EventsQueryDto,
-} from './dto/events.dto';
+import { EventsResponseDto, EventStatsDto } from './dto/events.dto';
 
 @ApiTags('Events')
 @Controller('events')

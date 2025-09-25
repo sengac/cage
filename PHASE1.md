@@ -1,21 +1,25 @@
 # Phase 1: Core Hook Infrastructure - Acceptance Criteria
 
 ## Overview
+
 Phase 1 establishes the foundational hook infrastructure for Cage, implementing the CLI tool, basic backend event processing, and file-based event logging system. This phase focuses on capturing and persisting hook events before adding intelligence layers.
 
 ## User Stories
 
 ### Story 1: Developer Sets Up Cage Hook System
+
 **As a** developer using Claude Code
 **I want to** install and configure Cage hooks with a single command
 **So that** I can start capturing Claude Code events immediately without complex setup
 
 ### Story 2: Developer Monitors Hook Events
+
 **As a** developer using Claude Code
 **I want to** see real-time feedback when hooks fire
 **So that** I understand what Claude is doing and when interventions occur
 
 ### Story 3: Developer Reviews Historical Events
+
 **As a** developer debugging Claude behavior
 **I want to** access a complete log of all hook events
 **So that** I can understand past decisions and troubleshoot issues
@@ -25,28 +29,32 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **IMPORTANT**: Claude Code sends hook events with specific field names that MUST be used:
 
 ### PreToolUse Payload Format:
+
 ```json
 {
   "session_id": "string",
   "transcript_path": "string",
   "cwd": "string",
   "hook_event_name": "PreToolUse",
-  "tool_name": "Read",  // NOT "tool"
-  "tool_input": {       // NOT "arguments"
+  "tool_name": "Read", // NOT "tool"
+  "tool_input": {
+    // NOT "arguments"
     "file_path": "/path/to/file.txt"
   }
 }
 ```
 
 ### PostToolUse Payload Format:
+
 ```json
 {
   "session_id": "string",
   "transcript_path": "string",
   "cwd": "string",
   "hook_event_name": "PostToolUse",
-  "tool_name": "Write",  // NOT "tool"
-  "tool_input": {        // NOT "arguments"
+  "tool_name": "Write", // NOT "tool"
+  "tool_input": {
+    // NOT "arguments"
     "file_path": "/path/to/file.txt",
     "content": "content"
   },
@@ -57,6 +65,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ```
 
 ### Common Tool Names:
+
 - `"Read"`, `"Write"`, `"Edit"`, `"MultiEdit"`, `"Bash"`, `"Grep"`, `"Glob"`, `"WebSearch"`, `"WebFetch"`
 
 **ALL IMPLEMENTATIONS MUST USE THESE EXACT FIELD NAMES**
@@ -66,6 +75,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: CLI Installation and Setup
 
 #### Scenario: Install Cage for development
+
 **Given** I have Node.js 18+ and npm installed
 **And** I have cloned the Cage repository
 **When** I run `npm install` in the project root
@@ -77,6 +87,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** hook handler should be built and available in packages/hooks/dist/
 
 #### Scenario: Initialize Cage in a project
+
 **Given** I am in a project directory
 **When** I run `cage init`
 **Then** a `.cage` directory should be created
@@ -84,6 +95,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the console should display "Cage initialized successfully"
 
 #### Scenario: Configure Claude Code hooks in local project
+
 **Given** I have Cage initialized in my project
 **And** I am in a project directory with a .claude folder
 **When** I run `cage hooks setup`
@@ -96,6 +108,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the hook handler should be executable and process stdin correctly
 
 #### Scenario: Handle missing .claude directory
+
 **Given** I am in a project directory without a .claude folder
 **When** I run `cage hooks setup`
 **Then** the system should create a .claude directory in the current working directory
@@ -104,6 +117,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** display "Created .claude/ directory and configured hooks"
 
 #### Scenario: Detect and use existing .claude directory
+
 **Given** I have an existing .claude directory with settings.json
 **When** I run `cage hooks setup`
 **Then** the system should preserve existing settings in .claude/settings.json
@@ -112,20 +126,23 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** display "Updated existing .claude/settings.json (backup saved)"
 
 #### Scenario: Preserve existing hooks configuration (Critical Bug Fix)
+
 **Given** a `.claude/settings.json` with a quality-check hook for PostToolUse
 **And** the quality-check hook is configured for "Edit|MultiEdit|Write" matcher
 **When** I run `cage hooks setup`
 **Then** the quality-check hook should remain in the settings
-**And** the Cage PostToolUse hook should be added with a different matcher (e.g., "*")
+**And** the Cage PostToolUse hook should be added with a different matcher (e.g., "\*")
 **And** the quality-check hook should execute before Cage hooks
 
 #### Scenario: Handle different hook configuration formats
+
 **Given** Claude Code supports different hook configuration formats
 **When** merging hooks
 **Then** the installer should preserve the existing format style
 **And** add Cage hooks using the same format
 
 #### Scenario: Backup original settings with timestamp
+
 **Given** any existing `.claude/settings.json` file
 **When** I run `cage hooks setup`
 **Then** a backup file should be created with timestamp (e.g., `.claude/settings.json.backup.2025-09-18T02-42-49`)
@@ -134,28 +151,33 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** multiple backups should be created if run multiple times
 
 #### Scenario: Handle conflicting matchers
-**Given** an existing hook with matcher "*" for a hook type
-**And** Cage wants to add a hook with matcher "*" for the same hook type
+
+**Given** an existing hook with matcher "_" for a hook type
+**And** Cage wants to add a hook with matcher "_" for the same hook type
 **When** merging the configurations
 **Then** both hooks should be preserved
 **And** they should execute in order (existing hooks first, then Cage hooks)
 
 #### Scenario: Validate merged configuration
+
 **Given** the hooks have been merged
 **When** the merge is complete
 **Then** the resulting JSON should be validated for correctness
 **And** a test should verify the merged configuration is valid Claude Code format
 
 #### Scenario: Inform user of changes
+
 **Given** hooks have been merged
 **When** the setup completes
 **Then** the user should see a summary of:
-  - Which hooks were preserved
-  - Which hooks were added
-  - The backup file location
-  - Instructions to verify the hooks are working
+
+- Which hooks were preserved
+- Which hooks were added
+- The backup file location
+- Instructions to verify the hooks are working
 
 #### Scenario: Verify hook configuration
+
 **Given** I have configured Cage hooks
 **When** I run `cage hooks status`
 **Then** I should see the status of each hook from .claude/settings.json
@@ -166,6 +188,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Backend Event Processing
 
 #### Scenario: Start the backend server
+
 **Given** I have Cage initialized
 **When** I run `cage start`
 **Then** the NestJS backend should actually start on port 3790
@@ -178,6 +201,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the server should respond to health checks with 200 OK and uptime information
 
 #### Scenario: Receive PreToolUse hook event
+
 **Given** the Cage backend server is running
 **When** Claude Code triggers a PreToolUse hook
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/pre-tool-use
@@ -185,6 +209,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log the event to the file system
 
 #### Scenario: Receive PostToolUse hook event
+
 **Given** the Cage backend server is running
 **When** Claude Code triggers a PostToolUse hook
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/post-tool-use
@@ -192,6 +217,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log the event with tool results to the file system
 
 #### Scenario: Receive UserPromptSubmit hook event
+
 **Given** the Cage backend server is running
 **When** a user submits a prompt to Claude Code
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/user-prompt-submit
@@ -199,6 +225,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log the user prompt and context to the file system
 
 #### Scenario: Receive Stop hook event
+
 **Given** the Cage backend server is running
 **When** Claude Code completes a task or is interrupted
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/stop
@@ -206,6 +233,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log the final state and any cleanup actions to the file system
 
 #### Scenario: Receive SubagentStop hook event
+
 **Given** the Cage backend server is running
 **When** a Claude Code subagent completes its task
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/subagent-stop
@@ -213,6 +241,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log the subagent results and execution summary to the file system
 
 #### Scenario: Receive SessionStart hook event
+
 **Given** the Cage backend server is running
 **When** a new Claude Code session starts
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/session-start
@@ -220,6 +249,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** optionally return context to inject into the session
 
 #### Scenario: Receive SessionEnd hook event
+
 **Given** the Cage backend server is running
 **When** a Claude Code session ends
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/session-end
@@ -227,6 +257,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log session summary and cleanup
 
 #### Scenario: Receive Notification hook event
+
 **Given** the Cage backend server is running
 **When** Claude Code sends a notification
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/notification
@@ -234,14 +265,15 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** log the notification content
 
 #### Scenario: Receive PreCompact hook event
+
 **Given** the Cage backend server is running
 **When** Claude Code is about to compact the conversation
 **Then** the backend should receive the event via HTTP POST to /api/claude/hooks/pre-compact
 **And** respond with 200 OK within 100ms
 **And** log the compaction event
 
-
 #### Scenario: Handle hook when server is down
+
 **Given** the Cage backend server is NOT running
 **When** Claude Code triggers any hook
 **Then** the hook handler should attempt to connect with 5 second timeout
@@ -254,6 +286,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Backend API Endpoints
 
 #### Scenario: Query events via API
+
 **Given** events have been logged to the system
 **When** I send GET request to `/api/events/list`
 **Then** I should receive a paginated list of events
@@ -262,16 +295,19 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** events should be returned in chronological order
 
 #### Scenario: Get event statistics via API
+
 **Given** events have been logged
 **When** I send GET request to `/api/events/stats`
 **Then** I should receive statistics including:
-  - Total events by type
-  - Events by date
-  - Session counts
-  - Average events per session
-**And** support optional date parameter for filtering
+
+- Total events by type
+- Events by date
+- Session counts
+- Average events per session
+  **And** support optional date parameter for filtering
 
 #### Scenario: Tail events via API
+
 **Given** events have been logged
 **When** I send GET request to `/api/events/tail?count=50`
 **Then** I should receive the most recent 50 events
@@ -279,6 +315,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** events should be in chronological order
 
 #### Scenario: Stream events via Server-Sent Events
+
 **Given** the backend server is running
 **When** I connect to `/api/events/stream`
 **Then** I should receive a Server-Sent Events stream
@@ -287,6 +324,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** support heartbeat to maintain connection
 
 #### Scenario: Health check endpoint
+
 **Given** the backend server is running
 **When** I send GET request to `/health`
 **Then** I should receive 200 OK status
@@ -294,6 +332,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** response should include memory usage information
 
 #### Scenario: OpenAPI documentation
+
 **Given** the backend server is running
 **When** I navigate to `/api-docs`
 **Then** I should see Swagger UI documentation
@@ -303,6 +342,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Server Management
 
 #### Scenario: Stop the backend server
+
 **Given** the Cage backend server is running on port 3790
 **When** I run `cage stop`
 **Then** the server should be gracefully stopped
@@ -312,21 +352,25 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the PID file should be removed
 
 #### Scenario: Stop when server not running
+
 **Given** the Cage backend server is NOT running
 **When** I run `cage stop`
 **Then** I should see a message "ℹ No Cage server is running"
 **And** the command should exit with code 0 (not an error)
 
 #### Scenario: Force stop the server
+
 **Given** the server is not responding to graceful shutdown
 **When** I run `cage stop --force`
 **Then** the server process should be killed with SIGKILL
 **And** I should see "✓ Cage server forcefully stopped"
 
 #### Scenario: Check server status when running
+
 **Given** the Cage backend server is running on port 3790
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 🟢 Server Status: Running
   Port: 3790
@@ -336,18 +380,22 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ```
 
 #### Scenario: Check server status when not running
+
 **Given** the Cage backend server is NOT running
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 🔴 Server Status: Not Running
   Port: 3790 (available)
 ```
 
 #### Scenario: Status shows hooks information when installed
+
 **Given** I have run `cage hooks setup`
 **When** I run `cage status`
 **Then** I should see a hooks section showing:
+
 ```
 📎 Hooks: Installed
   Location: /path/to/.claude/settings.json
@@ -362,22 +410,27 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
   - Stop: ✓
   - SubagentStop: ✓
 ```
+
 **And** detect and display existing quality-check hooks
 **And** show if cage-hook-handler.js is present in .claude/hooks/
 
 #### Scenario: Status shows no hooks installed
+
 **Given** I have NOT run `cage hooks setup`
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 📎 Hooks: Not Installed
   Run 'cage hooks setup' to install
 ```
 
 #### Scenario: Status shows events information
+
 **Given** events have been captured
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 📊 Events:
   Total Captured: 42
@@ -387,9 +440,11 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ```
 
 #### Scenario: Status shows no events
+
 **Given** no events have been captured
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 📊 Events:
   Total Captured: 0
@@ -397,9 +452,11 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ```
 
 #### Scenario: Status shows offline logs
+
 **Given** there are offline hook logs (connection failures)
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 ⚠️ Offline Logs: 5 entries
   Location: .cage/hooks-offline.log
@@ -408,9 +465,11 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ```
 
 #### Scenario: Full system status
+
 **Given** a complete Cage installation
 **When** I run `cage status`
 **Then** I should see ALL sections:
+
 - Server status (running/not running)
 - Hooks status (installed/not installed)
 - Events status (count and latest)
@@ -418,9 +477,11 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 - Config status (port, directories)
 
 #### Scenario: Status with JSON output
+
 **Given** any state of the system
 **When** I run `cage status --json`
 **Then** the output should be valid JSON containing:
+
 ```json
 {
   "server": {
@@ -447,17 +508,21 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ```
 
 #### Scenario: View server logs
+
 **Given** various log files exist
 **When** I run `cage logs [type]`
 **Then** I should be able to view:
+
 - `cage logs server` - Server output logs
 - `cage logs offline` - Offline hook logs
 - `cage logs events` - Recent events (alias for `cage events tail`)
 
 #### Scenario: Port conflict detection
+
 **Given** port 3790 is already in use by another process
 **When** I run `cage status`
 **Then** I should see:
+
 ```
 ⚠️ Port 3790 is in use by another process (PID: [pid])
   This may not be a Cage server
@@ -466,6 +531,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Event Logging Implementation Details
 
 #### Scenario: Backend validates hook schemas with Zod
+
 **Given** the backend receives a hook event
 **When** processing the event
 **Then** it should validate the payload against the appropriate Zod schema
@@ -474,6 +540,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** still return 200 OK to not block Claude Code
 
 #### Scenario: Backend writes events to correct working directory
+
 **Given** the backend server is running from any directory
 **When** processing hook events
 **Then** it should write events to {process.cwd()}/.cage/events/{date}/events.jsonl
@@ -481,6 +548,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** use TEST_BASE_DIR environment variable if running in test mode
 
 #### Scenario: Event ID generation with nanoid
+
 **Given** the backend processes any hook event
 **When** logging the event
 **Then** it should generate a unique ID using nanoid
@@ -490,6 +558,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: File-Based Event Logging
 
 #### Scenario: Log event with complete data
+
 **Given** the backend receives a hook event
 **When** the event is processed
 **Then** an entry should be appended to .cage/events/{date}/events.jsonl
@@ -500,6 +569,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** events from the same day should be in the same date directory
 
 #### Scenario: Rotate log files daily
+
 **Given** events are being logged
 **When** the date changes to a new day
 **Then** new events should be written to .cage/events/{new-date}/events.jsonl
@@ -507,6 +577,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** maintain chronological order within each file
 
 #### Scenario: Handle high-frequency events
+
 **Given** Claude Code is rapidly triggering hooks
 **When** 100+ events occur within 1 second
 **Then** all events should be captured without loss
@@ -514,6 +585,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the system should not crash or slow down Claude Code
 
 #### Scenario: Query events by date range
+
 **Given** I have logged events across multiple days
 **When** I run `cage events list --from 2025-01-01 --to 2025-01-07`
 **Then** I should see a summary of events within that date range
@@ -523,6 +595,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: CLI Event Monitoring
 
 #### Scenario: Stream events in real-time
+
 **Given** the backend server is running
 **When** I run `cage events stream`
 **Then** it should connect to the backend SSE endpoint at /api/events/stream
@@ -534,6 +607,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** close SSE connection when command is terminated
 
 #### Scenario: Filter streamed events by type
+
 **Given** I am streaming events
 **When** I run `cage events stream --filter PreToolUse`
 **Then** the filter should be applied client-side to incoming SSE events
@@ -543,6 +617,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** display should show "Streaming events (filtered: PreToolUse)..."
 
 #### Scenario: Display event statistics
+
 **Given** I have logged events
 **When** I run `cage events stats`
 **Then** I should see total events by type
@@ -551,6 +626,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** peak activity time periods
 
 #### Scenario: Tail recent events
+
 **Given** I have logged events
 **When** I run `cage events tail`
 **Then** I should see the last 10 events by default
@@ -558,6 +634,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** events should be displayed in chronological order (oldest to newest)
 
 #### Scenario: Tail with custom count
+
 **Given** I have logged events
 **When** I run `cage events tail -n 50`
 **Then** I should see the last 50 events
@@ -567,6 +644,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Hook Handler System
 
 #### Scenario: Process hook events through handler
+
 **Given** a hook is triggered by Claude Code
 **When** the cage-hook-handler.js receives stdin input
 **Then** it should parse the JSON payload
@@ -579,6 +657,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** handle 5-second timeout for backend requests
 
 #### Scenario: Handle malformed hook input
+
 **Given** the hook handler receives invalid JSON on stdin
 **When** parsing the input
 **Then** it should treat the input as raw text (fallback behavior)
@@ -587,6 +666,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** exit with code 0 to not block Claude Code
 
 #### Scenario: Handle backend connection failure
+
 **Given** the hook handler cannot connect to backend
 **When** the HTTP request fails or times out
 **Then** it should log to .cage/hooks-offline.log in text format
@@ -595,28 +675,33 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** exit with code 0 to not block Claude Code
 
 #### Scenario: Configure hook handler via environment
+
 **Given** the hook handler is executed
 **When** it needs configuration
 **Then** it should read from these sources in order:
-  1. Environment variable CAGE_CONFIG_PATH
-  2. ./cage.config.json in current directory
-  3. ./.cage/cage.config.json
-  4. Default configuration values
-**And** merge configuration appropriately
+
+1. Environment variable CAGE_CONFIG_PATH
+2. ./cage.config.json in current directory
+3. ./.cage/cage.config.json
+4. Default configuration values
+   **And** merge configuration appropriately
 
 #### Scenario: Support multiple Claude settings formats
+
 **Given** different Claude Code hook configuration formats
 **When** installing hooks
 **Then** the installer should support:
-  - String format: "path/to/script.js"
-  - Object format: {"script": "path", "matcher": "pattern"}
-  - Array format: [{"script": "path1"}, {"script": "path2"}]
-**And** preserve the existing format when merging
-**And** add Cage hooks in the same format
+
+- String format: "path/to/script.js"
+- Object format: {"script": "path", "matcher": "pattern"}
+- Array format: [{"script": "path1"}, {"script": "path2"}]
+  **And** preserve the existing format when merging
+  **And** add Cage hooks in the same format
 
 ### Feature: Quality Assurance Integration
 
 #### Scenario: Preserve quality-check hooks
+
 **Given** existing quality-check hooks in PostToolUse
 **When** installing Cage hooks
 **Then** quality-check hooks should be preserved
@@ -625,6 +710,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** quality failures should still block Claude operations
 
 #### Scenario: Detect quality-check configuration
+
 **Given** I run `cage status`
 **When** quality-check hooks are present
 **Then** they should be detected and displayed
@@ -634,6 +720,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Testing Infrastructure
 
 #### Scenario: Run comprehensive test suite
+
 **Given** the Cage project
 **When** I run `npm test`
 **Then** all packages should be tested using Vitest
@@ -644,6 +731,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** browser tests using @vitest/browser with Playwright
 
 #### Scenario: Validate hook schemas
+
 **Given** hook events are received
 **When** processing through the system
 **Then** all events should be validated against Zod schemas
@@ -651,6 +739,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** schema validation should cover all 9 hook types
 
 #### Scenario: Test cross-platform compatibility
+
 **Given** the Cage system
 **When** tested on different platforms
 **Then** it should work on Windows (PowerShell/CMD)
@@ -661,6 +750,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ### Feature: Error Handling and Recovery
 
 #### Scenario: Handle malformed hook data
+
 **Given** the backend is running
 **When** it receives malformed JSON from a hook
 **Then** it should log the error to .cage/errors.log
@@ -668,6 +758,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** continue processing subsequent events
 
 #### Scenario: Recover from disk space issues
+
 **Given** the system is logging events
 **When** disk space becomes critically low (<100MB)
 **Then** the backend should stop writing new events to disk
@@ -676,6 +767,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** continue to process hooks without logging
 
 #### Scenario: Handle concurrent hook triggers
+
 **Given** multiple Claude Code instances are running
 **When** they trigger hooks simultaneously
 **Then** all events should be processed without conflicts
@@ -683,6 +775,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** no events should be lost or corrupted
 
 #### Scenario: Generate unique event IDs
+
 **Given** the backend receives hook events
 **When** processing each event
 **Then** each event should be assigned a unique ID using nanoid
@@ -690,6 +783,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the ID should be returned in API responses
 
 #### Scenario: Track session context
+
 **Given** Claude Code is running with a session ID
 **When** hooks are triggered
 **Then** all events should include the session ID
@@ -697,6 +791,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** session boundaries should be clear in the logs
 
 #### Scenario: Enforce event size limits
+
 **Given** a hook event with large tool_input or tool_response
 **When** the event size exceeds 1MB (configurable limit)
 **Then** the event should be truncated to fit the limit
@@ -704,6 +799,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** the truncated event should still be processed
 
 #### Scenario: Raw hook logging for debugging
+
 **Given** debug mode is enabled
 **When** hook events are received
 **Then** raw hook data should be logged to .cage/raw-hooks.log
@@ -713,6 +809,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ## Non-Functional Requirements
 
 ### Performance
+
 - Hook response time must be <100ms for non-blocking operations (logging, monitoring)
 - Blocking hooks (user confirmation, input requests, LLM analysis) may take longer and should properly signal Claude to wait
 - LLM-based analysis hooks may take 5-30 seconds depending on the complexity of analysis needed
@@ -720,16 +817,19 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 - Log queries must return results within 2 seconds for up to 1 million events
 
 ### Reliability
+
 - Zero event loss during normal operation
 - Graceful degradation when backend is unavailable
 - Automatic recovery after system restarts
 
 ### Usability
+
 - Single command setup (`cage init && cage hooks setup`)
 - Clear error messages with actionable remediation steps
 - Intuitive CLI commands following Unix conventions
 
 ### Compatibility
+
 - Must work on Windows (PowerShell/CMD), macOS, and Linux
 - Support Node.js 18+ (LTS versions)
 - Handle path separators correctly across platforms
@@ -737,6 +837,7 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 ## Definition of Done
 
 Phase 1 is complete when:
+
 1. All acceptance criteria pass automated tests
 2. Documentation exists for CLI commands and API endpoints (Swagger docs)
 3. Error scenarios are handled gracefully with comprehensive offline logging
@@ -753,12 +854,14 @@ Phase 1 is complete when:
 ## Test Scenarios
 
 ### Integration Tests
+
 1. **Full Hook Lifecycle**: Trigger each hook type and verify event is logged correctly
 2. **Server Restart**: Verify no events are lost during backend restart
 3. **High Load**: Send 1000 events rapidly and verify all are captured
 4. **Offline Mode**: Verify hooks don't block when server is down
 
 ### Unit Tests
+
 1. **Event Parser**: Validate hook payloads with tool_name, tool_input, session_id fields
 2. **File Writer**: Test append-only behavior and rotation
 3. **CLI Commands**: Test each command with various arguments
@@ -767,21 +870,24 @@ Phase 1 is complete when:
 ### Feature: Configuration Management
 
 #### Scenario: Default configuration creation
+
 **Given** I run `cage init`
 **When** creating the cage.config.json
 **Then** it should include default values:
-  - port: 3790
-  - host: "localhost"
-  - logLevel: "info"
-  - eventsDir: ".cage/events"
-  - maxEventSize: 1048576 (1MB)
-  - enableMetrics: false
-  - enableOfflineMode: true
-  - offlineLogPath: ".cage/hooks-offline.log"
-**And** the configuration should be valid JSON
-**And** all paths should be relative to project root
+
+- port: 3790
+- host: "localhost"
+- logLevel: "info"
+- eventsDir: ".cage/events"
+- maxEventSize: 1048576 (1MB)
+- enableMetrics: false
+- enableOfflineMode: true
+- offlineLogPath: ".cage/hooks-offline.log"
+  **And** the configuration should be valid JSON
+  **And** all paths should be relative to project root
 
 #### Scenario: Override configuration values
+
 **Given** a cage.config.json exists
 **When** I modify configuration values
 **Then** the system should use the modified values
@@ -789,6 +895,7 @@ Phase 1 is complete when:
 **And** provide clear error messages for invalid config
 
 #### Scenario: Environment variable support
+
 **Given** configuration needs to be overridden
 **When** environment variables are set (e.g., CAGE_PORT=3791)
 **Then** they should take precedence over config file
@@ -797,6 +904,7 @@ Phase 1 is complete when:
 ### Feature: Real Event Integration Verification
 
 #### Scenario: End-to-end event flow validation
+
 **Given** Cage is fully set up with hooks and backend running
 **When** Claude Code executes any tool (Read, Write, Edit, etc.)
 **Then** the hook should trigger and forward event to backend
@@ -806,6 +914,7 @@ Phase 1 is complete when:
 **And** cage events stream should broadcast the event via SSE (if connected)
 
 #### Scenario: CLI commands work with actual logged data
+
 **Given** events have been logged by the backend
 **When** I run cage events commands
 **Then** cage events list should show real statistics (not "Total events: 0")
@@ -816,6 +925,7 @@ Phase 1 is complete when:
 ## Out of Scope for Phase 1
 
 The following features are NOT part of Phase 1:
+
 - Intelligence or rule processing (Phase 2)
 - Context injection into Claude (Phase 3)
 - Web frontend UI (Phase 4 - placeholder exists)
@@ -830,6 +940,7 @@ The following features are NOT part of Phase 1:
 ## Success Metrics
 
 Phase 1 is successful when:
+
 - 100% of Claude Code hook events are captured
 - Setup takes less than 2 minutes
 - No manual configuration files need editing

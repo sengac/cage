@@ -1,9 +1,11 @@
 # Phase 1: Integration Testing Guide
 
 ## Overview
+
 This guide covers end-to-end integration testing for Phase 1, ensuring all components work together correctly and all acceptance criteria from PHASE1.md are met.
 
 ## Test Structure
+
 ```
 test/
 ├── integration/
@@ -70,7 +72,7 @@ describe('Phase 1 End-to-End Integration', () => {
       console.log('Step 2: Starting backend server...');
       serverProcess = spawn('cage', ['start', 'server'], {
         detached: false,
-        stdio: 'pipe'
+        stdio: 'pipe',
       });
 
       // Wait for server to be ready
@@ -99,8 +101,8 @@ describe('Phase 1 End-to-End Integration', () => {
             toolName: 'Read',
             arguments: { file_path: '/test.txt' },
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/post-tool-use',
@@ -110,16 +112,16 @@ describe('Phase 1 End-to-End Integration', () => {
             result: { success: true },
             executionTime: 150,
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/user-prompt-submit',
           data: {
             prompt: 'Help me write a test',
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/notification',
@@ -127,16 +129,16 @@ describe('Phase 1 End-to-End Integration', () => {
             level: 'info',
             message: 'Task completed',
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/stop',
           data: {
             reason: 'completed',
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/subagent-stop',
@@ -145,31 +147,31 @@ describe('Phase 1 End-to-End Integration', () => {
             result: { output: 'Done' },
             executionTime: 5000,
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/session-start',
           data: {
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/session-end',
           data: {
             duration: 60000,
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/pre-compact',
           data: {
             messageCount: 50,
             sessionId: 'test-session',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         },
         {
           endpoint: '/claude/hooks/status',
@@ -179,16 +181,16 @@ describe('Phase 1 End-to-End Integration', () => {
             cwd: testDir,
             model: { id: 'claude-3', displayName: 'Claude 3' },
             workspace: { currentDir: testDir, projectDir: testDir },
-            version: '1.0.0'
-          }
-        }
+            version: '1.0.0',
+          },
+        },
       ];
 
       for (const test of hookTests) {
         const response = await fetch(`http://localhost:3790${test.endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(test.data)
+          body: JSON.stringify(test.data),
         });
 
         expect(response.ok).toBe(true);
@@ -223,10 +225,12 @@ describe('Phase 1 End-to-End Integration', () => {
 
       // Trigger hook while offline
       const hookHandler = spawn('cage-hook-handler', ['pre-tool-use']);
-      hookHandler.stdin.write(JSON.stringify({
-        toolName: 'Read',
-        arguments: { file_path: '/offline-test.txt' }
-      }));
+      hookHandler.stdin.write(
+        JSON.stringify({
+          toolName: 'Read',
+          arguments: { file_path: '/offline-test.txt' },
+        })
+      );
       hookHandler.stdin.end();
 
       await new Promise(resolve => {
@@ -286,14 +290,14 @@ describe('Performance Benchmarks', () => {
         toolName: 'Read',
         arguments: { file_path: '/test.txt' },
         sessionId: 'perf-test',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const start = performance.now();
       const response = await fetch(`${serverUrl}/claude/hooks/pre-tool-use`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       const duration = performance.now() - start;
 
@@ -307,7 +311,7 @@ describe('Performance Benchmarks', () => {
         toolName: `Tool${i % 10}`,
         arguments: { index: i },
         sessionId: 'perf-test',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }));
 
       const start = performance.now();
@@ -315,7 +319,7 @@ describe('Performance Benchmarks', () => {
         fetch(`${serverUrl}/claude/hooks/post-tool-use`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(event)
+          body: JSON.stringify(event),
         })
       );
 
@@ -325,7 +329,9 @@ describe('Performance Benchmarks', () => {
       expect(results.every(r => r.ok)).toBe(true);
       expect(duration).toBeLessThan(60000); // Under 1 minute
       console.log(`1000 events processed in: ${(duration / 1000).toFixed(2)}s`);
-      console.log(`Throughput: ${(1000 / (duration / 1000)).toFixed(2)} events/second`);
+      console.log(
+        `Throughput: ${(1000 / (duration / 1000)).toFixed(2)} events/second`
+      );
     });
   });
 
@@ -373,9 +379,10 @@ describe('Cross-Platform Compatibility', () => {
 
     it('should execute hook handler on current platform', () => {
       // Test hook handler execution based on platform
-      const command = currentPlatform === 'win32'
-        ? 'cage-hook-handler.exe'
-        : 'cage-hook-handler';
+      const command =
+        currentPlatform === 'win32'
+          ? 'cage-hook-handler.exe'
+          : 'cage-hook-handler';
 
       try {
         const result = execSync(`which ${command}`, { encoding: 'utf-8' });
@@ -504,18 +511,21 @@ jobs:
 ## Manual Testing Checklist
 
 ### Installation and Setup
+
 - [ ] `npm install -g @cage/cli` installs successfully
 - [ ] `cage --version` displays version
 - [ ] `cage init` creates .cage directory and config
 - [ ] `cage hooks setup` configures Claude Code settings
 
 ### Server Operations
+
 - [ ] `cage start server` starts on port 3790
 - [ ] Swagger docs accessible at http://localhost:3790/api-docs
 - [ ] Server handles concurrent requests
 - [ ] Server recovers from crashes
 
 ### Hook Functionality
+
 - [ ] All 10 hooks trigger correctly
 - [ ] Hooks log events when server is running
 - [ ] Hooks log offline when server is down
@@ -523,6 +533,7 @@ jobs:
 - [ ] Context injection works
 
 ### Event Management
+
 - [ ] `cage events tail` shows recent events
 - [ ] `cage events tail -n 50` shows 50 events
 - [ ] `cage events stream` shows real-time events
@@ -531,12 +542,14 @@ jobs:
 - [ ] `cage events stats` displays statistics
 
 ### Error Scenarios
+
 - [ ] Malformed JSON handled gracefully
 - [ ] Low disk space warning displayed
 - [ ] Concurrent sessions tracked separately
 - [ ] Network errors don't block Claude
 
 ### Platform Testing
+
 - [ ] Works on Windows 10/11
 - [ ] Works on macOS (Intel and ARM)
 - [ ] Works on Ubuntu/Debian
@@ -545,4 +558,5 @@ jobs:
 ## Next Steps
 
 After integration testing is complete:
+
 - [Implementation Checklist](checklist.md)

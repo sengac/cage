@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render } from 'ink-testing-library';
 import { act } from '@testing-library/react';
-import { mkdtemp, rm, writeFile, mkdir, readFile } from 'fs/promises';
+import { mkdtemp, rm, writeFile, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { existsSync } from 'fs';
@@ -52,7 +52,7 @@ describe('HooksSetupCommand', () => {
     });
 
     vi.mocked(hooksInstaller.installHooksLocally).mockImplementation(
-      async port => {
+      async _port => {
         // Simulate creating local .claude directory and settings
         const claudeDir = join(testDir, '.claude');
         await mkdir(claudeDir, { recursive: true });

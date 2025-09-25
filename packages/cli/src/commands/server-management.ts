@@ -98,7 +98,7 @@ export async function stopServer(
 
         // Clean up PID file regardless
         unlinkSync(PID_FILE);
-      } catch (error) {
+      } catch (_error) {
         // Error reading/parsing PID file, continue to port check
       }
     }
@@ -159,7 +159,7 @@ export async function stopServer(
           ? `${message} (killed: ${details.join(', ')})`
           : message,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
       message: chalk.red(`Error stopping server: ${error}`),
@@ -225,7 +225,7 @@ export async function getServerStatus(): Promise<ServerStatus> {
         status.server.running = false;
         status.server.warning = 'Stale PID file found';
       }
-    } catch (error) {
+    } catch (_error) {
       status.server.running = false;
     }
   }

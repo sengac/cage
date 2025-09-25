@@ -1,9 +1,11 @@
 # Phase 1 Implementation Overview
 
 ## Purpose
+
 This guide provides instructions for implementing Phase 1 of the Cage project using test-driven development. Phase 1 establishes the core hook infrastructure for capturing and persisting Claude Code events.
 
 ## Document Structure
+
 The Phase 1 implementation has been split into focused documents:
 
 1. **[overview.md](overview.md)** - This document
@@ -18,6 +20,7 @@ The Phase 1 implementation has been split into focused documents:
 ## Development Methodology: Acceptance Criteria Driven Development (ACDD)
 
 ### The Process You MUST Follow:
+
 1. **Read acceptance criteria** from [PHASE1.md](../../PHASE1.md)
 2. **Write failing tests** that map exactly to Given-When-Then scenarios
 3. **Run tests** to ensure they fail for the right reasons
@@ -26,6 +29,7 @@ The Phase 1 implementation has been split into focused documents:
 6. **Document** as features are completed
 
 ### Critical Rules:
+
 - **NO production code without failing tests**
 - **Every scenario in PHASE1.md gets a test**
 - **Use exact Given-When-Then language**
@@ -34,14 +38,17 @@ The Phase 1 implementation has been split into focused documents:
 ## Current Project State Assessment
 
 ### Existing Structure
+
 The project already has a monorepo structure in place:
-- **Root**: npm workspaces configured with packages/*
+
+- **Root**: npm workspaces configured with packages/\*
 - **Packages**: cli, backend, frontend, shared, hooks directories exist
 - **Dependencies**: ESLint, Prettier, TypeScript tooling installed
 - **Scripts**: Basic npm scripts for test, build, dev commands
 - **Quality Enforcement**: Git pre-commit hook enforces test-first development
 
 ### What Needs to Be Built
+
 Starting from this existing structure, Phase 1 requires implementing the core hook infrastructure with proper test-driven development.
 
 ## Implementation Order

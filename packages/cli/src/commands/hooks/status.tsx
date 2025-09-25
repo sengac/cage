@@ -20,7 +20,7 @@ interface StatusState {
   };
 }
 
-export function HooksStatusCommand(): JSX.Element {
+export function HooksStatusCommand(): React.ReactElement {
   const [state, setState] = useState<StatusState>({
     status: 'checking',
     message: 'Checking hook configuration...',
@@ -125,7 +125,7 @@ export function HooksStatusCommand(): JSX.Element {
       {missingHooks.length > 0 && (
         <Box marginTop={1}>
           <Text color="yellow">
-            Run "cage hooks setup" to install missing hooks
+            Run {"cage hooks setup"} to install missing hooks
           </Text>
         </Box>
       )}

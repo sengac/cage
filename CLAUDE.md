@@ -13,6 +13,7 @@ This document provides guidelines for AI assistants (particularly Claude) workin
 - **License**: MIT (Copyright 2025 Software Engineering & Consulting Pty Ltd)
 
 For detailed understanding of:
+
 - **Why we're building this**: See [FOUNDATION.md - Why We Are Building It](FOUNDATION.md#2-why-we-are-building-it)
 - **Technical requirements**: See [FOUNDATION.md - What We Are Building](FOUNDATION.md#1-what-we-are-building)
 - **Success criteria**: See [FOUNDATION.md - Success Criteria](FOUNDATION.md#success-criteria)
@@ -20,7 +21,9 @@ For detailed understanding of:
 ## Core Principles
 
 ### 1. Living Specifications
+
 As defined in [FOUNDATION.md](FOUNDATION.md#success-criteria):
+
 - Maintain specifications that evolve with the codebase
 - Connect the "why" (pain points) → "how" (user journeys) → "what" (code implementation)
 - Generate executable acceptance tests from specifications
@@ -137,11 +140,13 @@ console.log('Operation completed');
 ```
 
 ### File Organization
+
 - **Keep files under 300 lines** - refactor when approaching this limit
 - When a file exceeds 300 lines, stop and refactor BEFORE continuing
 - Ask for approval before major refactoring
 
 ### Testing Requirements
+
 - **Use Vitest exclusively** - NEVER use Jest
 - **Write ALL tests in TypeScript** - NEVER create standalone JavaScript test files
 - **NEVER write external JavaScript files for testing** - All tests must be TypeScript files running through Vitest
@@ -154,16 +159,18 @@ console.log('Operation completed');
 - **Type Safety:** No `any` types allowed in tests - use proper type assertions
 
 #### Test File Requirements:
+
 - ❌ **NEVER** create `test.mjs`, `test.js`, or any external JavaScript test files
 - ❌ **NEVER** run tests with `node test.js` or `node test.mjs`
 - ✅ **ALWAYS** create `.test.ts`, `.spec.ts`, `.test.tsx`, or `.spec.tsx` files
 - ✅ **ALWAYS** run tests through `npm test` using Vitest
 - ✅ **ALWAYS** import and test TypeScript modules directly in TypeScript test files
-- ✅ **Use `.test.tsx` or `.spec.tsx` for React/JSX component tests
+- ✅ **ALWAYS** Use `.test.tsx` or `.spec.tsx` for React/JSX component tests
 
 ## Technology Stack
 
 ### Monorepo Structure (npm workspaces)
+
 ```
 cage/
 ├── packages/
@@ -176,6 +183,7 @@ cage/
 ```
 
 ### Key Technologies
+
 - **TypeScript**: All packages use ES modules (`"type": "module"`)
 - **Tailwind CSS v4**: Using @tailwindcss/vite (no PostCSS needed)
 - **Testing**: Vitest, @vitest/browser with Playwright
@@ -186,11 +194,13 @@ cage/
 ## Development Methodology: Acceptance Criteria Driven Development (ACDD)
 
 This project uses **Acceptance Criteria Driven Development** where:
+
 1. **Specifications come first** - We define acceptance criteria in Given-When-Then format (see PHASE1.md)
 2. **Tests come second** - We write tests that directly map to acceptance criteria BEFORE any code
 3. **Code comes last** - We implement just enough code to make the tests pass
 
 ### CRITICAL RULES:
+
 - **NEVER write production code without a failing test first**
 - **Each acceptance criteria must have corresponding tests**
 - **Tests must use the exact Given-When-Then language from specifications**
@@ -199,11 +209,13 @@ This project uses **Acceptance Criteria Driven Development** where:
 ## Development Workflow
 
 ### 1. Before Making Changes
+
 - Read the acceptance criteria in the relevant phase document (PHASE1.md, etc.)
 - Check `FOUNDATION.md` for project requirements
 - Review `PHASE1-IMPLEMENTATION.md` for implementation instructions
 
 ### 2. When Writing Code
+
 - **WRITE TESTS FIRST** - No exceptions to this rule
 - Run tests and ensure they fail for the right reasons
 - Implement minimal code to make tests pass
@@ -222,6 +234,7 @@ npm run check  # Runs typecheck + lint + format + tests
 ```
 
 The project has automated quality check hooks that will:
+
 - Block TypeScript `any` usage
 - Block CommonJS syntax
 - Block `debugger` statements
@@ -238,7 +251,9 @@ The project has automated quality check hooks that will:
 **Code that violates these standards will be automatically rejected by the quality check hook.**
 
 ### 4. Hook System Integration
+
 When working with Claude Code hooks:
+
 - **PreToolUse**: Validate and inject context before actions
 - **PostToolUse**: Analyze results and trigger corrections
 - **UserPromptSubmit**: Enhance prompts with project context
@@ -294,6 +309,7 @@ npm run build --workspace @cage/cli
 ## Contributing
 
 When contributing to CAGE:
+
 1. Ensure all tests pass
 2. Update relevant documentation
 3. Follow the established patterns

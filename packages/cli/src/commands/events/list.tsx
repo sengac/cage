@@ -35,7 +35,7 @@ interface ListState {
   events: ListEvent[];
 }
 
-export function EventsListCommand({ from, to }: ListProps): JSX.Element {
+export function EventsListCommand({ from, to }: ListProps): React.ReactElement {
   const [state, setState] = useState<ListState>({
     status: 'loading',
     message: 'Loading events...',

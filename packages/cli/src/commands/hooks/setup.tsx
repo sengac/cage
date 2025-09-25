@@ -17,14 +17,14 @@ interface SetupState {
   hooks?: string[];
 }
 
-export function HooksSetupCommand(): JSX.Element {
+export function HooksSetupCommand(): React.ReactElement {
   const [state, setState] = useState<SetupState>({
     status: 'checking',
     message: 'Checking CAGE configuration...',
   });
 
   useEffect(() => {
-    let exitTimeout: NodeJS.Timeout | undefined;
+    let exitTimeout: ReturnType<typeof setTimeout> | undefined;
 
     const setup = async () => {
       try {

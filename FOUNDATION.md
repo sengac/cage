@@ -5,11 +5,13 @@
 ## 1. What We Are Building
 
 ### Project Overview
+
 A developer productivity tool for enhancing Claude Code that uses Claude Code's official Hooks API to provide better context when needed, help maintain focus on tasks, and provide corrections when working with evolving codebases or outdated information. The system acts as an intelligent assistance layer between developers and Claude Code, dynamically providing relevant context and guidelines based on the current task. It is designed for developers, particularly senior developers who need reliable AI assistance for complex software engineering tasks.
 
 ### Technical Requirements
 
 #### Core Technologies
+
 - **Programming Language(s):** TypeScript/Node.js (both backend and frontend)
 - **Framework(s):**
   - **CLI:** Ink (React for CLI) with vite-node for bundling, ink-testing-library for testing
@@ -25,25 +27,30 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
   - Filesystem observation
 
 #### Architecture
+
 - **Architecture Pattern:** Event-driven - hook events are the sole triggers, backend processes events asynchronously
 - **Deployment Target:** Local development machines or Docker containers (Docker config out of scope)
 - **Scalability Requirements:** Single developer use - no concurrent user handling needed
 - **Performance Requirements:** No specific performance metrics required - focus on correctness over speed
 
 #### Development & Operations
+
 - **Development Tools:** Not specified - developer's choice
 - **CI/CD Pipeline:** Not required
 - **Logging & Analytics:** File-based append-only logs for all events
 - **Security Requirements:** Not required for single developer use
 
 #### Key Libraries & Dependencies
+
 **CLI:**
+
 - **ink, ink-spinner, ink-progress-bar**: React-based CLI UI components for interactive terminal interfaces
 - **ink-testing-library**: Testing library specifically for Ink components
 - **commander.js**: Fallback CLI argument parsing for capabilities beyond Ink
 - **chalk**: Terminal string styling and colored output
 
 **Backend (NestJS):**
+
 - **@nestjs/swagger**: Auto-generate OpenAPI documentation and Swagger UI
 - **@nestjs/event-emitter**: Event-driven architecture for hook event processing
 - **Server-Sent Events**: Built-in SSE support in NestJS (no separate package needed)
@@ -52,17 +59,20 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 - **class-validator/class-transformer**: DTO validation and transformation
 
 **Frontend (React):**
+
 - **zustand**: Lightweight state management (no Redux/MobX)
 - **React Router**: Client-side routing
 - **Fetch API**: Native browser API for HTTP requests (no Axios)
 - **EventSource/SSE client**: For receiving server-sent events
 
 **Shared/Utility:**
+
 - **zod**: Schema validation across all layers
 - **date-fns**: Date manipulation and formatting
 - **nanoid**: Unique ID generation for events/logs
 
 ### Non-Functional Requirements
+
 - **Availability:**
   - CLI runs on-demand via `cage` command
   - Backend/frontend server starts via `cage start server` (React app mounted on NestJS)
@@ -88,6 +98,7 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 ### Problem Definition
 
 #### Primary Problem
+
 Claude Code lacks real-time quality guidance and contextual awareness, leading to progressively degrading code quality during extended sessions. It doesn't self-check for anti-patterns, lazy shortcuts (like TypeScript `any` or `as unknown as`), or recognize when files are becoming too large and need refactoring. Without intervention, Claude drifts toward quick fixes rather than maintaining architectural integrity.
 
 Additionally, **No Process for Specification Evolution**: There's no systematic process for AI to evolve specifications as the system grows. AI is an emergent black box that needs structured guidance - without a defined process for maintaining living specifications, Claude cannot capture and update design decisions in real-time or recognize when specifications need to evolve alongside the code.
@@ -95,6 +106,7 @@ Additionally, **No Process for Specification Evolution**: There's no systematic 
 Furthermore, **Unguided Brownfield Specification Creation**: While Claude can extract specifications from existing brownfield projects, it lacks guidance on creating well-crafted, coherent specifications. Without a framework to structure this process, Claude tends to produce specifications that become unwieldy, hard to read, or lose coherence as they grow - defeating the purpose of having a living specification that developers can actually understand and maintain.
 
 #### Secondary Problems
+
 1. **Outdated Knowledge**: Claude uses outdated patterns, deprecated libraries, or old API versions without awareness of current best practices
 2. **Lost Project Context**: Lacks understanding of existing project structure, conventions, and patterns already established in the codebase
 3. **No Quality Gates**: Doesn't proactively check its own output for code smells, complexity, or maintainability issues
@@ -105,7 +117,9 @@ Furthermore, **Unguided Brownfield Specification Creation**: While Claude can ex
 ### Pain Points
 
 #### Current State Analysis
+
 Describe how things work today without this solution:
+
 - Developers must constantly oversee Claude Code, frequently pressing ESC to redirect when it deviates
 - Manual review required for every file change to catch lazy patterns and anti-patterns
 - No visibility into subagent reasoning, creating a "black box" trust issue
@@ -113,6 +127,7 @@ Describe how things work today without this solution:
 - Mental exhaustion from constant vigilance rather than collaborative coding
 
 #### Specific Pain Points
+
 1. **Constant Manual Intervention:**
    - Impact: Developer cognitive load and fatigue from hypervigilance
    - Frequency: Multiple times per coding session (every few minutes)
@@ -139,6 +154,7 @@ Describe how things work today without this solution:
    - Cost: Major refactoring needed after letting it run, sometimes easier to start over
 
 ### Stakeholder Impact
+
 - **Senior Developers:** Significant stress and frustration from constant corrections, leading to irritability, elevated stress levels, and health impacts (high blood pressure). Transforms what should be a productivity tool into a source of professional burnout.
 - **Business/Organization:** Risk of reputational damage if AI-generated code with bugs or security issues reaches production. Public perception already skeptical of AI replacing developers - any failures amplify negative sentiment and undermine AI adoption initiatives.
 - **Development Teams:** Junior and mid-level developers lack architectural context and domain knowledge that senior developers possess. Without guardrails, they cannot effectively leverage AI tools, widening the productivity gap rather than closing it. This solution would democratize AI assistance across skill levels.
@@ -146,6 +162,7 @@ Describe how things work today without this solution:
 ### Theoretical Solutions
 
 #### Solution Approach 1: Dual-Phase Guardian System (Selected Approach)
+
 - **Description:** Comprehensive hook orchestration that assists both before and after Claude's actions. Pre-execution hooks provide context and validate intentions, while post-execution hooks analyze output and suggest corrections. The system maintains living specifications that evolve with the project.
 - **Pros:**
   - Catches issues at multiple points in the workflow
@@ -159,6 +176,7 @@ Describe how things work today without this solution:
 - **Feasibility:** Highly feasible with Claude Code Hooks API and event-driven architecture
 
 #### Solution Approach 2: Static Rules Engine
+
 - **Description:** Pre-defined rules and patterns that hooks apply without dynamic adaptation
 - **Pros:**
   - Simple to implement and understand
@@ -171,6 +189,7 @@ Describe how things work today without this solution:
 - **Feasibility:** Easy to implement but limited effectiveness
 
 #### Solution Approach 3: Post-Hoc Analysis Only
+
 - **Description:** Let Claude operate freely, then analyze and fix issues in batch after completion
 - **Pros:**
   - Non-intrusive to Claude's workflow
@@ -190,6 +209,7 @@ CAGE uses **Acceptance Criteria Driven Development** as its core methodology:
 3. **Code Last:** We write the minimum code necessary to make tests pass
 
 This approach ensures:
+
 - Every feature has clear, testable acceptance criteria
 - Tests serve as living documentation of system behavior
 - Code directly maps to specified requirements
@@ -198,7 +218,9 @@ This approach ensures:
 For detailed implementation instructions, see PHASE1-IMPLEMENTATION.md.
 
 ### Success Criteria
+
 Define what success looks like for this project:
+
 1. **Living Specification Achievement:** Complete specification with concrete examples for every possible combination, wrapped in user stories and journeys that:
    - Connect to the "why" (pain points and reasons for the software)
    - Define the "how" (journeys, stories, and examples of software usage)
@@ -219,6 +241,7 @@ Define what success looks like for this project:
 ### Constraints & Assumptions
 
 #### Constraints
+
 - **Budget:** Solo developer project, no external funding
 - **Timeline:** Few months to MVP - must prioritize core features for incremental delivery
 - **Resources:** Single developer implementation
@@ -228,6 +251,7 @@ Define what success looks like for this project:
   - Node.js 18+ requirement from Claude SDK
 
 #### Assumptions
+
 - **Claude Code Hooks API Stability:** Hook events (PreToolUse, PostToolUse, Stop, etc.) will remain stable and available
 - **Claude SDK Capabilities:**
   - SDK will maintain streaming support for real-time feedback
@@ -247,7 +271,9 @@ Define what success looks like for this project:
 ## Notes Section
 
 ### MVP Priority Features
+
 Given the timeline constraint, the following features should be implemented in order:
+
 1. **Phase 1 - Core Hook Infrastructure:**
    - CLI tool for setting up hooks (`cage` command)
    - Basic NestJS backend to receive hook data
@@ -278,7 +304,9 @@ Given the timeline constraint, the following features should be implemented in o
    - Developer dashboard for trust metrics
 
 ### Key Hook Integration Points
+
 Based on Claude Code documentation, all available hooks:
+
 - **PreToolUse:** Validate and provide context before tool execution (can block)
 - **PostToolUse:** Analyze results and trigger corrections after tool execution
 - **UserPromptSubmit:** Enhance prompts with project context (stdout adds to context)
@@ -291,6 +319,7 @@ Based on Claude Code documentation, all available hooks:
 - **Status:** Provide custom status line updates with session metadata
 
 ### Project Name: CAGE
+
 A cage for writing the right thing - a guided environment that ensures AI produces code that matches living specifications. The cage defines boundaries not to restrict, but to guide Claude toward writing exactly what should be written according to evolving, executable specifications.
 
 **Project Website**: [https://cage.tools](https://cage.tools)

@@ -4,16 +4,47 @@
 
 import { vi } from 'vitest';
 
-// Create a mock EventSource class
-export const MockEventSource = vi.fn();
+// Define proper type for EventListener
+type EventListenerFunc = (_event: Event) => void;
 
-// Track all instances created
-MockEventSource.instances = [];
+// Define the type for our mock instance
+interface MockEventSourceInstance {
+  url: string;
+  readyState: number;
+  withCredentials: boolean;
+  CONNECTING: number;
+  OPEN: number;
+  CLOSED: number;
+  onopen: ((_event: Event) => void) | null;
+  onmessage: ((_event: MessageEvent) => void) | null;
+  onerror: ((_event: Event) => void) | null;
+  eventListeners: Map<string, Set<EventListenerFunc>>;
+  close: ReturnType<typeof vi.fn>;
+  addEventListener: ReturnType<typeof vi.fn>;
+  removeEventListener: ReturnType<typeof vi.fn>;
+  dispatchEvent: ReturnType<typeof vi.fn>;
+  simulateOpen: () => void;
+  simulateMessage: (data: unknown) => void;
+  simulateError: (closeConnection?: boolean) => void;
+  simulateCustomEvent: (eventType: string, data: unknown) => void;
+}
 
-// Static constants
-MockEventSource.CONNECTING = 0;
-MockEventSource.OPEN = 1;
-MockEventSource.CLOSED = 2;
+// Create a properly typed mock constructor function
+const createMockEventSource = vi.fn();
+
+// Add static properties and methods to the mock
+const mockConstructor = Object.assign(createMockEventSource, {
+  instances: [] as MockEventSourceInstance[],
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSED: 2,
+  mockImplementation: createMockEventSource.mockImplementation.bind(
+    createMockEventSource
+  ),
+});
+
+// Export the fully typed mock
+export const MockEventSource = mockConstructor;
 
 // Mock implementation
 MockEventSource.mockImplementation(function (url: string) {
@@ -34,7 +65,7 @@ MockEventSource.mockImplementation(function (url: string) {
     onerror: null as ((event: Event) => void) | null,
 
     // Event listeners map
-    eventListeners: new Map<string, Set<EventListener>>(),
+    eventListeners: new Map<string, Set<EventListenerFunc>>(),
 
     // Methods
     close: vi.fn(function () {
@@ -42,16 +73,19 @@ MockEventSource.mockImplementation(function (url: string) {
       instance.eventListeners.clear();
     }),
 
-    addEventListener: vi.fn(function (type: string, listener: EventListener) {
+    addEventListener: vi.fn(function (
+      type: string,
+      listener: EventListenerFunc
+    ) {
       if (!instance.eventListeners.has(type)) {
         instance.eventListeners.set(type, new Set());
       }
-      instance.eventListeners.get(type)!.add(listener);
+      instance.eventListeners.get(type)?.add(listener);
     }),
 
     removeEventListener: vi.fn(function (
       type: string,
-      listener: EventListener
+      listener: EventListenerFunc
     ) {
       const listeners = instance.eventListeners.get(type);
       if (listeners) {

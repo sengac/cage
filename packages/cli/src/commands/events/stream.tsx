@@ -24,7 +24,7 @@ interface StreamState {
   filter?: string;
 }
 
-export function EventsStreamCommand({ filter }: StreamProps): JSX.Element {
+export function EventsStreamCommand({ filter }: StreamProps): React.ReactElement {
   const [state, setState] = useState<StreamState>({
     status: 'connecting',
     message: 'Connecting to event stream...',

@@ -3,6 +3,7 @@
 ## Core Components
 
 ### Logo ✅ Complete
+
 **Location**: `packages/cli/src/components/Logo.tsx`
 
 ASCII art splash screen with gradient animation.
@@ -15,6 +16,7 @@ interface LogoProps {
 ```
 
 **Features**:
+
 - Aqua gradient coloring (#7FDBFF → #01B4C6 → #007A8C)
 - 1.5-second display duration
 - Fade-in animation effect
@@ -22,6 +24,7 @@ interface LogoProps {
 - Auto-transition to main menu
 
 ### MainMenu ✅ Complete
+
 **Location**: `packages/cli/src/components/MainMenu.tsx`
 
 Central navigation hub for all features.
@@ -36,6 +39,7 @@ interface MenuItem {
 ```
 
 **Features**:
+
 - Arrow/j/k navigation
 - Enter to select
 - ESC/q to exit
@@ -43,6 +47,7 @@ interface MenuItem {
 - Themed with hover states
 
 ### VirtualList ✅ Complete
+
 **Location**: `packages/cli/src/components/VirtualList.tsx`
 
 High-performance scrollable list for large datasets.
@@ -62,6 +67,7 @@ interface VirtualListProps<T> {
 ```
 
 **Features**:
+
 - Virtual scrolling (only renders visible items)
 - Scrollbar visualization
 - Keyboard navigation (arrows, j/k, PgUp/PgDn, Home/End, g/G)
@@ -70,11 +76,13 @@ interface VirtualListProps<T> {
 - Custom hook: `useVirtualListState`
 
 **Performance**:
+
 - Handles 10,000+ items smoothly
 - O(1) memory for visible items
 - Automatic scroll following selection
 
 ### EventInspector ✅ Complete
+
 **Location**: `packages/cli/src/components/EventInspector.tsx`
 
 Browse and analyze captured events with filtering and sorting.
@@ -87,6 +95,7 @@ interface EventInspectorProps {
 ```
 
 **Features**:
+
 - Sortable columns (Time, Type, Tool, Description)
 - Multi-field filtering (type, tool, session, date)
 - Search capability (/ key)
@@ -94,6 +103,7 @@ interface EventInspectorProps {
 - Virtual scrolling via VirtualList
 
 **Keyboard Shortcuts**:
+
 - `t`: Sort by timestamp
 - `y`: Sort by type
 - `o`: Sort by tool
@@ -106,6 +116,7 @@ interface EventInspectorProps {
 - `ESC`: Go back
 
 ### EventDetail ⏳ In Progress
+
 **Location**: `packages/cli/src/components/EventDetail.tsx`
 
 Detailed view of selected event with tabs.
@@ -118,6 +129,7 @@ interface EventDetailProps {
 ```
 
 **Planned Features**:
+
 - Tabbed interface (Arguments/Result/Raw)
 - Syntax highlighting for code
 - Diff viewer for edits
@@ -125,11 +137,13 @@ interface EventDetailProps {
 - Export options
 
 ### StreamView ⏳ Planned
+
 **Location**: `packages/cli/src/components/StreamView.tsx`
 
 Real-time event monitoring with pause and inspection.
 
 **Planned Features**:
+
 - Live event streaming
 - Auto-scroll toggle
 - Pause/resume (Space)
@@ -138,11 +152,13 @@ Real-time event monitoring with pause and inspection.
 - Real-time filtering
 
 ### ServerManager ⏳ Planned
+
 **Location**: `packages/cli/src/components/ServerManager.tsx`
 
 Control and monitor the Cage server.
 
 **Planned Features**:
+
 - Start/Stop controls
 - Status display
 - Port configuration
@@ -150,11 +166,13 @@ Control and monitor the Cage server.
 - Recent logs
 
 ### HooksConfig ⏳ Planned
+
 **Location**: `packages/cli/src/components/HooksConfig.tsx`
 
 Setup and verify Claude Code hooks.
 
 **Planned Features**:
+
 - Installation status
 - Hook type list
 - Configuration display
@@ -162,11 +180,13 @@ Setup and verify Claude Code hooks.
 - Verification tools
 
 ### Statistics ⏳ Planned
+
 **Location**: `packages/cli/src/components/Statistics.tsx`
 
 Analytics and metrics dashboard.
 
 **Planned Features**:
+
 - Event counts
 - Tool usage charts
 - Timeline graphs
@@ -174,11 +194,13 @@ Analytics and metrics dashboard.
 - Peak activity
 
 ### Settings ⏳ Planned
+
 **Location**: `packages/cli/src/components/Settings.tsx`
 
 Configuration management interface.
 
 **Planned Features**:
+
 - Theme selection
 - Server settings
 - Display preferences
@@ -186,22 +208,26 @@ Configuration management interface.
 - Import/Export
 
 ### DebugConsole ⏳ Planned
+
 **Location**: `packages/cli/src/components/DebugConsole.tsx`
 
 Debug output and diagnostics.
 
 **Planned Features**:
+
 - Raw event display
 - Log level filtering
 - Performance metrics
 - Stack traces
 
 ### Help ⏳ Planned
+
 **Location**: `packages/cli/src/components/Help.tsx`
 
 Context-sensitive help overlay.
 
 **Planned Features**:
+
 - Keyboard shortcuts
 - Navigation guide
 - Feature documentation
@@ -210,6 +236,7 @@ Context-sensitive help overlay.
 ## Utility Components
 
 ### SyntaxHighlighter ⏳ Planned
+
 Custom syntax highlighting for code display.
 
 ```typescript
@@ -222,6 +249,7 @@ interface SyntaxHighlighterProps {
 ```
 
 ### DiffViewer ⏳ Planned
+
 Display file changes with additions/deletions.
 
 ```typescript
@@ -234,6 +262,7 @@ interface DiffViewerProps {
 ```
 
 ### TaskList ⏳ Planned
+
 Progress indicator for running tasks.
 
 ```typescript
@@ -245,6 +274,7 @@ interface TaskListProps {
 ```
 
 ### FileViewer ⏳ Planned
+
 Display file contents with scrolling.
 
 ```typescript
@@ -257,6 +287,7 @@ interface FileViewerProps {
 ```
 
 ### TabView ⏳ Planned
+
 Tabbed interface for multiple views.
 
 ```typescript
@@ -270,6 +301,7 @@ interface TabViewProps {
 ## Component Patterns
 
 ### State Management
+
 All stateful components follow these patterns:
 
 1. **Local State**: UI-only state (hover, focus)
@@ -277,20 +309,28 @@ All stateful components follow these patterns:
 3. **Props**: Configuration and callbacks
 
 ### Keyboard Handling
+
 Components use Ink's `useInput` hook:
 
 ```typescript
 useInput((input, key) => {
   // Handle navigation
-  if (key.upArrow) { /* ... */ }
+  if (key.upArrow) {
+    /* ... */
+  }
   // Handle actions
-  if (key.return) { /* ... */ }
+  if (key.return) {
+    /* ... */
+  }
   // Handle escape
-  if (key.escape) { onBack(); }
+  if (key.escape) {
+    onBack();
+  }
 });
 ```
 
 ### Theme Integration
+
 All components use the theme hook:
 
 ```typescript
@@ -300,6 +340,7 @@ const theme = useTheme();
 ```
 
 ### Performance Optimization
+
 - Use `React.memo` for pure components
 - Implement `useMemo` for expensive computations
 - Virtual scrolling for large lists
@@ -308,13 +349,16 @@ const theme = useTheme();
 ## Testing Guidelines
 
 ### Unit Tests
+
 Each component should have tests for:
+
 - Rendering with different props
 - Keyboard navigation
 - State changes
 - Callbacks
 
 ### Example Test Structure
+
 ```typescript
 describe('ComponentName', () => {
   describe('Rendering', () => {
@@ -336,17 +380,17 @@ describe('ComponentName', () => {
 
 ## Component Status
 
-| Component | Status | Tests | Documentation |
-|-----------|--------|-------|---------------|
-| Logo | ✅ Complete | ⏳ | ✅ |
-| MainMenu | ✅ Complete | ⏳ | ✅ |
-| VirtualList | ✅ Complete | ✅ | ✅ |
-| EventInspector | ✅ Complete | ⏳ | ✅ |
-| EventDetail | ⏳ In Progress | ⏳ | ✅ |
-| StreamView | ⏳ Planned | ⏳ | ✅ |
-| ServerManager | ⏳ Planned | ⏳ | ✅ |
-| HooksConfig | ⏳ Planned | ⏳ | ✅ |
-| Statistics | ⏳ Planned | ⏳ | ✅ |
-| Settings | ⏳ Planned | ⏳ | ✅ |
-| DebugConsole | ⏳ Planned | ⏳ | ✅ |
-| Help | ⏳ Planned | ⏳ | ✅ |
+| Component      | Status         | Tests | Documentation |
+| -------------- | -------------- | ----- | ------------- |
+| Logo           | ✅ Complete    | ⏳    | ✅            |
+| MainMenu       | ✅ Complete    | ⏳    | ✅            |
+| VirtualList    | ✅ Complete    | ✅    | ✅            |
+| EventInspector | ✅ Complete    | ⏳    | ✅            |
+| EventDetail    | ⏳ In Progress | ⏳    | ✅            |
+| StreamView     | ⏳ Planned     | ⏳    | ✅            |
+| ServerManager  | ⏳ Planned     | ⏳    | ✅            |
+| HooksConfig    | ⏳ Planned     | ⏳    | ✅            |
+| Statistics     | ⏳ Planned     | ⏳    | ✅            |
+| Settings       | ⏳ Planned     | ⏳    | ✅            |
+| DebugConsole   | ⏳ Planned     | ⏳    | ✅            |
+| Help           | ⏳ Planned     | ⏳    | ✅            |

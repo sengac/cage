@@ -82,7 +82,7 @@ export class StatusMonitor extends EventEmitter {
 
     // Set up periodic updates
     this.updateTimer = setInterval(() => {
-      this.updateStatus().catch(error => {
+      this.updateStatus().catch(_error => {
         logger.error('Failed to update status', { error });
       });
     }, this.updateInterval);
@@ -227,7 +227,7 @@ export class StatusMonitor extends EventEmitter {
   // Allow external triggers for status update (e.g., after server start/stop)
   public triggerUpdate(): void {
     // This will respect the minimum interval unless forced
-    this.updateStatus().catch(error => {
+    this.updateStatus().catch(_error => {
       logger.error('Failed to trigger status update', { error });
     });
   }

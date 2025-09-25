@@ -22,8 +22,8 @@ export default tseslint.config(
       '**/*.mjs',
       '**/*.cjs',
       '**/tsconfig.tsbuildinfo',
-      '**/.turbo/**'
-    ]
+      '**/.turbo/**',
+    ],
   },
 
   // Base config for all files
@@ -34,20 +34,17 @@ export default tseslint.config(
       sourceType: 'module',
       parser: tseslint.parser,
       parserOptions: {
-        project: [
-          './tsconfig.json',
-          './packages/*/tsconfig.json'
-        ],
+        project: ['./tsconfig.json', './packages/*/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         ...globals.node,
         ...globals.es2022,
-      }
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      'prettier': prettier,
+      prettier: prettier,
     },
     rules: {
       // Extend recommended rules
@@ -59,59 +56,73 @@ export default tseslint.config(
 
       // TypeScript specific rules
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_'
-      }],
-      '@typescript-eslint/consistent-type-imports': ['error', {
-        prefer: 'type-imports',
-        fixStyle: 'inline-type-imports'
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'inline-type-imports',
+        },
+      ],
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/ban-ts-comment': ['error', {
-        'ts-expect-error': 'allow-with-description',
-        'ts-ignore': false,
-        'ts-nocheck': false,
-        'ts-check': false
-      }],
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        {
+          'ts-expect-error': 'allow-with-description',
+          'ts-ignore': false,
+          'ts-nocheck': false,
+          'ts-check': false,
+        },
+      ],
 
       // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       [noDebugRule]: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
-      'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
+      eqeqeq: ['error', 'always'],
+      curly: ['error', 'all'],
 
       // Disable rules that conflict with Prettier
       ...prettierConfig.rules,
-    }
+    },
   },
 
   // React-specific config for frontend packages
   {
-    files: ['packages/frontend/**/*.tsx', 'packages/frontend/**/*.ts', 'packages/cli/**/*.tsx'],
+    files: [
+      'packages/frontend/**/*.tsx',
+      'packages/frontend/**/*.ts',
+      'packages/cli/**/*.tsx',
+    ],
     plugins: {
-      'react': react,
+      react: react,
       'react-hooks': reactHooks,
     },
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
-        }
+          jsx: true,
+        },
       },
       globals: {
         ...globals.browser,
-      }
+      },
     },
     settings: {
       react: {
-        version: 'detect'
-      }
+        version: 'detect',
+      },
     },
     rules: {
       ...react.configs.recommended.rules,
@@ -122,8 +133,8 @@ export default tseslint.config(
       'react/prop-types': 'off', // We use TypeScript for prop validation
       'react/display-name': 'off',
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn'
-    }
+      'react-hooks/exhaustive-deps': 'warn',
+    },
   },
 
   // Test files config
@@ -131,13 +142,13 @@ export default tseslint.config(
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
     languageOptions: {
       parserOptions: {
-        project: false
-      }
+        project: false,
+      },
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      'no-console': 'off'
-    }
+      'no-console': 'off',
+    },
   },
 
   // Configuration files and test setup files
@@ -153,15 +164,17 @@ export default tseslint.config(
       'test/**/*.ts',
       'vitest.setup.ts',
       'vitest.config.ts',
-      'vitest.config.base.ts'
+      'vitest.config.base.ts',
+      '**/main.ts', // Allow console in main entry files
+      '**/setup.ts', // Allow in setup files
     ],
     languageOptions: {
       parserOptions: {
-        project: false
-      }
+        project: false,
+      },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off'
-    }
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   }
 );

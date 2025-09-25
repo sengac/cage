@@ -12,15 +12,15 @@ import {
  * Event type enumeration
  */
 export enum EventType {
-  PreToolUse = 'PreToolUse',
-  PostToolUse = 'PostToolUse',
-  UserPromptSubmit = 'UserPromptSubmit',
-  SessionStart = 'SessionStart',
-  SessionEnd = 'SessionEnd',
-  Notification = 'Notification',
-  PreCompact = 'PreCompact',
-  Stop = 'Stop',
-  SubagentStop = 'SubagentStop',
+  PreToolUse = 'PreToolUse', // eslint-disable-line no-unused-vars
+  PostToolUse = 'PostToolUse', // eslint-disable-line no-unused-vars
+  UserPromptSubmit = 'UserPromptSubmit', // eslint-disable-line no-unused-vars
+  SessionStart = 'SessionStart', // eslint-disable-line no-unused-vars
+  SessionEnd = 'SessionEnd', // eslint-disable-line no-unused-vars
+  Notification = 'Notification', // eslint-disable-line no-unused-vars
+  PreCompact = 'PreCompact', // eslint-disable-line no-unused-vars
+  Stop = 'Stop', // eslint-disable-line no-unused-vars
+  SubagentStop = 'SubagentStop', // eslint-disable-line no-unused-vars
 }
 
 /**
