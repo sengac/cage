@@ -38,6 +38,25 @@ Phase 2 enhances the Cage CLI with a full-screen interactive Terminal User Inter
 
 ## Interactive TUI Architecture
 
+### Core Design Principles
+
+**CRITICAL: Global Ordering Standard**
+
+ALL lists across the entire application MUST display items in **newest-first** order:
+- Events in all views (Inspector, Real-time Monitor, filtered lists)
+- Debug logs in Debug Console
+- Any time-series data with timestamps
+- **Rationale**: Standard for monitoring/logging tools, users expect newest information at the top
+
+**CRITICAL: Centralized Logging via Winston**
+
+ALL components (frontend CLI and backend) MUST log to the backend Winston logger:
+- **NEVER use `silent: true`** on Logger instances
+- **NEVER use `console.log/error/warn/info/debug`** directly
+- **ALL logs must go through Logger class** which sends to Winston transport
+- **Frontend logs appear in backend debug logs** for unified debugging
+- **Rationale**: Centralized logging enables debugging across distributed components, all logs viewable via Debug Console or `/api/debug/logs` endpoint
+
 ### Shared Component Architecture
 
 The interactive TUI must use a consistent shared component architecture where:
@@ -165,6 +184,54 @@ App
 **And** maintain consistent height (minHeight: 3) across all views
 **And** use consistent styling (borderStyle: round, theme colors)
 
+#### Scenario: StatusBar displays real-time system status from Zustand
+
+**Given** I am in any view of the interactive TUI
+**When** the StatusBar component renders
+**Then** it MUST read ALL state from Zustand store ONLY
+**And** it MUST NOT use any polling (setInterval/setTimeout)
+**And** it MUST NOT make any direct API calls
+**And** it MUST display server status (running/stopped/unknown)
+**And** it MUST display hooks status (X/Y active)
+**And** it MUST display total events count
+**And** it MUST display today's events count
+**And** all status updates MUST come from singleton background services
+**And** status MUST update in real-time when Zustand state changes
+
+#### Scenario: StreamService singleton updates server status in Zustand
+
+**Given** the CAGE CLI application starts
+**When** StreamService.getInstance().connect() is called
+**Then** it MUST establish ONE SSE connection to /api/events/stream
+**And** when SSE connection succeeds it MUST call store.setStreamingStatus(true)
+**And** setStreamingStatus(true) MUST set serverStatus = 'running' in Zustand
+**And** when SSE connection fails it MUST call store.setStreamingStatus(false)
+**And** when SSE receives event_added notification it MUST call store.setLastEventTimestamp()
+**And** setLastEventTimestamp() MUST trigger store.fetchLatestEvents()
+**And** StreamService MUST be a singleton (only ONE instance app-wide)
+**And** StreamService MUST NOT be created per-component
+
+#### Scenario: HooksStatusService singleton updates hooks status in Zustand
+
+**Given** the CAGE CLI application starts
+**When** HooksStatusService.getInstance().start() is called
+**Then** it MUST poll /api/hooks/status every 30 seconds
+**And** it MUST call store.refreshHooksStatus() on each poll
+**And** refreshHooksStatus() MUST fetch from API and update hooksStatus in Zustand
+**And** HooksStatusService MUST be a singleton (only ONE instance app-wide)
+**And** HooksStatusService MUST NOT be created per-component
+**And** polling MUST only happen in this service, NOT in components
+
+#### Scenario: Server status determined by SSE connection, not health endpoint
+
+**Given** the StreamService is managing the SSE connection
+**When** the SSE connection is established successfully
+**Then** serverStatus MUST be set to 'running' (NO separate health check needed)
+**And** the SSE connection itself IS the health indicator
+**And** NO component should poll /health endpoint for status
+**And** NO component should use setInterval to check server status
+**And** serverStatus changes ONLY when SSE connection state changes
+
 #### Scenario: Shared footer shows contextual shortcuts
 
 **Given** I am in any view of the interactive TUI
@@ -191,6 +258,35 @@ App
 **And** not duplicate header/footer code
 **And** receive navigation callbacks from the ViewManager
 **And** provide metadata (title, shortcuts) to the shared components
+
+### Feature: Server API Data Access
+
+#### Scenario: All data must come from server API
+
+**Given** I am using any view that displays event or debug data
+**When** the view needs to access event data, debug logs, or any server-managed information
+**Then** it MUST fetch data from the server API endpoints
+**And** NEVER read directly from the filesystem (e.g., .cage/events directory)
+**And** NEVER use mock or test data in production
+**And** NEVER fallback to filesystem access if the server is unavailable
+
+#### Scenario: Server not running shows warning
+
+**Given** the CAGE server is not running
+**When** I navigate to any view that requires server data (Events Inspector, Debug Console, Stream View, etc.)
+**Then** the view should display "Server is not running"
+**And** show a message "Start the server to view [data type]"
+**And** NOT display any cached, mock, or filesystem data
+**And** NOT attempt to read from .cage directory directly
+
+#### Scenario: Test data isolation
+
+**Given** test data generation scripts exist
+**When** they generate mock event data
+**Then** they MUST write to a temporary directory (e.g., /tmp/cage-test-*)
+**And** NEVER write to the project's .cage directory
+**And** NEVER pollute the production environment
+**And** clean up all test data after tests complete
 
 ### Feature: Interactive Mode Launch
 
@@ -423,7 +519,7 @@ This is a dedicated full-screen streaming view within the interactive TUI, optim
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│          REAL-TIME EVENT STREAM              [STREAMING]     │
+│          REAL-TIME EVENT STREAM              [LIVE]          │
 ├─────────────────────────────────────────────────────────────┤
 │ Filter: [All] | Session: [...a10e] | Rate: 12 events/min    │
 ├─────────────────────────────────────────────────────────────┤
@@ -450,9 +546,9 @@ This is a dedicated full-screen streaming view within the interactive TUI, optim
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│          REAL-TIME EVENT STREAM              [PAUSED]        │
+│          REAL-TIME EVENT STREAM              [LIVE]          │
 ├─────────────────────────────────────────────────────────────┤
-│ Filter: [Edit] | Session: [...a10e] | 23 new events buffered │
+│ Filter: [Edit] | Session: [...a10e] | Streaming: 12 evt/min │
 ├─────────────────────────────────────────────────────────────┤
 │ 10:43:15.234  PostToolUse   Edit     ✓ Updated index.ts    │
 │ 10:43:45.567  PreToolUse    Edit     components/App.tsx    │
@@ -476,24 +572,23 @@ This is a dedicated full-screen streaming view within the interactive TUI, optim
 **Given** I select "Real-time Monitor" from main menu
 **When** the monitor view opens
 **Then** I should see a dedicated full-screen streaming interface
-**And** events appear in real-time as they occur
-**And** new events should appear at the bottom with highlight animation
-**And** show "STREAMING... (X events/min)" status in header
+**And** events appear in real-time as they occur automatically
+**And** new events should appear at the top (newest first) with highlight animation
+**And** show "LIVE (X events/min)" status in header when streaming
+**And** show "CONNECTING..." status while establishing connection
 **And** maintain a scrollable history buffer of last 1000 events
 
-#### Scenario: Pause streaming to explore
+#### Scenario: Navigate through streaming events
 
 **Given** I am in real-time monitor mode
-**When** I press Space or P
-**Then** streaming should pause
-**And** show "PAUSED - Scroll to explore" indicator
-**And** the event list becomes fully navigable
-**And** new events continue buffering in background
-**And** show count of buffered events: "23 new events (Space to resume)"
+**When** events are streaming
+**Then** the event list is fully navigable with arrow keys
+**And** new events continue appearing at the top (newest first)
+**And** I can scroll down to view older history while streaming continues
 
 #### Scenario: Scroll through event history
 
-**Given** streaming is paused or I'm viewing history
+**Given** I'm viewing the streaming events
 **When** I use arrow keys or PgUp/PgDn
 **Then** I can scroll through all buffered events
 **And** current position shows: "Event 145 of 523"
@@ -545,7 +640,7 @@ This is a dedicated full-screen streaming view within the interactive TUI, optim
 
 #### Scenario: Auto-scroll with new events
 
-**Given** streaming is active (not paused)
+**Given** streaming is active
 **When** new events arrive
 **Then** the view should auto-scroll to show latest
 **And** briefly highlight new events (fade animation)
@@ -700,25 +795,253 @@ This is a dedicated full-screen streaming view within the interactive TUI, optim
 
 ### Feature: Debug Console
 
-#### Scenario: View debug output
+The Debug Console provides real-time visibility into all system logging via Winston logger, accessible through the `/api/debug/logs` endpoint.
 
-**Given** debug mode is enabled
-**When** I open the debug console
-**Then** I should see:
+#### Scenario: Logger event capture via Winston
 
-- Raw hook data as it arrives
-- Backend communication logs
+**Given** the CAGE system is running (backend, CLI, or hooks)
+**When** any component uses the Logger class (from @cage/shared)
+**Then** all logger events MUST be captured by Winston
+**And** Winston MUST persist events to an in-memory transport
+**And** logger events include: debug, info, warn, error levels
+**And** each event captures: timestamp, level, component, message, context data, stack traces (for errors)
+
+#### Scenario: Backend exposes debug logs endpoint
+
+**Given** Winston is capturing all logger events
+**When** a client requests GET `/api/debug/logs`
+**Then** the backend MUST return all captured log events
+**And** support query parameters: `?level=ERROR&component=hooks&limit=500`
+**And** return events in JSON format with schema:
+```typescript
+{
+  id: string;
+  timestamp: string; // ISO 8601
+  level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+  component: string;
+  message: string;
+  context?: Record<string, unknown>;
+  stackTrace?: string;
+}
+```
+
+#### Scenario: View debug output in interactive CLI
+
+**Given** the server is running and capturing logs
+**When** I open the debug console in the interactive CLI
+**Then** I should see all logger events from:
+- Backend operations (event processing, API calls)
+- Hook handler execution (pre/post tool use)
+- CLI operations (user interactions, API requests)
 - File system operations
 - Performance metrics
 - Error stack traces
+**And** new events appear instantly via SSE notifications (no polling)
+**And** display "Server is not running" if backend is unavailable
 
 #### Scenario: Filter debug output
 
 **Given** I am viewing debug console
 **When** I press F for filter
-**Then** I can filter by log level (ERROR, WARN, INFO, DEBUG)
-**And** filter by component (hooks, backend, cli)
-**And** search within logs
+**Then** I can cycle through log levels: all → DEBUG → INFO → WARN → ERROR → all
+**And** press C to cycle through components
+**And** press / to search within log messages
+**And** press R to reset all filters
+**And** see filtered event count vs total count
+
+### Feature: Real-Time Event Notification Architecture (SSE)
+
+CAGE uses a **notification bus pattern** for real-time updates where Server-Sent Events (SSE) provide lightweight notifications, and REST APIs provide data on-demand. This architecture eliminates polling, reduces bandwidth, and provides instant updates across all views.
+
+#### Architecture Principle
+
+**SSE = Notification Bus (Lightweight)**
+- Backend emits tiny notifications when data changes (~200 bytes per notification)
+- Notifications include: type, timestamp, and minimal metadata
+- Single SSE connection handles ALL notification types (events, debug logs, etc.)
+
+**REST APIs = Data Source (On-Demand)**
+- Frontend fetches only NEW data when notified
+- APIs support `?since=timestamp` parameter for incremental fetching
+- No duplicate data transmission via SSE stream
+
+#### Notification Message Types
+
+All SSE messages follow this format:
+```typescript
+// System messages
+{ type: 'connected' }  // Initial connection established
+{ type: 'heartbeat' }  // Keep-alive every 30 seconds
+
+// Data change notifications
+{
+  type: 'event_added',
+  eventType: 'PreToolUse',
+  sessionId: 'session-123...',
+  timestamp: '2025-01-24T10:45:23.123Z'
+}
+
+{
+  type: 'debug_log_added',
+  level: 'ERROR',
+  component: 'HooksController',
+  timestamp: '2025-01-24T10:45:23.456Z'
+}
+```
+
+#### Scenario: Backend emits SSE notification when hook event logged
+
+**Given** the backend EventLoggerService receives a hook event
+**When** `logEvent()` completes successfully
+**Then** the backend MUST emit an internal event: `'hook.event.added'`
+**And** the event payload MUST include: `{ eventType, sessionId, timestamp }`
+**And** the EventsController MUST listen for this internal event via `@OnEvent('hook.event.added')`
+**And** broadcast an SSE notification to ALL connected clients
+**And** the SSE notification MUST have format:
+```typescript
+{
+  type: 'event_added',
+  eventType: string,
+  sessionId: string,
+  timestamp: string  // ISO 8601
+}
+```
+**And** the notification payload MUST be under 200 bytes
+**And** NOT include full event data (file contents, command outputs, etc.)
+
+#### Scenario: Backend emits SSE notification when debug log captured
+
+**Given** Winston captures a log event via WinstonLoggerService
+**When** `addLog()` is called
+**Then** the backend MUST emit an internal event: `'debug.log.added'`
+**And** the event payload MUST include: `{ level, component, timestamp }`
+**And** the EventsController MUST listen for this internal event via `@OnEvent('debug.log.added')`
+**And** broadcast an SSE notification to ALL connected clients
+**And** the SSE notification MUST have format:
+```typescript
+{
+  type: 'debug_log_added',
+  level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR',
+  component: string,
+  timestamp: string  // ISO 8601
+}
+```
+**And** the notification payload MUST be under 200 bytes
+
+#### Scenario: Frontend establishes single SSE connection
+
+**Given** the CAGE CLI application starts
+**When** the StreamService initializes
+**Then** it MUST establish exactly ONE SSE connection to `/api/events/stream`
+**And** the connection MUST remain open for the entire application lifetime
+**And** the connection MUST handle ALL notification types (event_added, debug_log_added, heartbeat)
+**And** NO component should establish its own SSE connection
+**And** NO component should use polling (setInterval) to fetch data
+
+#### Scenario: Frontend receives event notification and fetches new data
+
+**Given** the SSE connection is established
+**When** a notification with `type: 'event_added'` is received
+**Then** the frontend MUST parse the notification payload
+**And** extract the `timestamp` field
+**And** update `appStore.lastEventTimestamp` with this timestamp
+**And** the store setter MUST trigger `appStore.fetchLatestEvents()`
+**And** `fetchLatestEvents()` MUST call `GET /api/events/list?since={lastEventTimestamp}`
+**And** the API MUST return ONLY events newer than the timestamp
+**And** the frontend MUST append new events to existing `appStore.events` array
+**And** NOT replace the entire array (preserve existing events)
+
+#### Scenario: Frontend receives debug log notification and fetches new logs
+
+**Given** the SSE connection is established
+**When** a notification with `type: 'debug_log_added'` is received
+**Then** the frontend MUST parse the notification payload
+**And** extract the `timestamp` field
+**And** update `appStore.lastDebugLogTimestamp` with this timestamp
+**And** the store setter MUST trigger `appStore.fetchLatestDebugLogs()`
+**And** `fetchLatestDebugLogs()` MUST call `GET /api/debug/logs?since={lastDebugLogTimestamp}`
+**And** the API MUST return ONLY logs newer than the timestamp
+**And** components watching this store state MUST automatically update
+
+#### Scenario: Components react to store changes without polling
+
+**Given** a component needs real-time data (DebugConsole, StreamView, EventInspector)
+**When** the component mounts
+**Then** it MUST load initial data once via REST API
+**And** it MUST watch relevant store state (lastEventTimestamp or lastDebugLogTimestamp)
+**And** use React `useEffect` hook with the timestamp as a dependency
+**When** the timestamp changes in the store
+**Then** the component's effect MUST trigger automatically
+**And** fetch only NEW data using the `?since` parameter
+**And** update its local state with the new data
+**And** NOT use `setInterval` for polling
+**And** NOT make redundant API calls
+
+#### Scenario: Backend API supports incremental data fetching
+
+**Given** the backend has captured events and logs over time
+**When** a client requests `GET /api/events/list?since=2025-01-24T10:45:00.000Z`
+**Then** the backend MUST return only events with `timestamp > since`
+**And** sort events by timestamp ascending (oldest first)
+**And** NOT return events older than or equal to the `since` timestamp
+**When** a client requests `GET /api/debug/logs?since=2025-01-24T10:45:00.000Z`
+**Then** the backend MUST return only logs with `timestamp > since`
+**And** NOT return logs older than or equal to the `since` timestamp
+
+#### Scenario: SSE connection handles heartbeat keep-alive
+
+**Given** an SSE connection is established
+**When** no data changes occur for 30 seconds
+**Then** the backend MUST send a heartbeat notification: `{ type: 'heartbeat' }`
+**And** the frontend MUST ignore heartbeat messages (no action needed)
+**And** the heartbeat MUST prevent connection timeout
+**And** heartbeat interval MUST be 30 seconds (not 10 seconds)
+
+#### Scenario: SSE connection recovery on disconnect
+
+**Given** an SSE connection is established
+**When** the connection drops (network issue, server restart, etc.)
+**Then** the EventSource MUST automatically attempt to reconnect
+**And** the frontend MUST track the last known timestamp before disconnect
+**When** the connection re-establishes
+**Then** the frontend MUST fetch all events since last known timestamp
+**And** the frontend MUST call `GET /api/events/list?since={lastEventTimestamp}`
+**And** the frontend MUST call `GET /api/debug/logs?since={lastDebugLogTimestamp}`
+**And** catch up on any missed events/logs during disconnection
+
+#### Scenario: Backend manages SSE client list
+
+**Given** the backend EventsController handles SSE streaming
+**When** a client connects to `/api/events/stream`
+**Then** the controller MUST add the client Response object to `sseClients` array
+**And** send initial `{ type: 'connected' }` message
+**When** an internal event is emitted (`hook.event.added` or `debug.log.added`)
+**Then** the controller MUST broadcast the notification to ALL clients in the list
+**When** a client disconnects
+**Then** the controller MUST remove the client from `sseClients` array
+**And** clear any associated intervals (heartbeat, etc.)
+
+#### Scenario: Real-time updates via SSE notifications only
+
+**Given** the CAGE system is running with active components displaying real-time data
+**When** new events or debug logs are added to the system
+**Then** components MUST receive updates via SSE notifications
+**And** components MUST NOT use `setInterval` or timers to repeatedly fetch data
+**And** all data fetching MUST be triggered by SSE notifications or explicit user actions
+**And** the system MUST maintain exactly one SSE connection for all real-time updates
+**And** no component should make redundant or repeated API requests on a schedule
+
+#### Architecture Benefits
+
+This notification bus pattern provides:
+
+1. **Single Source of Truth**: One SSE connection for all real-time updates
+2. **Reduced Bandwidth**: Notifications are ~200 bytes vs full event data (KB-MB)
+3. **No Polling**: Zero `setInterval` usage, backend controls update frequency
+4. **Better UX**: Instant updates with no flickering or loading states on refresh
+5. **Scalable**: Easy to add new notification types without changing SSE infrastructure
+6. **Testable**: Clear separation between notification layer and data layer
+7. **Simple Components**: Components react to store changes, no complex polling logic
 
 ### Feature: Context-Sensitive Help
 

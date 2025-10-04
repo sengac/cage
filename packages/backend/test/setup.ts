@@ -1,3 +1,4 @@
+import 'reflect-metadata'; // CRITICAL: Must be imported before NestJS classes
 import { vi } from 'vitest';
 
 // Mock console.log in tests

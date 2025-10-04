@@ -71,9 +71,16 @@ describe('Feature: Events Tail API Endpoint', () => {
     await app.close();
 
     // Clean up test logs
-    const testLogDir = join(process.cwd(), '.cage');
+    const testBaseDir = process.env.TEST_BASE_DIR || process.cwd();
+    const testLogDir = join(testBaseDir, '.cage');
     if (existsSync(testLogDir)) {
       rmSync(testLogDir, { recursive: true, force: true });
+    }
+
+    // Clean up the entire test directory
+    const tmpDir = join(process.cwd(), 'tmp');
+    if (existsSync(tmpDir)) {
+      rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 

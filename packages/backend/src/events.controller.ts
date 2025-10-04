@@ -1,4 +1,5 @@
 import { Controller, Get, Res, Query } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import {
   ApiTags,
   ApiOperation,
@@ -9,11 +10,24 @@ import {
 import type { Response } from 'express';
 import { EventLoggerService } from './event-logger.service';
 import { EventsResponseDto, EventStatsDto } from './dto/events.dto';
+import { Logger } from '@cage/shared';
+
+interface SSENotification {
+  type: 'connected' | 'heartbeat' | 'event_added' | 'debug_log_added';
+  timestamp?: string;
+  level?: string;
+  component?: string;
+  eventType?: string;
+  sessionId?: string;
+}
 
 @ApiTags('Events')
 @Controller('events')
 export class EventsController {
-  private eventLogger = new EventLoggerService();
+  private readonly logger = new Logger({ context: 'EventsController' });
+  private sseClients: Response[] = [];
+
+  constructor(private readonly eventLogger: EventLoggerService) {}
   @Get('stream')
   @ApiOperation({
     summary: 'Stream events in real-time',
@@ -28,22 +42,104 @@ export class EventsController {
       example: 'data: {"type":"connected"}\n\n',
     },
   })
-  streamEvents(@Res() res: Response) {
+  async streamEvents(@Res() res: Response) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
 
-    // Send initial connection message
-    res.write('data: {"type":"connected"}\n\n');
+    try {
+      res.write('data: {"type":"connected"}\n\n');
+    } catch (error) {
+      this.logger.error('Failed to write initial SSE message', { error });
+      return;
+    }
 
-    // Keep connection alive
+    this.sseClients.push(res);
+    this.logger.info('SSE client connected', {
+      totalClients: this.sseClients.length,
+    });
+
     const heartbeat = setInterval(() => {
-      res.write('data: {"type":"heartbeat"}\n\n');
+      try {
+        res.write('data: {"type":"heartbeat"}\n\n');
+      } catch (error) {
+        this.logger.debug('Heartbeat write failed, client likely disconnected');
+      }
     }, 30000);
 
-    // Clean up on client disconnect
     res.on('close', () => {
       clearInterval(heartbeat);
+      this.sseClients = this.sseClients.filter(client => client !== res);
+      this.logger.info('SSE client disconnected', {
+        remainingClients: this.sseClients.length,
+      });
+    });
+  }
+
+  @OnEvent('debug.log.added')
+  handleDebugLogAdded(payload: {
+    level: string;
+    component: string;
+    timestamp: string;
+  }): void {
+    this.broadcast({
+      type: 'debug_log_added',
+      level: payload.level,
+      component: payload.component,
+      timestamp: payload.timestamp,
+    });
+  }
+
+  @OnEvent('hook.event.added')
+  handleEventAdded(payload: {
+    eventType: string;
+    sessionId: string;
+    timestamp: string;
+  }): void {
+    this.broadcast({
+      type: 'event_added',
+      eventType: payload.eventType,
+      sessionId: payload.sessionId,
+      timestamp: payload.timestamp,
+    });
+  }
+
+  private broadcast(notification: SSENotification): void {
+    const message = `data: ${JSON.stringify(notification)}\n\n`;
+    const payloadSize = Buffer.byteLength(message, 'utf8');
+
+    if (payloadSize > 200) {
+      this.logger.warn('SSE notification payload exceeds 200 bytes', {
+        size: payloadSize,
+        notification,
+      });
+    }
+
+    const failedClients: Response[] = [];
+
+    this.sseClients.forEach(client => {
+      try {
+        client.write(message);
+      } catch (error) {
+        this.logger.error('Failed to write to SSE client', { error });
+        failedClients.push(client);
+      }
+    });
+
+    if (failedClients.length > 0) {
+      this.sseClients = this.sseClients.filter(
+        client => !failedClients.includes(client)
+      );
+      this.logger.info('Removed failed SSE clients', {
+        removedCount: failedClients.length,
+        remainingClients: this.sseClients.length,
+      });
+    }
+
+    this.logger.debug('Broadcasted SSE notification', {
+      type: notification.type,
+      clients: this.sseClients.length,
     });
   }
 
@@ -75,7 +171,7 @@ export class EventsController {
   @ApiOperation({
     summary: 'List events with pagination and filtering',
     description:
-      'Get a paginated list of events with optional filtering by date and session ID',
+      'Get a paginated list of events with optional filtering by date and session ID, or incremental fetching with since parameter',
   })
   @ApiQuery({
     name: 'page',
@@ -105,6 +201,14 @@ export class EventsController {
     description: 'Filter by session ID',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
   })
+  @ApiQuery({
+    name: 'since',
+    required: false,
+    type: String,
+    description:
+      'Return only events newer than this timestamp (ISO 8601 format). Used for incremental fetching after SSE notifications.',
+    example: '2025-01-24T10:00:00.000Z',
+  })
   @ApiResponse({
     status: 200,
     description: 'Events list retrieved successfully',
@@ -114,18 +218,38 @@ export class EventsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('date') date?: string,
-    @Query('sessionId') sessionId?: string
+    @Query('sessionId') sessionId?: string,
+    @Query('since') since?: string
   ) {
+    if (since) {
+      let events = await this.eventLogger.getEventsSince(since);
+
+      if (sessionId) {
+        events = events.filter(
+          (event: { sessionId: string }) => event.sessionId === sessionId
+        );
+      }
+
+      return {
+        events,
+        total: events.length,
+        pagination: {
+          page: 1,
+          limit: events.length,
+          total: events.length,
+        },
+      };
+    }
+
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 50;
 
-    const result = await this.eventLogger.getEventsList(
+    return await this.eventLogger.getEventsList(
       pageNum,
       limitNum,
       date,
       sessionId
     );
-    return result;
   }
 
   @Get('stats')

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventLoggerService } from '../src/event-logger.service';
 import { mkdtemp, rm, readFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
@@ -10,12 +11,18 @@ import { join } from 'path';
  *
  * Tests that events are properly written to file system
  * in append-only JSONL format with date-based rotation.
+ * Tests that SSE notifications are emitted for each event.
  */
 
 describe('EventLoggerService', () => {
   let service: EventLoggerService;
   let testDir: string;
   let originalCwd: string;
+  let eventEmitter: EventEmitter2;
+  let emittedEvents: Array<{
+    eventName: string;
+    payload: unknown;
+  }>;
 
   beforeEach(async () => {
     originalCwd = process.cwd();
@@ -26,7 +33,15 @@ describe('EventLoggerService', () => {
     await mkdir('.cage', { recursive: true });
     await mkdir('.cage/events', { recursive: true });
 
-    service = new EventLoggerService();
+    // Setup event emitter
+    eventEmitter = new EventEmitter2();
+    emittedEvents = [];
+
+    eventEmitter.on('hook.event.added', (payload: unknown) => {
+      emittedEvents.push({ eventName: 'hook.event.added', payload });
+    });
+
+    service = new EventLoggerService(eventEmitter);
   });
 
   afterEach(async () => {
@@ -230,6 +245,118 @@ describe('EventLoggerService', () => {
       const today = new Date().toISOString().split('T')[0];
       const eventsFile = join(testDir, '.cage/events', today, 'events.jsonl');
       expect(existsSync(eventsFile)).toBe(true);
+    });
+  });
+
+  describe('SSE notification emission', () => {
+    it('should emit hook.event.added after logging event', async () => {
+      // Arrange
+      const event = {
+        timestamp: new Date().toISOString(),
+        eventType: 'PreToolUse' as const,
+        sessionId: 'test-session-123',
+        toolName: 'Edit',
+        arguments: { file_path: '/test.ts' },
+      };
+
+      // Act
+      await service.logEvent(event);
+
+      // Assert
+      expect(emittedEvents).toHaveLength(1);
+      expect(emittedEvents[0].eventName).toBe('hook.event.added');
+
+      const payload = emittedEvents[0].payload as {
+        eventType: string;
+        sessionId: string;
+        timestamp: string;
+      };
+      expect(payload.eventType).toBe('PreToolUse');
+      expect(payload.sessionId).toBe('test-session-123');
+      expect(payload.timestamp).toBe(event.timestamp);
+    });
+
+    it('should emit notification payload under 200 bytes', async () => {
+      // Arrange
+      const event = {
+        timestamp: new Date().toISOString(),
+        eventType: 'PostToolUse' as const,
+        sessionId: 'session-with-long-id-123456789',
+        toolName: 'Write',
+        arguments: { file_path: '/very/long/path/to/file.ts' },
+        results: { success: true, filesWritten: 1 },
+      };
+
+      // Act
+      await service.logEvent(event);
+
+      // Assert
+      const payload = emittedEvents[0].payload;
+      const payloadSize = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+      expect(payloadSize).toBeLessThan(200);
+    });
+
+    it('should emit event for each logged event', async () => {
+      // Arrange
+      const events = [
+        {
+          timestamp: new Date().toISOString(),
+          eventType: 'PreToolUse' as const,
+          sessionId: 'session-1',
+          toolName: 'Read',
+        },
+        {
+          timestamp: new Date().toISOString(),
+          eventType: 'PostToolUse' as const,
+          sessionId: 'session-1',
+          toolName: 'Read',
+        },
+        {
+          timestamp: new Date().toISOString(),
+          eventType: 'UserPromptSubmit' as const,
+          sessionId: 'session-1',
+          prompt: 'Test prompt',
+        },
+      ];
+
+      // Act
+      for (const event of events) {
+        await service.logEvent(event);
+      }
+
+      // Assert
+      expect(emittedEvents).toHaveLength(3);
+      expect(
+        (emittedEvents[0].payload as { eventType: string }).eventType
+      ).toBe('PreToolUse');
+      expect(
+        (emittedEvents[1].payload as { eventType: string }).eventType
+      ).toBe('PostToolUse');
+      expect(
+        (emittedEvents[2].payload as { eventType: string }).eventType
+      ).toBe('UserPromptSubmit');
+    });
+
+    it('should emit event after file write completes', async () => {
+      // Arrange
+      const event = {
+        timestamp: new Date().toISOString(),
+        eventType: 'PreToolUse' as const,
+        sessionId: 'test-session',
+        toolName: 'Edit',
+      };
+
+      // Act
+      await service.logEvent(event);
+
+      // Assert: Event should be written to file
+      const today = new Date().toISOString().split('T')[0];
+      const eventsFile = join(testDir, '.cage/events', today, 'events.jsonl');
+      expect(existsSync(eventsFile)).toBe(true);
+
+      // Assert: SSE notification should also be emitted
+      expect(emittedEvents).toHaveLength(1);
+      expect(emittedEvents[0].eventName).toBe('hook.event.added');
     });
   });
 });

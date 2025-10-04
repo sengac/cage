@@ -6,7 +6,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import React from 'react';
 
-import { InitCommand } from '../../src/commands/init';
+import { InitCommand } from '../../src/cli/commands/init';
 
 describe('Scenario: Initialize Cage in a project', () => {
   let testDir: string;
@@ -48,7 +48,7 @@ describe('Scenario: Initialize Cage in a project', () => {
     await vi.waitFor(
       () => {
         const output = lastFrame();
-        expect(output).toContain('Cage initialized successfully');
+        expect(output).toContain('CAGE initialized successfully');
       },
       { timeout: 5000 }
     );
@@ -95,7 +95,7 @@ describe('Scenario: Initialize Cage in a project', () => {
     await vi.waitFor(
       () => {
         const output = lastFrame();
-        expect(output).toContain('Cage is already initialized in this project');
+        expect(output).toContain('CAGE is already initialized in this project');
       },
       { timeout: 5000 }
     );

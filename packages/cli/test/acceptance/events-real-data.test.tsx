@@ -12,9 +12,9 @@ import { tmpdir } from 'os';
 import { nanoid } from 'nanoid';
 import React from 'react';
 
-import { EventsListCommand } from '../../src/commands/events/list.js';
-import { EventsTailCommand } from '../../src/commands/events/tail.js';
-import { EventsStreamCommand } from '../../src/commands/events/stream.js';
+import { EventsListCommand } from '../../src/features/events/commands/list';
+import { EventsTailCommand } from '../../src/features/events/commands/tail';
+import { EventsStreamCommand } from '../../src/features/events/commands/stream';
 
 describe('CLI Events Commands with Real Data - Given-When-Then', () => {
   let testDir: string;

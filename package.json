@@ -3,11 +3,13 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
+    "preinstall": "node -e \"const v=process.version; const req='v22.20.0'; if(v!==req) throw new Error('Node '+req+' required. Run: nvm use')\"",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "setup": "npm install && npm run build",
-    "build": "npm run build --workspaces --if-present",
+    "prebuild": "node -e \"const v=process.version; const req='v22.20.0'; if(v!==req) throw new Error('Node '+req+' required. Run: nvm use')\"",
+    "build": "npm run build --workspace @cage/shared && npm run build --workspaces --if-present",
     "dev": "npm run dev --workspace @cage/backend",
     "typecheck": "tsc --build --verbose",
     "lint": "eslint . --ext .ts,.tsx",
@@ -28,6 +30,10 @@
     "packages/*"
   ],
   "type": "module",
+  "engines": {
+    "node": "22.20.0",
+    "npm": ">=10.0.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",

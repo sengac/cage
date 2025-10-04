@@ -8,13 +8,13 @@ import { existsSync } from 'fs';
 import React from 'react';
 
 // Mock the modules at the top level
-vi.mock('../../src/utils/config.js');
-vi.mock('../../src/utils/hooks-installer.js');
+vi.mock('../../src/shared/utils/config');
+vi.mock('../../src/features/hooks/utils/hooks-installer');
 
-import { HooksSetupCommand } from '../../src/commands/hooks/setup.js';
-import { HooksStatusCommand } from '../../src/commands/hooks/status.js';
-import * as configUtils from '../../src/utils/config.js';
-import * as hooksInstaller from '../../src/utils/hooks-installer.js';
+import { HooksSetupCommand } from '../../src/features/hooks/commands/setup';
+import { HooksStatusCommand } from '../../src/features/hooks/commands/status';
+import * as configUtils from '../../src/shared/utils/config';
+import * as hooksInstaller from '../../src/features/hooks/utils/hooks-installer';
 
 describe('Feature: Claude Code Hook Configuration', () => {
   let testDir: string;

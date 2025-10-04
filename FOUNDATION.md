@@ -29,6 +29,11 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 #### Architecture
 
 - **Architecture Pattern:** Event-driven - hook events are the sole triggers, backend processes events asynchronously
+- **Real-Time Communication Pattern:** SSE Notification Bus
+  - **SSE = Notification Bus (Lightweight)**: Backend emits tiny notifications (~200 bytes) when data changes, single connection handles all notification types
+  - **REST APIs = Data Source (On-Demand)**: Frontend fetches only NEW data using `?since=timestamp` parameter when notified
+  - **Benefits**: Eliminates polling, reduces bandwidth, provides instant updates, single source of truth
+  - **No Polling**: Zero `setInterval` usage anywhere in the system - all real-time updates come from SSE notifications
 - **Deployment Target:** Local development machines or Docker containers (Docker config out of scope)
 - **Scalability Requirements:** Single developer use - no concurrent user handling needed
 - **Performance Requirements:** No specific performance metrics required - focus on correctness over speed
@@ -37,7 +42,11 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 
 - **Development Tools:** Not specified - developer's choice
 - **CI/CD Pipeline:** Not required
-- **Logging & Analytics:** File-based append-only logs for all events
+- **Logging & Analytics:**
+  - File-based append-only logs for all hook events
+  - Winston-based centralized logging for all system operations (debug, info, warn, error)
+  - In-memory log transport accessible via `/api/debug/logs` endpoint
+  - Debug Console in interactive CLI displays all logger events in real-time
 - **Security Requirements:** Not required for single developer use
 
 #### Key Libraries & Dependencies
@@ -52,18 +61,30 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 **Backend (NestJS):**
 
 - **@nestjs/swagger**: Auto-generate OpenAPI documentation and Swagger UI
-- **@nestjs/event-emitter**: Event-driven architecture for hook event processing
+- **@nestjs/event-emitter + eventemitter2**: Event-driven architecture for internal notifications
+  - Services emit internal events (`hook.event.added`, `debug.log.added`) via EventEmitter2
+  - EventsController listens with `@OnEvent` decorators and broadcasts SSE notifications
+  - Enables decoupled notification bus pattern: data layer emits, SSE layer broadcasts
 - **Server-Sent Events**: Built-in SSE support in NestJS (no separate package needed)
+  - EventsController manages SSE client list and broadcasts lightweight notifications
+  - Single `/api/events/stream` endpoint handles ALL notification types
+  - Heartbeat every 30 seconds to keep connections alive
 - **@instantlyeasy/claude-code-sdk-ts**: Claude Code SDK for LLM integration
+- **winston**: Centralized logging framework with in-memory transport for debug console
 - **zod**: Runtime type validation and schema definition
 - **class-validator/class-transformer**: DTO validation and transformation
 
-**Frontend (React):**
+**Frontend (React) & CLI (Ink):**
 
 - **zustand**: Lightweight state management (no Redux/MobX)
-- **React Router**: Client-side routing
+  - **Singleton Services Pattern**: Background services update Zustand, components read from Zustand
+  - **StreamService**: Singleton managing ONE SSE connection, updates serverStatus and triggers event fetches
+  - **HooksStatusService**: Singleton polling /api/hooks/status every 30s, updates hooksStatus in Zustand
+  - **NO Polling in Components**: Components NEVER use setInterval/setTimeout, NEVER make direct API calls for real-time data
+  - **Pure Reactive Components**: UI components (StatusBar, etc.) read ONLY from Zustand store, automatically re-render on state changes
+- **React Router**: Client-side routing (web frontend only)
 - **Fetch API**: Native browser API for HTTP requests (no Axios)
-- **EventSource/SSE client**: For receiving server-sent events
+- **EventSource/SSE client**: For receiving server-sent events (managed by StreamService singleton)
 
 **Shared/Utility:**
 

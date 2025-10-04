@@ -2,16 +2,17 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { spawn } from 'child_process';
 import { mkdtemp, rm, writeFile, readFile, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { existsSync } from 'fs';
 import { createServer } from 'http';
+import { fileURLToPath } from 'url';
 import type { Server } from 'http';
 import type { IncomingMessage, ServerResponse } from 'http';
 
-const HOOK_HANDLER_PATH = join(
-  process.cwd(),
-  'packages/hooks/dist/cage-hook-handler.js'
-);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const HOOK_HANDLER_PATH = join(__dirname, '..', 'dist', 'cage-hook-handler.js');
 
 // Mock server response interface
 interface MockResponse {
@@ -107,6 +108,12 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
         },
       });
 
+      // Capture stderr for debugging
+      let stderr = '';
+      handler.stderr.on('data', chunk => {
+        stderr += chunk.toString();
+      });
+
       // Send data to stdin
       handler.stdin.write(JSON.stringify(hookData));
       handler.stdin.end();
@@ -117,6 +124,11 @@ describe('Hook Handler Integration', { concurrent: false }, () => {
           resolve(code || 0);
         });
       });
+
+      // Log error if test fails
+      if (exitCode !== 0) {
+        console.error('Handler stderr:', stderr);
+      }
 
       // Should exit successfully
       expect(exitCode).toBe(0);

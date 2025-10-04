@@ -2,6 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { setGlobalLogTransport, Logger } from '@cage/shared';
+import { WinstonLoggerService } from './winston-logger.service';
+
+// Logger for bootstrap function
+const logger = new Logger({ context: 'Bootstrap' });
 
 /**
  * Bootstrap the CAGE Backend Server
@@ -16,6 +21,12 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
+
+  // Wire up Winston logger transport for @cage/shared Logger
+  const winstonService = app.get(WinstonLoggerService);
+  setGlobalLogTransport({
+    log: (entry) => winstonService.addLog(entry),
   });
 
   // Enable CORS for local development
@@ -34,7 +45,7 @@ async function bootstrap(): Promise<void> {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Strip properties not defined in DTO
-      forbidNonWhitelisted: true, // Throw error for non-whitelisted properties
+      forbidNonWhitelisted: false, // Allow extra properties (they'll be stripped)
       transform: true, // Auto-transform to DTO types
       transformOptions: {
         enableImplicitConversion: true, // Convert primitive types
@@ -111,7 +122,7 @@ All successful responses return JSON with appropriate HTTP status codes:
   try {
     document = SwaggerModule.createDocument(app, config);
   } catch (error) {
-    console.error('Failed to create Swagger document:', error);
+    logger.error('Failed to create Swagger document:', { error });
     // Continue without Swagger for now
   }
 
@@ -155,7 +166,7 @@ All successful responses return JSON with appropriate HTTP status codes:
 
   await app.listen(port);
 
-  // Enhanced startup logging
+  // INTENTIONAL: ASCII banner uses console.log (not Logger) - this is user-facing visual output
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                     CAGE Backend Server                     ║
@@ -174,11 +185,11 @@ All successful responses return JSON with appropriate HTTP status codes:
   `);
 
   // Log successful startup for integration tests
-  console.log('Nest application successfully started');
+  logger.info('Nest application successfully started');
 }
 
 // Start the server with error handling
 bootstrap().catch(error => {
-  console.error('❌ Failed to start CAGE backend:', error);
+  logger.error('❌ Failed to start CAGE backend:', { error });
   process.exit(1);
 });

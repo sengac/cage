@@ -1,17 +1,10 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { EventLoggerService } from './event-logger.service';
-import {
-  PreToolUsePayloadSchema,
-  PostToolUsePayloadSchema,
-  UserPromptSubmitPayloadSchema,
-  SessionStartPayloadSchema,
-  SessionEndPayloadSchema,
-  NotificationPayloadSchema,
-  PreCompactPayloadSchema,
-  StopPayloadSchema,
-  SubagentStopPayloadSchema,
-} from '@cage/shared';
+import { Logger } from '@cage/shared';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import * as os from 'os';
 import {
   PreToolUseDto,
   PostToolUseDto,
@@ -23,12 +16,16 @@ import {
   StopDto,
   SubagentStopDto,
   HookResponseDto,
+  HooksStatusDto,
+  HookInfoDto,
 } from './dto/hooks.dto';
 
 @ApiTags('Hooks')
 @Controller('claude/hooks')
 export class HooksController {
-  private eventLogger = new EventLoggerService();
+  private readonly logger = new Logger({ context: 'HooksController' });
+
+  constructor(private readonly eventLogger: EventLoggerService) {}
 
   @Post('pre-tool-use')
   @HttpCode(HttpStatus.OK)
@@ -47,20 +44,21 @@ export class HooksController {
     status: 400,
     description: 'Invalid payload structure',
   })
-  async preToolUse(@Body() payload: PreToolUseDto): Promise<HookResponseDto> {
+  async preToolUse(
+    @Body() payload: Record<string, unknown>
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = PreToolUsePayloadSchema.parse(payload);
+      this.logger.info('PreToolUse payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'PreToolUse',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        toolName: validatedPayload.toolName,
-        arguments: validatedPayload.arguments,
+        sessionId: payload.sessionId || 'unknown',
+        toolName: payload.toolName,
+        arguments: payload.arguments,
+        raw_payload: payload,
       });
 
       return {
@@ -68,8 +66,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('PreToolUse hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('PreToolUse hook error:', error);
       return {
         success: true,
         timestamp,
@@ -95,23 +92,24 @@ export class HooksController {
     status: 400,
     description: 'Invalid payload structure',
   })
-  async postToolUse(@Body() payload: PostToolUseDto): Promise<HookResponseDto> {
+  async postToolUse(
+    @Body() payload: Record<string, unknown>
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = PostToolUsePayloadSchema.parse(payload);
+      this.logger.info('PostToolUse payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'PostToolUse',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        toolName: validatedPayload.toolName,
-        arguments: validatedPayload.arguments,
-        result: validatedPayload.result,
-        executionTime: validatedPayload.executionTime,
-        error: validatedPayload.error,
+        sessionId: payload.sessionId || 'unknown',
+        toolName: payload.toolName,
+        arguments: payload.arguments,
+        result: payload.result,
+        executionTime: payload.executionTime,
+        error: payload.error,
+        raw_payload: payload,
       });
 
       return {
@@ -119,8 +117,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('PostToolUse hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('PostToolUse hook error:', error);
       return {
         success: true,
         timestamp,
@@ -147,21 +144,23 @@ export class HooksController {
     description: 'Invalid payload structure',
   })
   async userPromptSubmit(
-    @Body() payload: UserPromptSubmitDto
+    @Body() payload: Record<string, unknown>
   ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = UserPromptSubmitPayloadSchema.parse(payload);
+      this.logger.info(
+        'UserPromptSubmit payload:',
+        JSON.stringify(payload, null, 2)
+      );
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'UserPromptSubmit',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        prompt: validatedPayload.prompt,
-        context: validatedPayload.context,
+        sessionId: payload.sessionId || 'unknown',
+        prompt: payload.prompt,
+        context: payload.context,
+        raw_payload: payload,
       });
 
       return {
@@ -169,8 +168,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('UserPromptSubmit hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('UserPromptSubmit hook error:', error);
       return {
         success: true,
         timestamp,
@@ -197,21 +195,20 @@ export class HooksController {
     description: 'Invalid payload structure',
   })
   async sessionStart(
-    @Body() payload: SessionStartDto
+    @Body() payload: Record<string, unknown>
   ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = SessionStartPayloadSchema.parse(payload);
+      this.logger.info('SessionStart payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'SessionStart',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        projectPath: validatedPayload.projectPath,
-        environment: validatedPayload.environment,
+        sessionId: payload.sessionId || 'unknown',
+        projectPath: payload.projectPath,
+        environment: payload.environment,
+        raw_payload: payload,
       });
 
       return {
@@ -219,8 +216,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('SessionStart hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('SessionStart hook error:', error);
       return {
         success: true,
         timestamp,
@@ -246,20 +242,21 @@ export class HooksController {
     status: 400,
     description: 'Invalid payload structure',
   })
-  async sessionEnd(@Body() payload: SessionEndDto): Promise<HookResponseDto> {
+  async sessionEnd(
+    @Body() payload: Record<string, unknown>
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = SessionEndPayloadSchema.parse(payload);
+      this.logger.info('SessionEnd payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'SessionEnd',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        duration: validatedPayload.duration,
-        summary: validatedPayload.summary,
+        sessionId: payload.sessionId || 'unknown',
+        duration: payload.duration,
+        summary: payload.summary,
+        raw_payload: payload,
       });
 
       return {
@@ -267,8 +264,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('SessionEnd hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('SessionEnd hook error:', error);
       return {
         success: true,
         timestamp,
@@ -295,21 +291,20 @@ export class HooksController {
     description: 'Invalid payload structure',
   })
   async notification(
-    @Body() payload: NotificationDto
+    @Body() payload: Record<string, unknown>
   ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = NotificationPayloadSchema.parse(payload);
+      this.logger.info('Notification payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'Notification',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        message: validatedPayload.message,
-        level: validatedPayload.level,
+        sessionId: payload.sessionId || 'unknown',
+        message: payload.message,
+        level: payload.level,
+        raw_payload: payload,
       });
 
       return {
@@ -317,8 +312,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('Notification hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('Notification hook error:', error);
       return {
         success: true,
         timestamp,
@@ -344,21 +338,22 @@ export class HooksController {
     status: 400,
     description: 'Invalid payload structure',
   })
-  async preCompact(@Body() payload: PreCompactDto): Promise<HookResponseDto> {
+  async preCompact(
+    @Body() payload: Record<string, unknown>
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = PreCompactPayloadSchema.parse(payload);
+      this.logger.info('PreCompact payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'PreCompact',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        reason: validatedPayload.reason,
-        currentTokenCount: validatedPayload.currentTokenCount,
-        maxTokenCount: validatedPayload.maxTokenCount,
+        sessionId: payload.sessionId || 'unknown',
+        reason: payload.reason,
+        currentTokenCount: payload.currentTokenCount,
+        maxTokenCount: payload.maxTokenCount,
+        raw_payload: payload,
       });
 
       return {
@@ -366,8 +361,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('PreCompact hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('PreCompact hook error:', error);
       return {
         success: true,
         timestamp,
@@ -393,19 +387,21 @@ export class HooksController {
     status: 400,
     description: 'Invalid payload structure',
   })
-  async stop(@Body() payload: StopDto): Promise<HookResponseDto> {
+  async stop(
+    @Body() payload: Record<string, unknown>
+  ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = StopPayloadSchema.parse(payload);
+      this.logger.info('Stop payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'Stop',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        reason: validatedPayload.reason,
+        sessionId: payload.sessionId || 'unknown',
+        reason: payload.reason,
+        finalState: payload.finalState,
+        raw_payload: payload,
       });
 
       return {
@@ -413,8 +409,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('Stop hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('Stop hook error:', error);
       return {
         success: true,
         timestamp,
@@ -440,22 +435,21 @@ export class HooksController {
     description: 'Invalid payload structure',
   })
   async subagentStop(
-    @Body() payload: SubagentStopDto
+    @Body() payload: Record<string, unknown>
   ): Promise<HookResponseDto> {
     const timestamp = new Date().toISOString();
 
     try {
-      // Validate payload
-      const validatedPayload = SubagentStopPayloadSchema.parse(payload);
+      this.logger.info('SubagentStop payload:', JSON.stringify(payload, null, 2));
 
-      // Log the event
       await this.eventLogger.logEvent({
-        timestamp: validatedPayload.timestamp || timestamp,
+        timestamp: payload.timestamp || timestamp,
         eventType: 'SubagentStop',
-        sessionId: validatedPayload.sessionId || 'unknown',
-        subagentId: validatedPayload.subagentId,
-        parentSessionId: validatedPayload.parentSessionId,
-        result: validatedPayload.result,
+        sessionId: payload.sessionId || 'unknown',
+        subagentId: payload.subagentId,
+        parentSessionId: payload.parentSessionId,
+        result: payload.result,
+        raw_payload: payload,
       });
 
       return {
@@ -463,8 +457,7 @@ export class HooksController {
         timestamp,
       };
     } catch (error) {
-      console.error('SubagentStop hook error:', error);
-      // Still return success but log the error for debugging
+      this.logger.error('SubagentStop hook error:', error);
       return {
         success: true,
         timestamp,

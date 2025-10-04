@@ -130,14 +130,23 @@ const process = spawn('command', args);
 #### Logging (Required):
 
 ```typescript
-// ✅ CORRECT - Use Logger class
-import { Logger } from '../logger.js';
-const logger = new Logger();
+// ✅ CORRECT - Use Logger class (NEVER use silent:true)
+import { Logger } from '@cage/shared';
+const logger = new Logger({ context: 'MyComponent', silent: true });
 logger.info('Operation completed');
 
 // ❌ WRONG - Direct console usage
 console.log('Operation completed');
+
+// ❌ WRONG - Silent logger that doesn't send to Winston
+const logger = new Logger({ silent: true });
 ```
+
+**CRITICAL**: ALL components (frontend CLI and backend) MUST log to Winston:
+- **NEVER use `silent: true`** - this prevents logs from reaching Winston
+- **ALL logs go through Logger class** which sends to backend Winston transport
+- **Frontend logs appear in backend debug logs** for unified debugging
+- View logs via Debug Console or `/api/debug/logs` endpoint
 
 ### File Organization
 
@@ -166,6 +175,237 @@ console.log('Operation completed');
 - ✅ **ALWAYS** run tests through `npm test` using Vitest
 - ✅ **ALWAYS** import and test TypeScript modules directly in TypeScript test files
 - ✅ **ALWAYS** Use `.test.tsx` or `.spec.tsx` for React/JSX component tests
+
+#### NestJS Integration Test Setup (CRITICAL):
+
+**MANDATORY**: When testing NestJS applications with dependency injection, you MUST call `await module.init()` TWICE - once after compiling the module, and again after creating the NestApplication.
+
+**Why This is Required:**
+
+NestJS has two separate initialization phases:
+
+1. **Module Initialization** (`await module.init()` after `.compile()`):
+   - Instantiates all providers (services) registered in the module
+   - Builds the dependency injection container
+   - Resolves all dependencies and injects them into constructors
+   - **Without this, provider instances are NOT created**
+
+2. **Application Initialization** (`await app.init()` after `createNestApplication()`):
+   - Initializes the HTTP server
+   - Sets up middleware pipeline
+   - Configures routes and global pipes/guards
+   - **This does NOT create providers - they must already exist from step 1**
+
+**What Happens If You Skip the First Init:**
+- `module.createNestApplication()` creates controllers but can't inject dependencies
+- Constructor parameters like `private winstonService: WinstonLoggerService` remain `undefined`
+- Tests fail with `TypeError: Cannot read properties of undefined (reading 'methodName')`
+- Even though the service is registered in AppModule, it's never instantiated
+
+**Correct Pattern**:
+```typescript
+// ✅ CORRECT - Double initialization
+let module: TestingModule;
+let app: INestApplication;
+
+beforeEach(async () => {
+  module = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  await module.init(); // FIRST init - critical for DI
+
+  app = module.createNestApplication();
+
+  // Configure app (global prefix, pipes, etc.)
+  app.setGlobalPrefix('api');
+
+  await app.init(); // SECOND init - for HTTP server
+
+  // Now get services
+  const service = module.get<MyService>(MyService);
+});
+
+afterEach(async () => {
+  if (app) await app.close();
+  if (module) await module.close();
+});
+```
+
+**Wrong Pattern**:
+```typescript
+// ❌ WRONG - Missing first module.init()
+beforeEach(async () => {
+  const module = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  app = module.createNestApplication();
+  await app.init(); // Only one init - DI will fail!
+
+  // Services will be undefined in controllers!
+});
+```
+
+**Symptoms of Missing First Init**:
+- `TypeError: Cannot read properties of undefined (reading 'methodName')`
+- Controller methods fail with "undefined is not a function"
+- Dependency injection fields are undefined in controllers
+- Tests pass for some services but fail for others randomly
+
+## Critical Architectural Patterns
+
+### Singleton Services for Persistent Connections
+
+**MANDATORY**: All persistent connections (SSE, WebSocket, etc.) MUST be implemented as singleton services initialized at app startup, NOT in React component lifecycles.
+
+**Why**: Component-based connection management causes:
+- Connections drop when components unmount/remount
+- Multiple duplicate connections from re-renders
+- Unstable connections that disconnect after receiving first event
+- State inconsistencies between components
+
+**Correct Pattern**:
+```typescript
+// ✅ CORRECT - Singleton service pattern
+// src/services/stream-manager.ts
+export class StreamManager {
+  private static instance: StreamManager | null = null;
+
+  static getInstance(): StreamManager {
+    if (!StreamManager.instance) {
+      StreamManager.instance = new StreamManager();
+    }
+    return StreamManager.instance;
+  }
+
+  async initialize(): Promise<void> {
+    // Establish connection ONCE
+  }
+}
+
+// Initialize in App.tsx, NOT in components
+useEffect(() => {
+  streamManager.initialize();
+  return () => streamManager.disconnect();
+}, []); // Empty deps - run once
+```
+
+**Wrong Pattern**:
+```typescript
+// ❌ WRONG - Component-based connection
+export const StreamView = () => {
+  useEffect(() => {
+    startStream(); // This will break on re-render!
+  }, []);
+}
+```
+
+**Apply this pattern to**:
+- SSE connections for event streaming
+- WebSocket connections
+- Database connections
+- File watchers
+- Any long-lived resource
+
+### NO Polling in UI Components
+
+**MANDATORY**: UI components (StatusBar, etc.) MUST NEVER use polling (setInterval/setTimeout) and MUST NEVER make direct API calls for real-time data.
+
+**Why**: Polling creates:
+- Unnecessary API load
+- Race conditions between multiple pollers
+- Stale data between polling intervals
+- Difficult-to-test timing dependencies
+- No single source of truth
+
+**Correct Pattern - Singleton Services Update Zustand, Components Read from Zustand**:
+```typescript
+// ✅ CORRECT - Service updates Zustand
+// src/services/hooks-status-service.ts
+export class HooksStatusService {
+  private intervalId: NodeJS.Timeout | null = null;
+
+  start(): void {
+    this.fetchHooksStatus(); // Immediate fetch
+
+    // Polling ONLY in singleton service
+    this.intervalId = setInterval(() => {
+      this.fetchHooksStatus();
+    }, 30000);
+  }
+
+  private async fetchHooksStatus(): Promise<void> {
+    const store = useAppStore.getState();
+    await store.refreshHooksStatus(); // Updates Zustand
+  }
+}
+
+// ✅ CORRECT - Component reads from Zustand ONLY
+// src/components/shared/StatusBar.tsx
+export const StatusBar: React.FC = () => {
+  // Read from Zustand - NO polling, NO API calls
+  const serverStatus = useAppStore(state => state.serverStatus);
+  const hooksStatus = useAppStore(state => state.hooksStatus);
+  const events = useAppStore(state => state.events);
+
+  // Pure reactive component - automatically updates when Zustand changes
+  return (
+    <Box>
+      <Text>Server: {serverStatus}</Text>
+      <Text>Hooks: {hooksStatus?.installedHooks?.length || 0}</Text>
+      <Text>Events: {events.length}</Text>
+    </Box>
+  );
+};
+```
+
+**Wrong Pattern**:
+```typescript
+// ❌ WRONG - Component polling directly
+export const StatusBar: React.FC = () => {
+  const [status, setStatus] = useState(null);
+
+  useEffect(() => {
+    // NEVER DO THIS - No polling in components!
+    const interval = setInterval(async () => {
+      const response = await fetch('/api/hooks/status');
+      const data = await response.json();
+      setStatus(data);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <Text>{status}</Text>;
+};
+```
+
+**TDD Requirements for Singleton Services + Zustand Pattern**:
+
+When implementing features using this pattern, you MUST:
+
+1. **Write acceptance criteria FIRST** in the relevant PHASE document:
+   - Scenario for service singleton behavior
+   - Scenario for Zustand updates
+   - Scenario for component reading from Zustand only
+   - Scenario explicitly stating "NO polling in components"
+
+2. **Write tests SECOND** before any implementation:
+   - Test that service is singleton (getInstance returns same instance)
+   - Test that service updates Zustand on data fetch
+   - Test that component reads ONLY from Zustand (mock useAppStore)
+   - Test that component does NOT use setInterval/setTimeout
+   - Test that component does NOT make fetch/API calls
+
+3. **Implement code LAST** to make tests pass
+
+**Testing Checklist**:
+- [ ] Service singleton test exists and passes
+- [ ] Service → Zustand update test exists and passes
+- [ ] Component → Zustand read-only test exists and passes
+- [ ] No polling verification test exists and passes
+- [ ] Integration test (service + store + component) exists and passes
 
 ## Technology Stack
 

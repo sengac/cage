@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: 'src/index.tsx',
+      entry: 'src/cli/index.tsx',
       formats: ['es'], // ESM only
       fileName: 'index',
     },

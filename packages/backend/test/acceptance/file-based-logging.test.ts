@@ -62,12 +62,13 @@ describe('Feature: File-Based Event Logging', () => {
         .send(payload)
         .expect(200);
 
-      // Then
+      // Then - Use the date from the timestamp we sent
+      const dateFromTimestamp = payload.timestamp.split('T')[0];
       const logPath = join(
         process.cwd(),
         '.cage',
         'events',
-        '2025-01-15',
+        dateFromTimestamp,
         'events.jsonl'
       );
       expect(existsSync(logPath)).toBe(true);

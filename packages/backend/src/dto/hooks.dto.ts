@@ -30,13 +30,12 @@ export class HookResponseDto {
  * Pre Tool Use Hook - Triggered before Claude executes a tool
  */
 export class PreToolUseDto {
-  @ApiPropertyOptional({
-    description:
-      'Unique session identifier (not always provided by Claude Code)',
+  @ApiProperty({
+    description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the tool use was initiated',
@@ -76,19 +75,47 @@ export class PreToolUseDto {
     additionalProperties: true,
   })
   arguments: Record<string, unknown>;
+
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
+  })
+  transcriptPath: string;
+
+  @ApiPropertyOptional({
+    description: 'Current working directory',
+    example: '/Users/user/project',
+    type: String,
+  })
+  cwd?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'PreToolUse',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Project directory path',
+    example: '/Users/user/project',
+    type: String,
+  })
+  project_dir?: string;
 }
 
 /**
  * Post Tool Use Hook - Triggered after Claude executes a tool
  */
 export class PostToolUseDto {
-  @ApiPropertyOptional({
-    description:
-      'Unique session identifier (not always provided by Claude Code)',
+  @ApiProperty({
+    description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the tool execution completed',
@@ -122,7 +149,7 @@ export class PostToolUseDto {
 
   @ApiProperty({
     description: 'Time taken to execute the tool in milliseconds',
-    example: 1500,
+    example: 0,
     minimum: 0,
   })
   executionTime: number;
@@ -132,19 +159,47 @@ export class PostToolUseDto {
     example: 'File not found',
   })
   error?: string;
+
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
+  })
+  transcriptPath: string;
+
+  @ApiPropertyOptional({
+    description: 'Current working directory',
+    example: '/Users/user/project',
+    type: String,
+  })
+  cwd?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'PostToolUse',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Project directory path',
+    example: '/Users/user/project',
+    type: String,
+  })
+  project_dir?: string;
 }
 
 /**
  * User Prompt Submit Hook - Triggered when user submits a prompt
  */
 export class UserPromptSubmitDto {
-  @ApiPropertyOptional({
-    description:
-      'Unique session identifier (not always provided by Claude Code)',
+  @ApiProperty({
+    description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the prompt was submitted',
@@ -159,31 +214,56 @@ export class UserPromptSubmitDto {
   })
   prompt: string;
 
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
+  })
+  transcriptPath: string;
+
+  @ApiPropertyOptional({
+    description: 'Current working directory',
+    example: '/Users/user/project',
+    type: String,
+  })
+  cwd?: string;
+
   @ApiPropertyOptional({
     description: 'Additional context about the prompt submission',
     example: {
-      previousMessages: [
-        { role: 'user', content: 'Hello' },
-        { role: 'assistant', content: 'Hi there!' },
-      ],
-      currentFile: '/src/index.ts',
+      previousMessages: [],
     },
     type: 'object',
     additionalProperties: true,
   })
   context?: unknown;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'UserPromptSubmit',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Project directory path',
+    example: '/Users/user/project',
+    type: String,
+  })
+  project_dir?: string;
 }
 
 /**
  * Session Start Hook - Triggered when a new Claude session begins
  */
 export class SessionStartDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the session started',
@@ -192,35 +272,45 @@ export class SessionStartDto {
   })
   timestamp: string;
 
-  @ApiPropertyOptional({
-    description: 'Path to the project directory',
-    example: '/Users/developer/projects/my-app',
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
   })
-  projectPath?: string;
+  transcriptPath: string;
 
   @ApiPropertyOptional({
-    description: 'Environment information',
-    example: {
-      os: 'darwin',
-      node: 'v20.0.0',
-      cwd: '/Users/developer/projects',
-    },
-    type: 'object',
-    additionalProperties: true,
+    description: 'Source of the session start',
+    example: 'cli',
   })
-  environment?: Record<string, unknown>;
+  source?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'SessionStart',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook event name',
+    example: 'SessionStart',
+    type: String,
+  })
+  hook_event_name?: string;
 }
 
 /**
  * Session End Hook - Triggered when a Claude session ends
  */
 export class SessionEndDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the session ended',
@@ -229,32 +319,52 @@ export class SessionEndDto {
   })
   timestamp: string;
 
-  @ApiPropertyOptional({
-    description: 'Duration of the session in milliseconds',
-    example: 3600000,
-    minimum: 0,
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
   })
-  duration?: number;
+  transcriptPath: string;
 
   @ApiPropertyOptional({
-    description: 'Summary of what was accomplished in the session',
-    example: { toolsUsed: 42, filesModified: 5, testsRun: 10 },
-    type: 'object',
-    additionalProperties: true,
+    description: 'Current working directory',
+    example: '/Users/user/project',
+    type: String,
   })
-  summary?: Record<string, unknown>;
+  cwd?: string;
+
+  @ApiPropertyOptional({
+    description: 'Reason for session end',
+    example: 'user_exit',
+  })
+  reason?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'SessionEnd',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook event name',
+    example: 'SessionEnd',
+    type: String,
+  })
+  hook_event_name?: string;
 }
 
 /**
  * Notification Hook - Triggered when Claude sends a notification
  */
 export class NotificationDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the notification was sent',
@@ -264,29 +374,44 @@ export class NotificationDto {
   timestamp: string;
 
   @ApiProperty({
-    description: 'Severity level of the notification',
-    enum: ['info', 'warning', 'error'],
-    example: 'info',
-  })
-  level: 'info' | 'warning' | 'error';
-
-  @ApiProperty({
     description: 'Notification message content',
     example: 'Successfully completed code refactoring',
   })
   message: string;
+
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
+  })
+  transcriptPath: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'Notification',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook event name',
+    example: 'Notification',
+    type: String,
+  })
+  hook_event_name?: string;
 }
 
 /**
  * Pre-Compact Hook - Triggered before Claude compacts conversation history
  */
 export class PreCompactDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when compaction was initiated',
@@ -295,37 +420,51 @@ export class PreCompactDto {
   })
   timestamp: string;
 
-  @ApiPropertyOptional({
-    description: 'Reason for triggering the compaction',
-    example: 'Approaching token limit',
+  @ApiProperty({
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
   })
-  reason?: string;
+  transcriptPath: string;
 
   @ApiPropertyOptional({
-    description: 'Current token count before compaction',
-    example: 95000,
-    minimum: 0,
+    description: 'Trigger for the compaction',
+    example: 'token_limit',
   })
-  currentTokenCount?: number;
+  trigger?: string;
 
   @ApiPropertyOptional({
-    description: 'Maximum allowed token count',
-    example: 100000,
-    minimum: 0,
+    description: 'Custom instructions for compaction',
+    example: 'Preserve all code snippets',
   })
-  maxTokenCount?: number;
+  customInstructions?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'PreCompact',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook event name',
+    example: 'PreCompact',
+    type: String,
+  })
+  hook_event_name?: string;
 }
 
 /**
  * Stop Hook - Triggered when Claude completes a task or is interrupted
  */
 export class StopDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the stop occurred',
@@ -335,30 +474,44 @@ export class StopDto {
   timestamp: string;
 
   @ApiProperty({
-    description: 'Reason for stopping',
-    example: 'Task completed successfully',
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
   })
-  reason: string;
+  transcriptPath: string;
 
   @ApiPropertyOptional({
-    description: 'Final state information at the time of stopping',
-    example: { completedTasks: 5, pendingTasks: 0, errors: [] },
-    type: 'object',
-    additionalProperties: true,
+    description: 'Whether stop hook is active',
+    example: true,
   })
-  finalState?: Record<string, unknown>;
+  stopHookActive?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'Stop',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook event name',
+    example: 'Stop',
+    type: String,
+  })
+  hook_event_name?: string;
 }
 
 /**
  * Subagent Stop Hook - Triggered when a subagent completes its task
  */
 export class SubagentStopDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Unique session identifier',
     example: 'session-123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  sessionId?: string;
+  sessionId: string;
 
   @ApiProperty({
     description: 'ISO 8601 timestamp of when the subagent stopped',
@@ -368,26 +521,94 @@ export class SubagentStopDto {
   timestamp: string;
 
   @ApiProperty({
-    description: 'Unique identifier for the subagent',
-    example: 'subagent-789',
+    description: 'Path to the conversation transcript file',
+    example:
+      '/Users/user/.claude/projects/-Users-user-project/session-id.jsonl',
+    type: String,
   })
-  subagentId: string;
-
-  @ApiProperty({
-    description: 'Session ID of the parent agent that spawned this subagent',
-    example: 'session-parent-456',
-  })
-  parentSessionId: string;
+  transcriptPath: string;
 
   @ApiPropertyOptional({
-    description: 'Result information from the subagent execution',
-    example: {
-      success: true,
-      output: 'Refactored 5 functions and added unit tests',
-      metrics: { duration: 5000, toolsUsed: 10, filesModified: 3 },
-    },
-    type: 'object',
-    additionalProperties: true,
+    description: 'Whether stop hook is active',
+    example: true,
   })
-  result?: unknown;
+  stopHookActive?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Hook type metadata',
+    example: 'SubagentStop',
+    type: String,
+  })
+  hook_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hook event name',
+    example: 'SubagentStop',
+    type: String,
+  })
+  hook_event_name?: string;
+}
+
+/**
+ * Hook information DTO
+ */
+export class HookInfoDto {
+  @ApiProperty({ 
+    description: 'Name of the hook',
+    example: 'PreToolUse'
+  })
+  name: string;
+
+  @ApiProperty({ 
+    description: 'Whether the hook is enabled',
+    example: true
+  })
+  enabled: boolean;
+
+  @ApiProperty({ 
+    description: 'Number of events for this hook type',
+    example: 42
+  })
+  eventCount: number;
+}
+
+/**
+ * Hooks status response DTO
+ */
+export class HooksStatusDto {
+  @ApiProperty({ 
+    description: 'Whether CAGE hooks are installed',
+    example: true
+  })
+  isInstalled: boolean;
+
+  @ApiProperty({ 
+    description: 'Path to Claude settings file',
+    example: '/home/user/.claude/settings.json'
+  })
+  settingsPath: string;
+
+  @ApiProperty({ 
+    description: 'Backend server port',
+    example: 3790
+  })
+  backendPort: number;
+
+  @ApiProperty({ 
+    description: 'Whether backend is enabled',
+    example: true
+  })
+  backendEnabled: boolean;
+
+  @ApiProperty({ 
+    description: 'List of hooks with their status',
+    type: [HookInfoDto]
+  })
+  installedHooks: HookInfoDto[];
+
+  @ApiProperty({ 
+    description: 'Total number of events',
+    example: 150
+  })
+  totalEvents: number;
 }

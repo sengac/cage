@@ -16,6 +16,27 @@ export interface LoggerOptions {
   silent?: boolean;
 }
 
+export interface LogTransport {
+  log(entry: {
+    level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+    component: string;
+    message: string;
+    context?: Record<string, unknown>;
+    stackTrace?: string;
+  }): void;
+}
+
+// Global Winston transport (set by backend)
+let globalTransport: LogTransport | null = null;
+
+export function setGlobalLogTransport(transport: LogTransport | null): void {
+  globalTransport = transport;
+}
+
+export function getGlobalLogTransport(): LogTransport | null {
+  return globalTransport;
+}
+
 export class Logger {
   private level: LogLevel;
   private context?: string;
@@ -81,17 +102,69 @@ export class Logger {
 
   /**
    * Write to stdout or stderr based on level
+   * Only writes to console if no Winston transport is available
    */
   private write(level: LogLevel, message: string): void {
     if (this.silent) {
       return;
     }
 
+    // If Winston transport is available, DON'T write to console
+    // Winston transport will handle all logging
+    if (getGlobalLogTransport()) {
+      return;
+    }
+
+    // Fallback to console only when Winston is not available
     if (level >= LogLevel.WARN) {
       process.stderr.write(message);
     } else {
       process.stdout.write(message);
     }
+  }
+
+  /**
+   * Send log to global transport (Winston)
+   */
+  private sendToTransport(
+    level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR',
+    message: string,
+    data?: unknown
+  ): void {
+    // Respect silent flag for transport as well
+    if (this.silent) {
+      return;
+    }
+
+    const transport = getGlobalLogTransport();
+    if (!transport) {
+      return;
+    }
+
+    const entry: Parameters<LogTransport['log']>[0] = {
+      level,
+      component: this.context || 'Unknown',
+      message,
+    };
+
+    // Extract context and stack trace from data
+    if (data && typeof data === 'object') {
+      const obj = data as Record<string, unknown>;
+
+      // Extract stack trace from Error objects
+      if (obj.error instanceof Error) {
+        entry.stackTrace = obj.error.stack;
+        // Include other context data
+        const { error, ...rest } = obj;
+        if (Object.keys(rest).length > 0) {
+          entry.context = rest;
+        }
+      } else {
+        entry.context = obj;
+      }
+    }
+
+    transport.log(entry);
   }
 
   /**
@@ -101,6 +174,7 @@ export class Logger {
     if (this.level <= LogLevel.DEBUG) {
       const formatted = this.formatMessage('DEBUG', message, data);
       this.write(LogLevel.DEBUG, formatted);
+      this.sendToTransport('DEBUG', message, data);
     }
   }
 
@@ -111,6 +185,7 @@ export class Logger {
     if (this.level <= LogLevel.INFO) {
       const formatted = this.formatMessage('INFO', message, data);
       this.write(LogLevel.INFO, formatted);
+      this.sendToTransport('INFO', message, data);
     }
   }
 
@@ -121,6 +196,7 @@ export class Logger {
     if (this.level <= LogLevel.WARN) {
       const formatted = this.formatMessage('WARN', message, data);
       this.write(LogLevel.WARN, formatted);
+      this.sendToTransport('WARN', message, data);
     }
   }
 
@@ -131,6 +207,7 @@ export class Logger {
     if (this.level <= LogLevel.ERROR) {
       const formatted = this.formatMessage('ERROR', message, data);
       this.write(LogLevel.ERROR, formatted);
+      this.sendToTransport('ERROR', message, data);
     }
   }
 

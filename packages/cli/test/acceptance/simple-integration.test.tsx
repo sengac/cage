@@ -15,15 +15,22 @@ describe('CLI Integration Tests', () => {
     try {
       const { stdout } = await execPromise(`node ${cliPath} --help`);
       expect(stdout).toContain('Usage: cage');
-      expect(stdout).toContain('Controlled AI Environment');
+      expect(stdout).toContain('Code Alignment Guard Engine');
       expect(stdout).toContain('init');
       expect(stdout).toContain('hooks');
       expect(stdout).toContain('events');
       expect(stdout).toContain('start');
     } catch (error) {
       // Help should exit with code 0, but let's check the output
-      const execError = error as { stdout: string };
-      expect(execError.stdout).toContain('Usage: cage');
+      const execError = error as { stdout?: string; message?: string };
+      if (execError.stdout) {
+        expect(execError.stdout).toContain('Usage: cage');
+      } else {
+        // If there's no stdout in error, the test should fail with a meaningful message
+        throw new Error(
+          `Help command failed: ${execError.message || 'Unknown error'}`
+        );
+      }
     }
   });
 
@@ -34,8 +41,14 @@ describe('CLI Integration Tests', () => {
       expect(stdout).toContain('setup');
       expect(stdout).toContain('status');
     } catch (error) {
-      const execError = error as { stdout: string };
-      expect(execError.stdout).toContain('Manage Claude Code hooks');
+      const execError = error as { stdout?: string; message?: string };
+      if (execError.stdout) {
+        expect(execError.stdout).toContain('Manage Claude Code hooks');
+      } else {
+        throw new Error(
+          `Hooks help command failed: ${execError.message || 'Unknown error'}`
+        );
+      }
     }
   });
 
@@ -48,8 +61,14 @@ describe('CLI Integration Tests', () => {
       expect(stdout).toContain('list');
       expect(stdout).toContain('stats');
     } catch (error) {
-      const execError = error as { stdout: string };
-      expect(execError.stdout).toContain('Manage and view hook events');
+      const execError = error as { stdout?: string; message?: string };
+      if (execError.stdout) {
+        expect(execError.stdout).toContain('Manage and view hook events');
+      } else {
+        throw new Error(
+          `Events help command failed: ${execError.message || 'Unknown error'}`
+        );
+      }
     }
   });
 });

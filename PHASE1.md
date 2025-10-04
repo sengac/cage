@@ -283,6 +283,44 @@ Phase 1 establishes the foundational hook infrastructure for Cage, implementing 
 **And** not block or delay Claude's execution
 **And** the hook should always exit with code 0
 
+### Feature: Centralized API Client
+
+#### Scenario: All server communication uses centralized client
+
+**Given** any component needs to communicate with the CAGE server
+**When** making HTTP requests or establishing SSE connections
+**Then** it MUST use the centralized CageApiClient
+**And** NEVER hardcode URLs or server addresses
+**And** NEVER access the filesystem directly for data that should come from the server
+**And** NEVER create separate fetch() calls or SSE connections outside the client
+
+#### Scenario: API client handles configuration
+
+**Given** the CageApiClient is initialized
+**When** it needs server connection details
+**Then** it should read from cage.config.json
+**And** fall back to defaults (localhost:3790) if config is missing
+**And** allow runtime configuration updates
+**And** maintain a singleton instance for the entire application
+
+#### Scenario: API client provides typed interfaces
+
+**Given** a component uses the CageApiClient
+**When** making API calls
+**Then** all requests and responses should be fully typed with TypeScript
+**And** use consistent error handling patterns
+**And** return ApiResponse<T> wrappers for all operations
+**And** handle network failures gracefully
+
+#### Scenario: SSE streaming through API client
+
+**Given** a component needs real-time event updates
+**When** establishing an SSE connection
+**Then** it MUST use the CageApiClient.streamEvents() method
+**And** NOT create SSEConnection instances directly
+**And** handle reconnection through the centralized client
+**And** properly clean up connections when done
+
 ### Feature: Backend API Endpoints
 
 #### Scenario: Query events via API

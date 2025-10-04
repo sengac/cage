@@ -1,8 +1,39 @@
 #!/usr/bin/env node
 
-import { readFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import { getProjectRoot, getCageDir, Logger, setGlobalLogTransport, type LogTransport } from '@cage/shared';
+
+// HTTP Log Transport for hooks (same as CLI)
+class HttpLogTransport implements LogTransport {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = 'http://localhost:3790') {
+    this.baseUrl = baseUrl;
+  }
+
+  log(entry: {
+    level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+    component: string;
+    message: string;
+    context?: Record<string, unknown>;
+    stackTrace?: string;
+  }): void {
+    // Send to backend Winston asynchronously, don't wait for response
+    void fetch(`${this.baseUrl}/api/debug/logs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ logs: [entry] }),
+      signal: AbortSignal.timeout(2000), // 2 second timeout for logging
+    }).catch(() => {
+      // Silent fail - don't block hook execution if logging fails
+    });
+  }
+}
+
+// Logger for hook handler
+const logger = new Logger({ context: 'CageHookHandler' });
 
 interface CageConfig {
   port: number;
@@ -54,7 +85,13 @@ function findCageConfig(): CageConfig {
 // Main handler
 async function main(): Promise<void> {
   const config = findCageConfig();
+
+  // Initialize Winston HTTP transport for this hook execution
+  setGlobalLogTransport(new HttpLogTransport(`http://localhost:${config.port}`));
+
   const hookType = process.argv[2] || 'unknown'; // Pass hook type as argument
+
+  logger.info('Hook handler started', { hookType, port: config.port });
 
   // Read Claude Code's input from stdin
   let inputData = '';
@@ -64,31 +101,11 @@ async function main(): Promise<void> {
     inputData += chunk;
   }
 
-  // Log raw input for debugging
-  const debugLogPath = join(
-    process.env.TEST_BASE_DIR ||
-      process.env.CLAUDE_PROJECT_DIR ||
-      process.cwd(),
-    '.cage',
-    'raw-hooks.log'
-  );
-  try {
-    const cageDir = join(
-      process.env.TEST_BASE_DIR ||
-        process.env.CLAUDE_PROJECT_DIR ||
-        process.cwd(),
-      '.cage'
-    );
-    if (!existsSync(cageDir)) {
-      mkdirSync(cageDir, { recursive: true });
-    }
-    appendFileSync(
-      debugLogPath,
-      `\n===== ${hookType} at ${new Date().toISOString()} =====\n`
-    );
-    appendFileSync(debugLogPath, `RAW INPUT: ${inputData}\n`);
-    appendFileSync(debugLogPath, `===== END =====\n`);
-  } catch {}
+  logger.info('Received hook input', {
+    hookType,
+    inputLength: inputData.length,
+    timestamp: new Date().toISOString()
+  });
 
   let hookData: HookData;
   try {
@@ -168,14 +185,11 @@ async function main(): Promise<void> {
     ...mappedData,
     timestamp: (mappedData.timestamp as string) || new Date().toISOString(), // Ensure timestamp exists
     hook_type: hookType,
-    project_dir: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+    project_dir: process.env.CLAUDE_PROJECT_DIR || getProjectRoot(),
   };
 
   // Define baseDir before the try block for proper scoping
-  const baseDir =
-    process.env.TEST_BASE_DIR ||
-    process.env.CLAUDE_PROJECT_DIR ||
-    process.cwd();
+  const baseDir = process.env.CLAUDE_PROJECT_DIR || getProjectRoot();
 
   // Forward to Cage backend
   try {
@@ -187,23 +201,12 @@ async function main(): Promise<void> {
 
     const backendUrl = `http://localhost:${config.port}/api/claude/hooks/${kebabHookType}`;
 
-    // Debug logging
-    const debugLogPath = join(baseDir, '.cage', 'debug-hook-connection.log');
-    try {
-      appendFileSync(
-        debugLogPath,
-        `\n===== ${hookType} at ${new Date().toISOString()} =====\n`
-      );
-      appendFileSync(debugLogPath, `URL: ${backendUrl}\n`);
-      appendFileSync(debugLogPath, `Port: ${config.port}\n`);
-      appendFileSync(debugLogPath, `Config: ${JSON.stringify(config)}\n`);
-      appendFileSync(
-        debugLogPath,
-        `Payload size: ${JSON.stringify(enrichedData).length} bytes\n`
-      );
-    } catch {
-      // Ignore debug log errors
-    }
+    logger.info('Sending hook to backend', {
+      url: backendUrl,
+      port: config.port,
+      payloadSize: JSON.stringify(enrichedData).length,
+      hookType: kebabHookType
+    });
 
     const response = await fetch(backendUrl, {
       method: 'POST',
@@ -220,60 +223,34 @@ async function main(): Promise<void> {
 
     // Handle Cage backend's response
     if (result.block) {
+      // INTENTIONAL: console.error for hook protocol - sends message to Claude Code
       // Exit code 2 blocks Claude Code
       console.error(result.message || 'Operation blocked by Cage');
       process.exit(2);
     }
 
     if (result.output) {
-      // Send output back to Claude Code for context injection
+      // INTENTIONAL: console.log for hook protocol - sends output to Claude Code for context injection
       console.log(result.output);
     }
 
     if (result.warning) {
-      // Inject warning into Claude's context
+      // INTENTIONAL: console.log for hook protocol - injects warning into Claude's context
       console.log(`[CAGE WARNING] ${result.warning}`);
     }
 
     // Success
+    logger.info('Hook executed successfully', { hookType });
     process.exit(0);
   } catch (error) {
-    // Add more detailed error logging
-    const debugLogPath = join(baseDir, '.cage', 'debug-hook-connection.log');
-    try {
-      appendFileSync(debugLogPath, `ERROR: ${error}\n`);
-      appendFileSync(debugLogPath, `ERROR NAME: ${(error as Error).name}\n`);
-      appendFileSync(
-        debugLogPath,
-        `ERROR MESSAGE: ${(error as Error).message}\n`
-      );
-      appendFileSync(debugLogPath, `ERROR STACK: ${(error as Error).stack}\n`);
-      appendFileSync(debugLogPath, `===== END ERROR =====\n`);
-    } catch {
-      // Ignore debug log errors
-    }
-
-    // Log offline when backend is unreachable
-    const cageDir = join(baseDir, '.cage');
-
-    // Ensure .cage directory exists
-    if (!existsSync(cageDir)) {
-      try {
-        mkdirSync(cageDir, { recursive: true });
-      } catch {
-        // Can't create directory, fail silently
-      }
-    }
-
-    const logPath = join(cageDir, 'hooks-offline.log');
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const logEntry = `${new Date().toISOString()} [${hookType}] Failed to connect to Cage backend: ${errorMessage}\n`;
-
-    try {
-      appendFileSync(logPath, logEntry);
-    } catch {
-      // Can't log, silent fail
-    }
+    // Log error through Winston transport
+    logger.error('Failed to connect to Cage backend', {
+      error,
+      hookType,
+      errorName: (error as Error).name,
+      errorMessage: (error as Error).message,
+      offline: true
+    });
 
     // Don't block Claude Code when backend is down
     process.exit(0);

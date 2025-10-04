@@ -4,10 +4,10 @@ import { mkdtemp, rm, writeFile, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import React from 'react';
-import { EventsStreamCommand } from '../../src/commands/events/stream.js';
-import { EventsTailCommand } from '../../src/commands/events/tail.js';
-import { EventsListCommand } from '../../src/commands/events/list.js';
-import { EventsStatsCommand } from '../../src/commands/events/stats.js';
+import { EventsStreamCommand } from '../../src/features/events/commands/stream';
+import { EventsTailCommand } from '../../src/features/events/commands/tail';
+import { EventsListCommand } from '../../src/features/events/commands/list';
+import { EventsStatsCommand } from '../../src/features/events/commands/stats';
 
 describe('Feature: CLI Event Monitoring', () => {
   let testDir: string;

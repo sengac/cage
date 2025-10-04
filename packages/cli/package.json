@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest",
     "build": "vite build && chmod +x dist/index.js",
-    "dev": "vite-node src/index.tsx",
+    "dev": "vite-node src/cli/index.tsx",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -43,9 +43,11 @@
     "cli-spinners": "latest",
     "commander": "^14.0.1",
     "date-fns": "latest",
+    "eventsource": "^4.0.0",
     "execa": "^9.6.0",
     "figures": "latest",
     "gradient-string": "latest",
+    "human-signals": "^8.0.1",
     "immer": "latest",
     "ink": "^6.3.0",
     "ink-big-text": "latest",
@@ -70,6 +72,7 @@
     "ink-testing-library": "^4.0.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
+    "vite": "^7.1.5",
     "vite-node": "^3.2.4",
     "vitest": "^3.2.4"
   },
