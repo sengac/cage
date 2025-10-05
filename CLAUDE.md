@@ -142,11 +142,11 @@ console.log('Operation completed');
 const logger = new Logger({ silent: true });
 ```
 
-**CRITICAL**: ALL components (frontend CLI and backend) MUST log to Winston:
+**CRITICAL**: ALL components (CLI and backend) MUST log to Winston:
 - **NEVER use `silent: true`** - this prevents logs from reaching Winston
 - **ALL logs go through Logger class** which sends to backend Winston transport
-- **Frontend logs appear in backend debug logs** for unified debugging
-- View logs via Debug Console or `/api/debug/logs` endpoint
+- **CLI logs appear in backend debug logs** for unified debugging
+- View logs via Debug Console in interactive TUI or `/api/debug/logs` endpoint
 
 ### File Organization
 
@@ -414,9 +414,8 @@ When implementing features using this pattern, you MUST:
 ```
 cage/
 ├── packages/
-│   ├── cli/        # Ink React CLI application
+│   ├── cli/        # Ink React CLI application (interactive TUI)
 │   ├── backend/    # NestJS backend with SSE
-│   ├── frontend/   # Vite + React + Tailwind v4
 │   ├── hooks/      # Hook implementations
 │   └── shared/     # Shared utilities and types
 └── docs/           # Documentation
@@ -425,9 +424,13 @@ cage/
 ### Key Technologies
 
 - **TypeScript**: All packages use ES modules (`"type": "module"`)
-- **Tailwind CSS v4**: Using @tailwindcss/vite (no PostCSS needed)
-- **Testing**: Vitest, @vitest/browser with Playwright
-- **State Management**: Zustand (frontend only, no Redux)
+- **Interactive CLI**: Ink (React for CLIs) with full-screen TUI
+  - **Main Entry**: `cage` (no arguments) launches interactive mode with ASCII logo
+  - **Features**: Arrow key navigation, real-time event streaming, debug console
+  - **State Management**: Zustand for CLI state (singleton services update store, components read from store)
+  - **Components**: Shared layout (Header, Footer, ViewManager), feature-specific views (Events Inspector, Server Management, Hooks Config, Debug Console, Statistics, Settings, Help)
+  - **No Polling**: All real-time updates via SSE notifications from backend
+- **Testing**: Vitest, ink-testing-library for CLI components
 - **API Client**: Fetch API (no Axios)
 - **Validation**: Zod across all layers
 
@@ -521,8 +524,8 @@ npm run lint
 npm run format
 
 # Run specific package commands
-npm run dev --workspace @cage/frontend
-npm run build --workspace @cage/cli
+npm run dev --workspace @cage/cli
+npm run build --workspace @cage/backend
 ```
 
 ## File-Based Event Logging

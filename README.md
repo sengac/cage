@@ -25,10 +25,9 @@ Currently, CAGE supports [Claude Code](https://claude.ai/code) through its offic
 ## Documentation
 
 - [CLI Documentation](docs/CLI.md)
+- [Interactive TUI](docs/TUI.md)
 - [Backend Documentation](docs/BACKEND.md)
-- [Frontend Documentation](docs/FRONTEND.md)
 - [Hooks Documentation](docs/HOOKS.md)
-- [Docker Setup](docs/DOCKER.md)
 - [Development Guide](docs/DEVELOPMENT.md)
 
 ## Quick Start

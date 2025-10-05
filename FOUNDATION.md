@@ -12,13 +12,12 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 
 #### Core Technologies
 
-- **Programming Language(s):** TypeScript/Node.js (both backend and frontend)
+- **Programming Language(s):** TypeScript/Node.js (both backend and CLI)
 - **Framework(s):**
   - **CLI:** Ink (React for CLI) with vite-node for bundling, ink-testing-library for testing
   - **Backend:** NestJS with auto-documenting OpenAPI/Swagger, pluggable architecture
-  - **Frontend:** Vite + React + Tailwind CSS v4 with @tailwindcss/vite (no PostCSS needed)
-  - **Testing:** Vitest (all layers), React Testing Library (frontend), @vitest/browser with Playwright (browser testing), ink-testing-library (CLI)
-  - **Code Quality:** ESLint + Prettier (all components), eslint-plugin-react (frontend), Stylelint (frontend CSS/Tailwind only)
+  - **Testing:** Vitest (all layers), ink-testing-library (CLI)
+  - **Code Quality:** ESLint + Prettier (all components)
 - **Database/Storage:** File-based storage initially (append-only logs for full data capture, similar to Kafka's approach - enables later database migration if needed)
 - **External APIs/Services:**
   - Claude Code Hooks API (official developer interface for extending Claude Code)
@@ -31,10 +30,10 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 - **Architecture Pattern:** Event-driven - hook events are the sole triggers, backend processes events asynchronously
 - **Real-Time Communication Pattern:** SSE Notification Bus
   - **SSE = Notification Bus (Lightweight)**: Backend emits tiny notifications (~200 bytes) when data changes, single connection handles all notification types
-  - **REST APIs = Data Source (On-Demand)**: Frontend fetches only NEW data using `?since=timestamp` parameter when notified
+  - **REST APIs = Data Source (On-Demand)**: CLI fetches only NEW data using `?since=timestamp` parameter when notified
   - **Benefits**: Eliminates polling, reduces bandwidth, provides instant updates, single source of truth
   - **No Polling**: Zero `setInterval` usage anywhere in the system - all real-time updates come from SSE notifications
-- **Deployment Target:** Local development machines or Docker containers (Docker config out of scope)
+- **Deployment Target:** Local development machines
 - **Scalability Requirements:** Single developer use - no concurrent user handling needed
 - **Performance Requirements:** No specific performance metrics required - focus on correctness over speed
 
@@ -60,7 +59,11 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 
 **Backend (NestJS):**
 
-- **@nestjs/swagger**: Auto-generate OpenAPI documentation and Swagger UI
+- **@nestjs/swagger**: Auto-generate OpenAPI 3.0 documentation and Swagger UI
+  - **Swagger UI Endpoint**: `http://localhost:3790/api-docs` (interactive documentation with Try-it-out)
+  - **OpenAPI JSON Spec**: `http://localhost:3790/api-docs-json` (raw OpenAPI 3.0 specification)
+  - **API Metadata**: CAGE API v0.0.1, MIT License, organized by tags (Hooks, Events, Health)
+  - **UI Customization**: Monokai syntax highlighting, alpha-sorted tags/operations, persistent authorization
 - **@nestjs/event-emitter + eventemitter2**: Event-driven architecture for internal notifications
   - Services emit internal events (`hook.event.added`, `debug.log.added`) via EventEmitter2
   - EventsController listens with `@OnEvent` decorators and broadcasts SSE notifications
@@ -74,16 +77,15 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 - **zod**: Runtime type validation and schema definition
 - **class-validator/class-transformer**: DTO validation and transformation
 
-**Frontend (React) & CLI (Ink):**
+**CLI (Ink with React):**
 
-- **zustand**: Lightweight state management (no Redux/MobX)
+- **zustand**: Lightweight state management for CLI state (no Redux/MobX)
   - **Singleton Services Pattern**: Background services update Zustand, components read from Zustand
   - **StreamService**: Singleton managing ONE SSE connection, updates serverStatus and triggers event fetches
   - **HooksStatusService**: Singleton polling /api/hooks/status every 30s, updates hooksStatus in Zustand
   - **NO Polling in Components**: Components NEVER use setInterval/setTimeout, NEVER make direct API calls for real-time data
   - **Pure Reactive Components**: UI components (StatusBar, etc.) read ONLY from Zustand store, automatically re-render on state changes
-- **React Router**: Client-side routing (web frontend only)
-- **Fetch API**: Native browser API for HTTP requests (no Axios)
+- **Fetch API**: Native Node.js fetch for HTTP requests (no Axios)
 - **EventSource/SSE client**: For receiving server-sent events (managed by StreamService singleton)
 
 **Shared/Utility:**
@@ -96,18 +98,20 @@ A developer productivity tool for enhancing Claude Code that uses Claude Code's 
 
 - **Availability:**
   - CLI runs on-demand via `cage` command
-  - Backend/frontend server starts via `cage start server` (React app mounted on NestJS)
+  - Interactive TUI mode launches with `cage` (no arguments)
+  - Backend server starts via `cage start` command
   - No auto-restart on crashes
   - Hook handlers log connection failures when server is unreachable
 - **Maintainability:**
   - Monorepo structure using npm workspaces (no Lerna/Nx needed)
   - JSDoc for all code documentation
-  - Lightweight README with links to specific docs (CLI, hooks, backend, frontend, Docker guides)
+  - Lightweight README with links to specific docs (CLI, hooks, backend guides)
   - Documentation directory structure: `/docs` with topic-specific guides
+  - Feature-specific FEATURES.md files in each package/feature directory
 - **Compatibility:**
   - Node.js: Latest LTS versions with `.nvmrc` file for version management
   - OS Support: MUST work on Windows, macOS, and Linux (special attention to Windows path/shell differences)
-  - Browser Support: Modern browsers for frontend (Chrome, Firefox, Safari, Edge latest versions)
+  - Terminal Support: Modern terminal emulators with full Unicode and color support
 - **Compliance:**
   - MIT License (Copyright 2025 Software Engineering & Consulting Pty Ltd)
   - Privacy: All logged data stays local to developer's machine
@@ -314,15 +318,11 @@ Given the timeline constraint, the following features should be implemented in o
    - Basic rule engine for common anti-patterns
    - Integration with interactive CLI for rule management
 
-4. **Phase 4 - Knowledge Base:**
+4. **Phase 4 - Knowledge Base & Advanced Features:**
    - Living specification storage and retrieval
    - Context provision for Claude based on current task
    - Self-referencing system for Claude to query past decisions
-
-5. **Phase 5 - Frontend & Dashboard:**
-   - React frontend for viewing/managing specifications
-   - SSE streaming for real-time hook activity
-   - Developer dashboard for trust metrics
+   - Advanced interactive CLI features (specification management, trust metrics dashboard)
 
 ### Key Hook Integration Points
 
